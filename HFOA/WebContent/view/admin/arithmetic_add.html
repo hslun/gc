@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>添加算法</title>
+</head>
+<!-- <script type="text/javascript" src="../../static/uploadify/jquery.min.js"></script>
+<script type="text/javascript" src="../../static/uploadify/jquery.easyui.min.js"></script>  -->
+<script type="text/javascript" src="../../static/javascript/common/jquery.min.js"></script>
+<script type="text/javascript" src="../../static/uploadify/jquery.uploadify.min.js"></script>
+<script type="text/javascript" src="../../static/uploadify/jquery.uploadify.js"></script>
+<link rel="stylesheet" type="text/css" href="../../static/uploadify/uploadify.css" />
+<link type="text/css" rel="stylesheet" href="../../static/css/comstyle/css/bootstrap.css" />
+<script type="text/javascript">
+$(document).ready(function(){
+	/* +""+Math.random() */
+	var date = new Date();
+	$("#code").val("version-"+date.getTime());
+	$('#media').uploadify({
+	    'multi':false,
+	    'removeCompleted':true,
+	    'removeTimeout':0,
+	    'fileTypeDesc' : 'Jar Files',
+	    'fileTypeExts' : ' *.jar',
+	    'queueID':'fileQueue',
+	    'fileObjName':'media',
+	    'buttonImage' : '../../static/uploadify/browse-btn.png',
+	    'swf': '../../static/uploadify/uploadify.swf',
+	    'uploader':'/hfgaApp/file/fileAdd',
+	    'width':50,
+	    'height':22,
+	    'onUploadError' : function(file,errorCode,errorMsg,errorString){
+	    	alert("文件："+file.name+"上传异常！错误代码："+errorMsg);
+	    }, 
+	    'onUploadSuccess' : function(file,data, response) {
+	    	eval("var jsondata="+data);
+	    	$("#jarPlace").val(jsondata.mediaId);
+	    	$("#fileStatus").html("已上传");
+	    }
+	});	
+});
+
+</script>
+<body>
+<form action="/hfgaApp/arithmetic/saveArithmetic" method="post">
+<table class="table table-hover" style="width:95%;float:right;">
+		   <tr>
+            <td colspan="4"><h4>发布算法</h4></td>
+          </tr>
+          <tr>
+            <td>数据类型</td>
+            <td><select name="dictId"><option value="1">质量类型</option><option value="2">财务类型</option>
+            <option value="3">其它类型</option></select></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>名称</td>
+            <td><input type="text" name="name" value="加法运算"></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>类</td>
+            <td><input type="text" name="className" value="org.test.testImpl" ></td>
+            <td>方法名称</td>
+            <td><input type="text" name="methodName" value="hello"></td>
+          </tr>
+          <tr>
+            <td>JAR</td>
+            <td><div id="fileStatus">未上传</div>
+            <div id="fileQueue"></div>
+            <input id="media" name="media" type="file" multiple="true"></td>
+            <td>识别编码<input type="hidden" name="status" value="0002">
+            <input type="hidden" name="flag" value="0002">
+            </td>
+            <td>
+            <input type="text" name="code" id="code" value="add-0.1">
+            <input type="hidden" name="jarPlace" id="jarPlace"></td>
+          </tr>
+           <tr>
+            <td>描述</td>
+            <td colspan="3">
+            <textarea rows="5" cols="30" id="description" name="description">这是一个关于加法的运算方法</textarea>
+            </td>
+          </tr>
+           <tr>
+            <td colspan="4"><input type="submit" value="添加"></td>
+          </tr>
+        </table>
+</form>
+</body>
+</html>

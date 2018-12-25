@@ -1,0 +1,23 @@
+package com.ancc.common.yyzz;
+
+import java.util.Map;
+
+/**
+ * 获取营业执照的策略接口
+ * @author hfga
+ *
+ */
+public interface YYZZStrategy {
+	
+	//根据营业执照二维码来获取
+	Map<String,String> getByQrCode(String url);
+	
+	//1.注册回执
+	//zceanupctemp
+	String registerBack(String fid);
+	//2.续展回执
+	//3.变更回执
+	//4.变更加续展回执
+	//5.增号回执
+	//6.下属公司登记会
+}

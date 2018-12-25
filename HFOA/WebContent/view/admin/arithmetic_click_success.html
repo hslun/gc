@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>调用算法</title>
+</head>
+<link type="text/css" rel="stylesheet" href="../../static/css/comstyle/css/bootstrap.css" />
+<script type="text/javascript" src="../../static/javascript/common/jquery.min.js"></script>
+<script type="text/javascript" src="../../static/javascript/common/common.js"></script>
+<script type="text/javascript">
+var flag = getURLParam("flag");
+$(document).ready(function (){
+	$("#viewClass").html(flag);
+})
+
+</script>
+<body>
+<form action="/hfgaApp/arithmetic/callService" method="post">
+<table class="table table-hover" style="width:95%;float:right;">
+	<tr>
+		<td colspan="4"><h4 class="viewClass" id="viewClass">调试成功,审核通过！</h4></td>
+	</tr>
+	<tr>
+		<td><input type="button" value="启用算法"></td>
+		<td><input type="button" value="不启用算法并关闭"></td>
+		<td></td>
+		<td></td>
+	</tr>
+	
+</table>
+</form>
+</body>
+</html>

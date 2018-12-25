@@ -1,0 +1,9 @@
+[{ 
+"id":1,
+"text":"公车使用信息",
+"url":"commonCar.jsp"},
+{ 
+"id":2,
+"text":"公车基本信息",
+"url":"carBaseInfo.jsp"}
+]

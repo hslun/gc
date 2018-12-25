@@ -1,0 +1,120 @@
+package com.ancc.pojo;
+
+/**
+ * null
+ * 
+ * @author wcyong
+ * 
+ * @date 2018-05-07
+ */
+public class DaFileRecive {
+    private String sn;
+
+    private String subsn;
+
+    private String fileName;
+
+    private String filePath;
+
+    private String uploadDate;
+
+    private String filingDate;
+
+    private String isFiling;
+
+    private String scanPerson;
+
+    private String scanDate;
+
+    private String submitPerson;
+
+    private String submitDate;
+
+    public String getSn() {
+        return sn;
+    }
+
+    public void setSn(String sn) {
+        this.sn = sn == null ? null : sn.trim();
+    }
+
+    public String getSubsn() {
+        return subsn;
+    }
+
+    public void setSubsn(String subsn) {
+        this.subsn = subsn == null ? null : subsn.trim();
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName == null ? null : fileName.trim();
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath == null ? null : filePath.trim();
+    }
+
+    public String getUploadDate() {
+        return uploadDate;
+    }
+
+    public void setUploadDate(String uploadDate) {
+        this.uploadDate = uploadDate == null ? null : uploadDate.trim();
+    }
+
+    public String getFilingDate() {
+        return filingDate;
+    }
+
+    public void setFilingDate(String filingDate) {
+        this.filingDate = filingDate == null ? null : filingDate.trim();
+    }
+
+    public String getIsFiling() {
+        return isFiling;
+    }
+
+    public void setIsFiling(String isFiling) {
+        this.isFiling = isFiling == null ? null : isFiling.trim();
+    }
+
+    public String getScanPerson() {
+        return scanPerson;
+    }
+
+    public void setScanPerson(String scanPerson) {
+        this.scanPerson = scanPerson == null ? null : scanPerson.trim();
+    }
+
+    public String getScanDate() {
+        return scanDate;
+    }
+
+    public void setScanDate(String scanDate) {
+        this.scanDate = scanDate == null ? null : scanDate.trim();
+    }
+
+    public String getSubmitPerson() {
+        return submitPerson;
+    }
+
+    public void setSubmitPerson(String submitPerson) {
+        this.submitPerson = submitPerson == null ? null : submitPerson.trim();
+    }
+
+    public String getSubmitDate() {
+        return submitDate;
+    }
+
+    public void setSubmitDate(String submitDate) {
+        this.submitDate = submitDate == null ? null : submitDate.trim();
+    }
+}

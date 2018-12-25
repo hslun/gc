@@ -1,0 +1,80 @@
+package com.ancc.pojo;
+
+/**
+ * 系统业务标识表
+ * 
+ * @author xyc
+ * 
+ * @date 2018-03-07
+ */
+public class BaOperFlag {
+    private String sn;
+
+    private String operType;
+
+    private String firmName;
+
+    private String firmName2;
+
+    private String branchCode;
+
+    private String dbdCode;
+
+    private String status;
+
+    public String getSn() {
+        return sn;
+    }
+
+    public void setSn(String sn) {
+        this.sn = sn == null ? null : sn.trim();
+    }
+
+    public String getOperType() {
+        return operType;
+    }
+
+    public void setOperType(String operType) {
+        this.operType = operType == null ? null : operType.trim();
+    }
+
+    public String getFirmName() {
+        return firmName;
+    }
+
+    public void setFirmName(String firmName) {
+        this.firmName = firmName == null ? null : firmName.trim();
+    }
+
+    public String getFirmName2() {
+        return firmName2;
+    }
+
+    public void setFirmName2(String firmName2) {
+        this.firmName2 = firmName2 == null ? null : firmName2.trim();
+    }
+
+    public String getBranchCode() {
+        return branchCode;
+    }
+
+    public void setBranchCode(String branchCode) {
+        this.branchCode = branchCode == null ? null : branchCode.trim();
+    }
+
+    public String getDbdCode() {
+        return dbdCode;
+    }
+
+    public void setDbdCode(String dbdCode) {
+        this.dbdCode = dbdCode == null ? null : dbdCode.trim();
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status == null ? null : status.trim();
+    }
+}

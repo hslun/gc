@@ -1,0 +1,73 @@
+package com.ancc.common.yyzz;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+/**
+ * 获取北京的营业执照信息
+ * @author hfga
+ *
+ */
+@BranchCode(setBranchCode="1105")
+public class StragtegyBJ implements YYZZStrategy {
+
+	@Override
+	public Map<String, String> getByQrCode(String url) {
+		HashMap<String, String> hashMap = new HashMap<String, String>();
+		try {
+			Document doc = Jsoup.connect(url).get();
+			Elements content = doc.getElementsByTag("dl");
+			Elements dts = content.select("dt");
+			Elements dds = content.select("dd");
+//			dds.remove(1);
+			String[] dtArray = new String[dts.size()];
+			String[] ddArray = new String[dds.size()];
+			int i = 0;
+
+			for (Element dt : dts) {
+				dtArray[i] = dt.text();
+				i++;
+			}
+
+			i = 0;
+			for (Element dd : dds) {
+				ddArray[i] = dd.text();
+				i++;
+			}
+			for (int j = 0; j < ddArray.length; j++) {
+				hashMap.put(dtArray[j], ddArray[j]);
+			}
+			System.out.print("\t" + hashMap);
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return hashMap;
+	}
+	
+	public static void main(String[] args) {
+		//北京古林机电电器制造中心
+		String url = "http://qyxy.baic.gov.cn/wap/wap/creditWapAction!qr.dhtml?id=D7C3C7910E0045D7B16E56D66086DAC3";
+		QrCodeFactory qrCodeFactory=QrCodeFactory.getInstance();
+		
+		YYZZStrategy yyzz=qrCodeFactory.createYyzzStrategy("1105");
+		String firmName=yyzz.getByQrCode(url).get("企业名称");
+		System.out.println(firmName);
+//		System.out.println(new StragtegyJS().getByQrCode(url).get("企业名称"));
+//		System.out.println(new StragtegyJS().getByQrCode(url).get("类型"));
+//		System.out.println(new StragtegyJS().getByQrCode(url).get("住所"));
+	}
+
+	@Override
+	public String registerBack(String fid) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

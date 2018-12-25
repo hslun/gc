@@ -1,0 +1,23 @@
+package com.ancc.mapper.addcode;
+
+import com.ancc.pojo.addcode.ZhCashinOnline;
+import com.ancc.pojo.addcode.ZhCashinOnlineExample;
+
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
+
+public interface ZhCashinOnlineMapper {
+    int countByExample(ZhCashinOnlineExample example);
+
+    int deleteByExample(ZhCashinOnlineExample example);
+
+    int insert(ZhCashinOnline record);
+
+    int insertSelective(ZhCashinOnline record);
+
+    List<ZhCashinOnline> selectByExample(ZhCashinOnlineExample example);
+
+    int updateByExampleSelective(@Param("record") ZhCashinOnline record, @Param("example") ZhCashinOnlineExample example);
+
+    int updateByExample(@Param("record") ZhCashinOnline record, @Param("example") ZhCashinOnlineExample example);
+}

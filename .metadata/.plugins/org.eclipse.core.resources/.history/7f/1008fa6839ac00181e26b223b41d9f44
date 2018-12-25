@@ -1,0 +1,127 @@
+package com.ancc.pojo;
+
+/**
+ * null
+ * 
+ * @author wcyong
+ * 
+ * @date 2018-05-10
+ */
+public class BgCashinOnline {
+    /**
+     * 银行备注
+     */
+    private String orderno;
+
+    /**
+     * 银行备注
+     */
+    private String tranamount;
+
+    /**
+     * 银行备注
+     */
+    private String paybatno;
+
+    /**
+     * 银行备注
+     */
+    private String merchbatchno;
+
+    /**
+     * 银行备注
+     */
+    private String trandate;
+
+    /**
+     * 银行备注
+     */
+    private String trantime;
+
+    /**
+     * 银行备注
+     */
+    private String serialno;
+
+    /**
+     * 银行备注
+     */
+    private String feesum;
+
+    /**
+     * 银行备注
+     */
+    private String bankmono;
+
+    public String getOrderno() {
+        return orderno;
+    }
+
+    public void setOrderno(String orderno) {
+        this.orderno = orderno == null ? null : orderno.trim();
+    }
+
+    public String getTranamount() {
+        return tranamount;
+    }
+
+    public void setTranamount(String tranamount) {
+        this.tranamount = tranamount == null ? null : tranamount.trim();
+    }
+
+    public String getPaybatno() {
+        return paybatno;
+    }
+
+    public void setPaybatno(String paybatno) {
+        this.paybatno = paybatno == null ? null : paybatno.trim();
+    }
+
+    public String getMerchbatchno() {
+        return merchbatchno;
+    }
+
+    public void setMerchbatchno(String merchbatchno) {
+        this.merchbatchno = merchbatchno == null ? null : merchbatchno.trim();
+    }
+
+    public String getTrandate() {
+        return trandate;
+    }
+
+    public void setTrandate(String trandate) {
+        this.trandate = trandate == null ? null : trandate.trim();
+    }
+
+    public String getTrantime() {
+        return trantime;
+    }
+
+    public void setTrantime(String trantime) {
+        this.trantime = trantime == null ? null : trantime.trim();
+    }
+
+    public String getSerialno() {
+        return serialno;
+    }
+
+    public void setSerialno(String serialno) {
+        this.serialno = serialno == null ? null : serialno.trim();
+    }
+
+    public String getFeesum() {
+        return feesum;
+    }
+
+    public void setFeesum(String feesum) {
+        this.feesum = feesum == null ? null : feesum.trim();
+    }
+
+    public String getBankmono() {
+        return bankmono;
+    }
+
+    public void setBankmono(String bankmono) {
+        this.bankmono = bankmono == null ? null : bankmono.trim();
+    }
+}

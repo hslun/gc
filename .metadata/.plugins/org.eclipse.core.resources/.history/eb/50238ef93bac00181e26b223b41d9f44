@@ -1,0 +1,180 @@
+package com.ancc.pojo;
+
+/**
+ * null
+ * 
+ * @author wcyong
+ * 
+ * @date 2018-04-26
+ */
+public class InvoiceInfoTemp {
+    private String sn;
+
+    private String saletax;
+
+    private String custname;
+
+    private String custtaxno;
+
+    private String custaddr;
+
+    private String custtelephone;
+
+    private String custbankaccount;
+
+    private String custtype;
+
+    private String writedate;
+
+    private String writetime;
+
+    private String status;
+
+    private String invoiceSwno;
+
+    private String branchCode;
+
+    private Double money;
+
+    private String invoicetype;
+
+    private String invomemo;
+
+    private String custphone;
+
+    public String getSn() {
+        return sn;
+    }
+
+    public void setSn(String sn) {
+        this.sn = sn == null ? null : sn.trim();
+    }
+
+    public String getSaletax() {
+        return saletax;
+    }
+
+    public void setSaletax(String saletax) {
+        this.saletax = saletax == null ? null : saletax.trim();
+    }
+
+    public String getCustname() {
+        return custname;
+    }
+
+    public void setCustname(String custname) {
+        this.custname = custname == null ? null : custname.trim();
+    }
+
+    public String getCusttaxno() {
+        return custtaxno;
+    }
+
+    public void setCusttaxno(String custtaxno) {
+        this.custtaxno = custtaxno == null ? null : custtaxno.trim();
+    }
+
+    public String getCustaddr() {
+        return custaddr;
+    }
+
+    public void setCustaddr(String custaddr) {
+        this.custaddr = custaddr == null ? null : custaddr.trim();
+    }
+
+    public String getCusttelephone() {
+        return custtelephone;
+    }
+
+    public void setCusttelephone(String custtelephone) {
+        this.custtelephone = custtelephone == null ? null : custtelephone.trim();
+    }
+
+    public String getCustbankaccount() {
+        return custbankaccount;
+    }
+
+    public void setCustbankaccount(String custbankaccount) {
+        this.custbankaccount = custbankaccount == null ? null : custbankaccount.trim();
+    }
+
+    public String getCusttype() {
+        return custtype;
+    }
+
+    public void setCusttype(String custtype) {
+        this.custtype = custtype == null ? null : custtype.trim();
+    }
+
+    public String getWritedate() {
+        return writedate;
+    }
+
+    public void setWritedate(String writedate) {
+        this.writedate = writedate == null ? null : writedate.trim();
+    }
+
+    public String getWritetime() {
+        return writetime;
+    }
+
+    public void setWritetime(String writetime) {
+        this.writetime = writetime == null ? null : writetime.trim();
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status == null ? null : status.trim();
+    }
+
+    public String getInvoiceSwno() {
+        return invoiceSwno;
+    }
+
+    public void setInvoiceSwno(String invoiceSwno) {
+        this.invoiceSwno = invoiceSwno == null ? null : invoiceSwno.trim();
+    }
+
+    public String getBranchCode() {
+        return branchCode;
+    }
+
+    public void setBranchCode(String branchCode) {
+        this.branchCode = branchCode == null ? null : branchCode.trim();
+    }
+
+    public Double getMoney() {
+        return money;
+    }
+
+    public void setMoney(Double invoice) {
+        this.money = invoice;
+    }
+
+    public String getInvoicetype() {
+        return invoicetype;
+    }
+
+    public void setInvoicetype(String invoicetype) {
+        this.invoicetype = invoicetype == null ? null : invoicetype.trim();
+    }
+
+    public String getInvomemo() {
+        return invomemo;
+    }
+
+    public void setInvomemo(String invomemo) {
+        this.invomemo = invomemo == null ? null : invomemo.trim();
+    }
+
+    public String getCustphone() {
+        return custphone;
+    }
+
+    public void setCustphone(String custphone) {
+        this.custphone = custphone == null ? null : custphone.trim();
+    }
+}

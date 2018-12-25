@@ -1,0 +1,7 @@
+//com.springsource.config.ui.prefs.activePageIndex\:/HFOANEW/src/main/resources/applicationContext-ehcache.xml=<?xml version\="1.0" encoding\="UTF-8"?>\r\n<activePage index\="0"/>
+//com.springsource.config.ui.prefs.activePageIndex\:/ancc-manager-web/src/main/resources/spring/applicationContext-service.xml=<?xml version\="1.0" encoding\="UTF-8"?>\r\n<activePage index\="0"/>
+//com.springsource.config.ui.prefs.activePageIndex\:/ancc-manager-web/src/main/resources/spring/applicationContext-trans.xml=<?xml version\="1.0" encoding\="UTF-8"?>\r\n<activePage index\="0"/>
+//com.springsource.config.ui.prefs.activePageIndex\:/ancc-manager-web/src/main/resources/spring/springmvc.xml=<?xml version\="1.0" encoding\="UTF-8"?>\r\n<activePage index\="0"/>
+//com.springsource.config.ui.prefs.activePageIndex\:/ancc-manager/ancc-manager-web/src/main/resources/redis/redis-context.xml=<?xml version\="1.0" encoding\="UTF-8"?>\r\n<activePage index\="0"/>
+//com.springsource.config.ui.prefs.activePageIndex\:/ancc-manager/ancc-manager-web/src/main/resources/spring/applicationContext-service.xml=<?xml version\="1.0" encoding\="UTF-8"?>\r\n<activePage index\="0"/>
+eclipse.preferences.version=1

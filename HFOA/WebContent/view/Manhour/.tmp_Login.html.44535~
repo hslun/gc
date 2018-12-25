@@ -1,0 +1,296 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
+        <link rel="stylesheet" href="../../view/test/js/jquery.mobile-1.4.5.css" />
+        <script src="../../view/test/js/jquery-1.8.3.min.js">
+        </script>
+        <script src="../../view/test/js/jquery.mobile-1.4.5.js">
+        </script>
+        <script src="../../view/test/js/jquery.cookie.js">
+        </script>
+        <style type="text/css">
+            lable {
+                color: red
+            }
+        </style>
+        <script type="text/javascript">
+            //前台数据处理方法
+            
+            //增加cookie信息
+            function addCookie(name, value, expires, path, domain){
+                var str = name + "=" + escape(value);
+                if (expires != "") {
+                    var date = new Date();
+                    date.setTime(date.getTime() + expires * 24 * 3600 * 1000);//expires单位为天 
+                    str += ";expires=" + date.toGMTString();
+                }
+                if (path != "") {
+                    str += ";path=" + path;//指定可访问cookie的目录 
+                }
+                if (domain != "") {
+                    str += ";domain=" + domain;//指定可访问cookie的域 
+                }
+                document.cookie = str;
+            }
+            
+            //取得cookie 
+            function getCookie(name){
+                var str = document.cookie.split(";")
+                for (var i = 0; i < str.length; i++) {
+                    var str2 = str[i].split("=");
+                    if (str2[0] == name) 
+                        return unescape(str2[1]);
+                }
+            }
+            
+            //删除cookie 
+            function delCookie(name){
+                var date = new Date();
+                date.setTime(date.getTime() - 10000);
+                document.cookie = name + "=n;expire=" + date.toGMTString();
+            }
+            
+            //得到其他页面传过来的参数
+            function getUrlParam(name){
+                var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+                var r = window.location.search.substr(1).match(reg); //匹配目标参数
+                if (r != null) 
+                    return unescape(r[2]);
+                return null; //返回参数值
+            }
+            
+            function getRe(username){
+                var str = username.split(",");
+                return str;
+            }
+            
+            $(document).ready(function(){
+            
+                //注销登录
+                if (getUrlParam("Action") == "3") {
+					$.cookie("username", null, {
+                      path: "/HFOA/view/Manhour"
+                  	});
+					$.cookie("password", null, {
+                        path: "/HFOA/view/Manhour"
+                    });
+                    $.cookie("username", null, {
+                        path: "/HFOA/view"
+                    });
+                    $.cookie("password", null, {
+                        path: "/HFOA/view"
+                    });
+                    $.cookie("realname", null, {
+                        path: "/HFOA/view"
+                    });
+                    $.cookie("departmentname", null, {
+                        path: "/HFOA/view"
+                    });
+                    $.cookie("departmentid", null, {
+                        path: "/HFOA/view"
+                    });
+                    $.cookie("roleid", null, {
+                        path: "/HFOA/view"
+                    });
+                    $.cookie("userid", null, {
+                        path: "/HFOA/view"
+                    });
+                }
+                if ($.cookie("username") == null ||
+                $.cookie("username") == "") {
+                	
+                }
+                else {
+                    var dto = {
+                        username: $.cookie("username"),
+                        password: $.cookie("password")
+                    
+                    };
+                    
+                    
+                    $.ajax({
+                        type: "post",
+                        url: "/HFOA/web/Login",
+                        dataType: 'json',
+                        data: dto,
+                        success: function(data){
+                            //登录 成功
+                            if (data != null) {
+                                //日志填报
+                                if (getUrlParam("Action") == "1") {
+                                    location.href = "Fill.html";
+                                }
+                                //日志查询
+                                else 
+                                    if (getUrlParam("Action") == "2") {
+                                        location.href = "SearchManhour.html";
+                                    }
+                            }
+                            //登录失败
+                            else {
+                                //alert("用户名和密码过期,请重新登录!");
+                            }
+                        },
+                        error: function(data){
+                            alert("网络错误");
+                        }
+                    });
+                    
+                }
+                
+                $("#login").click(function(){
+                    var dto = {
+                        username: $("#username").val(),
+                        password: $("#password").val()
+                    };
+					var action = getUrlParam("Action");
+                    $.ajax({
+                        type: "post",
+                        url: "/HFOA/web/Login",
+                        dataType: 'json',
+                        data: dto,
+                        //beforeSend: LoadFunction, //加载执行方法    
+                        success: function(data){
+                            //登录 成功
+                            if (data != null) {
+                                $.cookie("username", dto.username, {
+                                    expires: 3650,
+                                    path: "/HFOA/view"
+                                });
+								$.cookie("username", dto.username, {
+                                    expires: 3650,
+                                    path: "/HFOA/view/Manhour"
+                                });
+                                $.cookie("password", dto.password, {
+                                    expires: 3650,
+                                    path: "/HFOA/view"
+                                });
+								$.cookie("password", dto.password, {
+                                    expires: 3650,
+                                    path: "/HFOA/view/Manhour"
+                                });
+                                $(data).each(function(){
+                                    //从服务器获取当前用户信息
+                                    var roleid = this.roleId;
+                                    var departmentid = this.departmentId;
+                                    var realname = this.realName;
+                                    var departmentname = this.departmentName;
+                                    var userid = this.id;
+                                    $.cookie("realname", realname, {
+                                        expires: 3650,
+                                        path: "/HFOA/view"
+                                    });
+                                    $.cookie("departmentname", departmentname, {
+                                        expires: 3650,
+                                        path: "/HFOA/view"
+                                    });
+                                    $.cookie("departmentid", departmentid, {
+                                        expires: 3650,
+                                        path: "/HFOA/view"
+                                    });
+                                    $.cookie("roleid", roleid, {
+                                        expires: 3650,
+                                        path: "/HFOA/view"
+                                    });
+                                    $.cookie("userid", userid, {
+                                        expires: 3650,
+                                        path: "/HFOA/view"
+                                    });
+                                });
+                                if (dto.password != "888888") {
+                                    if (action == "1") {
+                                        location.href = "Fill.html";
+                                    }
+                                    else 
+                                        if (action == "2") {
+                                            location.href = "SearchManhour.html";
+                                        }
+                                        else 
+                                            if (action == "3" ||
+                                            action == "4") {
+                                                location.href = "Fill.html";
+                                            }
+                                            else 
+                                                if (action == "100") {
+                                                    location.href = "/HFOA/view/BorrowCar/BorrowCar.html";
+                                                }
+                                                else 
+                                                    if (action == "101") {
+                                                        location.href = "/HFOA/view/BorrowCar/ApproveInfo.html";
+                                                    }
+                                                    else 
+                                                        if (action == "102") {
+                                                            location.href = "/HFOA/view/BorrowCar/Search.html";
+                                                        }
+                                                        else {
+                                                        
+                                                        }
+                                }
+                                else {
+                                    location.href = "ResetPassword.html";
+                                }
+                            }
+                            //登录失败
+                            else {
+                                alert("用户名或密码错误！");
+                            }
+                        },
+                        error: function(data){
+                            alert("网络错误");
+                        }
+                    })
+                });
+                
+                //重置登录名和密码
+                $("#reset").click(function(){
+                    $("#username").val("");
+                    $("#password").val("");
+                });
+            });
+        </script>
+        <title>登录</title>
+    </head>
+    <body>
+        <div data-role="page" data-position="fixed" data-fullscreen="true" style="background-color: #033475;">
+            <div data-role="content" data-position="fixed" data-fullscreen="true" data-theme="a" style="background-color: #033475;">
+                <form id="form1">
+                    <div align="center">
+                        <img src="../../img/login_logo.png" alt="海丰通航" style="margin-top: 10%; height: 5%;"/>
+                        <p style="color: white; font-weight: bolder; text-shadow: none; font-size: xx-large;">
+                            信息化管理系统
+                        </p>
+                    </div>
+                    <table width="100%">
+                        <tr>
+                            <td>
+                                <label style="text-shadow: none; color: white; font-weight: bold;">
+                                    用户名 
+                                </label>
+                            </td>
+                            <td>
+                                <input type="text" id="username" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label style="text-shadow: none; color: white; font-weight: bold;">
+                                    密 &nbsp;码 
+                                </label>
+                            </td>
+                            <td>
+                                <input type="password" id="password" />
+                            </td>
+                        </tr>
+                        <tr>
+                        </tr>
+                    </table>
+                    <div align="center">
+                        <!-- 使用圆角按钮 --><input id="login" type="submit" data-inline="true" value="登  录" style=""/><input id="reset" type="submit" data-inline="true" value="重  置" style=""/>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>

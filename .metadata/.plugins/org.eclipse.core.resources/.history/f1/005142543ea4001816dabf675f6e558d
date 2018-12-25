@@ -1,0 +1,64 @@
+package com.ancc.common.yyzz;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+
+
+
+/**
+ * 获取浙江分中心的营业执照信息
+ * @author hfga
+ *
+ */
+@BranchCode(setBranchCode="3301")
+public class StragtegyZJ implements YYZZStrategy {
+
+	@Override
+	public Map<String, String> getByQrCode(String url) {
+		HashMap<String, String> hashMap = new HashMap<String, String>();
+		try {
+			Document doc = Jsoup.parse(new URL(url).openStream(), "UTF-8", url);
+			Elements content = doc.getElementsByClass("link");
+			String[] contentArray = content.text().split(";");
+			for (String x : contentArray) {
+				String[] h = x.split(":");
+				if (h.length > 2) {
+					String value = h[1] + ":" + h[2];
+					hashMap.put(h[0], value);
+				}else {
+					String value  = h[1];
+					hashMap.put(h[0], value);
+				}
+			}
+			System.out.print("\t" + hashMap);
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return  hashMap;
+	}
+	public static void main(String[] args) {
+		//浙江指南车清洗设备有限公司
+		String url = "http://rd.wechat.com/qrcode/confirm?block_type=101&content=%E7%BB%9F%E4%B8%80%E7%A4%BE%E4%BC%9A%E4%BF%A1%E7%94%A8%E4%BB%A3%E7%A0%81%3A91330723MA29P46M4C%3B%E6%B3%A8%E5%86%8C%E5%8F%B7%3A330723000118844%3B%E4%BC%81%E4%B8%9A%E5%90%8D%E7%A7%B0%3A%E6%B5%99%E6%B1%9F%E6%8C%87%E5%8D%97%E8%BD%A6%E6%B8%85%E6%B4%97%E8%AE%BE%E5%A4%87%E6%9C%89%E9%99%90%E5%85%AC%E5%8F%B8%3B%E7%99%BB%E8%AE%B0%E6%9C%BA%E5%85%B3%3A%E6%AD%A6%E4%B9%89%E5%8E%BF%E5%B8%82%E5%9C%BA%E7%9B%91%E7%9D%A3%E7%AE%A1%E7%90%86%E5%B1%80%3B%E7%99%BB%E8%AE%B0%E6%97%B6%E9%97%B4%3A2018-01-23%3B%E7%BB%8F%E8%90%A5%E8%8C%83%E5%9B%B4%3A%E6%B8%85%E6%B4%97%E8%AE%BE%E5%A4%87%E3%80%81%E6%B1%BD%E8%BD%A6%E9%9B%B6%E9%83%A8%E4%BB%B6%E5%8F%8A%E9%85%8D%E4%BB%B6%E3%80%81%E7%94%B5%E5%AD%90%E4%BA%A7%E5%93%81%EF%BC%88%E9%99%A4%E5%9C%B0%E9%9D%A2%E5%8D%AB%E6%98%9F%E6%8E%A5%E6%94%B6%E8%AE%BE%E6%96%BD%EF%BC%89%E3%80%81%E5%A4%AA%E9%98%B3%E8%83%BD%E7%83%AD%E6%B0%B4%E5%99%A8%E3%80%81%E5%8F%91%E7%94%B5%E6%9C%BA%E3%80%81%E5%8F%8D%E5%85%89%E5%88%B6%E5%93%81%E7%9A%84%E5%88%B6%E9%80%A0%E3%80%81%E5%8A%A0***%3B%E8%AF%A6%E8%AF%A2%E4%BF%A1%E7%94%A8%E5%85%AC%E7%A4%BA%E7%B3%BB%E7%BB%9F%3Ahttp%3A%2F%2Fgsxt.zjaic.gov.cn%2F&lang=zh_CN&scene=4";
+QrCodeFactory qrCodeFactory=QrCodeFactory.getInstance();
+		
+		YYZZStrategy yyzz=qrCodeFactory.createYyzzStrategy("3301");
+		String firmName=yyzz.getByQrCode(url).get("企业名称");
+		System.out.println(firmName);
+		System.out.println(new StragtegyZJ().getByQrCode(url).get("企业名称"));
+		System.out.println(new StragtegyZJ().getByQrCode(url).get("登记时间"));
+		System.out.println(new StragtegyZJ().getByQrCode(url).get("住所"));
+	}
+	@Override
+	public String registerBack(String fid) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+}	

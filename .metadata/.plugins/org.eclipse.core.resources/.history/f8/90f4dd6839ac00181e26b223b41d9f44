@@ -1,0 +1,23 @@
+package com.ancc.pojo;
+
+public class BgApproveDetailTempKey {
+    private String sn;
+
+    private String subsn;
+
+    public String getSn() {
+        return sn;
+    }
+
+    public void setSn(String sn) {
+        this.sn = sn == null ? null : sn.trim();
+    }
+
+    public String getSubsn() {
+        return subsn;
+    }
+
+    public void setSubsn(String subsn) {
+        this.subsn = subsn == null ? null : subsn.trim();
+    }
+}

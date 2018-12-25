@@ -1,0 +1,30 @@
+package com.ancc.pojo;
+
+/**
+ * null
+ * 
+ * @author wcyong
+ * 
+ * @date 2018-03-07
+ */
+public class TM_SN {
+    private String sn;
+
+    private byte[] img;
+
+    public String getSn() {
+        return sn;
+    }
+
+    public void setSn(String sn) {
+        this.sn = sn == null ? null : sn.trim();
+    }
+
+    public byte[] getImg() {
+        return img;
+    }
+
+    public void setImg(byte[] img) {
+        this.img = img;
+    }
+}

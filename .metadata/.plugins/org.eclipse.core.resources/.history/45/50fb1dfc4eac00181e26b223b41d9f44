@@ -1,0 +1,37 @@
+package com.ancc.mapper.addcode;
+
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+
+import com.ancc.pojo.addcode.ZhEanUpcTemp;
+import com.ancc.pojo.addcode.ZhEanUpcTempExample;
+
+public interface ZhEanUpcTempMapper {
+    int countByExample(ZhEanUpcTempExample example);
+
+    int deleteByExample(ZhEanUpcTempExample example);
+
+    int deleteByPrimaryKey(String sn);
+
+    int insert(ZhEanUpcTemp record);
+
+    int insertSelective(ZhEanUpcTemp record);
+
+    List<ZhEanUpcTemp> selectByExample(ZhEanUpcTempExample example);
+
+    ZhEanUpcTemp selectByPrimaryKey(String sn);
+
+    int updateByExampleSelective(@Param("record") ZhEanUpcTemp record, @Param("example") ZhEanUpcTempExample example);
+
+    int updateByExample(@Param("record") ZhEanUpcTemp record, @Param("example") ZhEanUpcTempExample example);
+
+    int updateByPrimaryKeySelective(ZhEanUpcTemp record);
+
+    int updateByPrimaryKey(ZhEanUpcTemp record);
+    
+    @Select({"SELECT lpad(SEQ_ADD_SN.nextval, #{place,jdbcType=INTEGER}, '0')\r\n" + 
+    		"FROM\r\n" + 
+    		"DUAL"})
+    String selectDual(@Param("place")int place);
+}

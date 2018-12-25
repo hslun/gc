@@ -1,0 +1,583 @@
+package com.ancc.mapper.addcode;
+
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import com.ancc.pojo.sys.BusinessRecords;
+
+/**
+ * null
+ * 
+ * @author wcyong
+ * 
+ * @date 2018-06-19
+ */
+public class ZhEanUpcTemp {
+    private String sn;
+
+    private String code;
+
+    private String rstype;
+
+    private String codelength;
+
+    private String firmName;
+
+    private String firmName1;
+
+    private String registerAddress;
+
+    private String registerAddress1;
+
+    private String registerPostalcode;
+
+    private String address;
+
+    private String address1;
+
+    private String postcode;
+
+    private String certificateCode;
+
+    private String political;
+
+    private BigDecimal registerPrincipal;
+
+    private String coinType;
+
+    private String firmType;
+
+    private String dm;
+
+    private String tJDm;
+
+    private String firmCode;
+
+    private String leader;
+
+    private String leaderTele;
+
+    private String leaderHandset;
+
+    private String contactman;
+
+    private String contactmanCtqh;
+
+    private String contactmanTele;
+
+    private String contactmanMp;
+
+    private String contactmanFax;
+
+    private String contactmanEmail;
+
+    private String netStation;
+
+    private String loginDate;
+
+    private String branchCode;
+
+    private String dbdCode;
+
+    private String status;
+
+    private String writemanCode;
+
+    private String writeCode;
+
+    private String writeDate;
+
+    private String remitType;
+
+    private String remitName;
+
+    private String remitCode;
+
+    private String remitAddress;
+
+    private BigDecimal remitAmount;
+
+    private String remitBank;
+
+    private String remitPurpose;
+
+    private String remitDate;
+
+    private BigDecimal money;
+
+    private String memo;
+
+    private String annexname;
+
+    private String annexroute;
+
+    private String wishusedNum;
+
+    private String appoveOpinion;
+
+    private String appovedate;
+
+    private String transMan;
+
+    private String isOnline;
+
+    
+    
+    //续展转为通用业务类
+    public BusinessRecords toBussinessRecords(){
+    	SimpleDateFormat simpleDateFormat=new SimpleDateFormat("yyyyMMdd");
+    	BusinessRecords businessRecords=new BusinessRecords();
+    	businessRecords.setBusinessName("增号");
+    	businessRecords.setSn(this.sn);
+    	if(this.money==null){
+    		this.money=new BigDecimal(0.0d);
+    	}
+    	businessRecords.setMoney(Double.parseDouble(this.money.toString()));
+    	Date date=null;
+		try {
+			date = simpleDateFormat.parse(this.loginDate);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	simpleDateFormat=new  SimpleDateFormat("yyyy-MM-dd");
+    	businessRecords.setTime(simpleDateFormat.format(date));
+    	businessRecords.setStatus(this.status);
+    	return businessRecords;
+    }
+    
+    public String getSn() {
+        return sn;
+    }
+
+    public void setSn(String sn) {
+        this.sn = sn == null ? null : sn.trim();
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code == null ? null : code.trim();
+    }
+
+    public String getRstype() {
+        return rstype;
+    }
+
+    public void setRstype(String rstype) {
+        this.rstype = rstype == null ? null : rstype.trim();
+    }
+
+    public String getCodelength() {
+        return codelength;
+    }
+
+    public void setCodelength(String codelength) {
+        this.codelength = codelength == null ? null : codelength.trim();
+    }
+
+    public String getFirmName() {
+        return firmName;
+    }
+
+    public void setFirmName(String firmName) {
+        this.firmName = firmName == null ? null : firmName.trim();
+    }
+
+    public String getFirmName1() {
+        return firmName1;
+    }
+
+    public void setFirmName1(String firmName1) {
+        this.firmName1 = firmName1 == null ? null : firmName1.trim();
+    }
+
+    public String getRegisterAddress() {
+        return registerAddress;
+    }
+
+    public void setRegisterAddress(String registerAddress) {
+        this.registerAddress = registerAddress == null ? null : registerAddress.trim();
+    }
+
+    public String getRegisterAddress1() {
+        return registerAddress1;
+    }
+
+    public void setRegisterAddress1(String registerAddress1) {
+        this.registerAddress1 = registerAddress1 == null ? null : registerAddress1.trim();
+    }
+
+    public String getRegisterPostalcode() {
+        return registerPostalcode;
+    }
+
+    public void setRegisterPostalcode(String registerPostalcode) {
+        this.registerPostalcode = registerPostalcode == null ? null : registerPostalcode.trim();
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address == null ? null : address.trim();
+    }
+
+    public String getAddress1() {
+        return address1;
+    }
+
+    public void setAddress1(String address1) {
+        this.address1 = address1 == null ? null : address1.trim();
+    }
+
+    public String getPostcode() {
+        return postcode;
+    }
+
+    public void setPostcode(String postcode) {
+        this.postcode = postcode == null ? null : postcode.trim();
+    }
+
+    public String getCertificateCode() {
+        return certificateCode;
+    }
+
+    public void setCertificateCode(String certificateCode) {
+        this.certificateCode = certificateCode == null ? null : certificateCode.trim();
+    }
+
+    public String getPolitical() {
+        return political;
+    }
+
+    public void setPolitical(String political) {
+        this.political = political == null ? null : political.trim();
+    }
+
+    public BigDecimal getRegisterPrincipal() {
+        return registerPrincipal;
+    }
+
+    public void setRegisterPrincipal(BigDecimal registerPrincipal) {
+        this.registerPrincipal = registerPrincipal;
+    }
+
+    public String getCoinType() {
+        return coinType;
+    }
+
+    public void setCoinType(String coinType) {
+        this.coinType = coinType == null ? null : coinType.trim();
+    }
+
+    public String getFirmType() {
+        return firmType;
+    }
+
+    public void setFirmType(String firmType) {
+        this.firmType = firmType == null ? null : firmType.trim();
+    }
+
+    public String getDm() {
+        return dm;
+    }
+
+    public void setDm(String dm) {
+        this.dm = dm == null ? null : dm.trim();
+    }
+
+    public String gettJDm() {
+        return tJDm;
+    }
+
+    public void settJDm(String tJDm) {
+        this.tJDm = tJDm == null ? null : tJDm.trim();
+    }
+
+    public String getFirmCode() {
+        return firmCode;
+    }
+
+    public void setFirmCode(String firmCode) {
+        this.firmCode = firmCode == null ? null : firmCode.trim();
+    }
+
+    public String getLeader() {
+        return leader;
+    }
+
+    public void setLeader(String leader) {
+        this.leader = leader == null ? null : leader.trim();
+    }
+
+    public String getLeaderTele() {
+        return leaderTele;
+    }
+
+    public void setLeaderTele(String leaderTele) {
+        this.leaderTele = leaderTele == null ? null : leaderTele.trim();
+    }
+
+    public String getLeaderHandset() {
+        return leaderHandset;
+    }
+
+    public void setLeaderHandset(String leaderHandset) {
+        this.leaderHandset = leaderHandset == null ? null : leaderHandset.trim();
+    }
+
+    public String getContactman() {
+        return contactman;
+    }
+
+    public void setContactman(String contactman) {
+        this.contactman = contactman == null ? null : contactman.trim();
+    }
+
+    public String getContactmanCtqh() {
+        return contactmanCtqh;
+    }
+
+    public void setContactmanCtqh(String contactmanCtqh) {
+        this.contactmanCtqh = contactmanCtqh == null ? null : contactmanCtqh.trim();
+    }
+
+    public String getContactmanTele() {
+        return contactmanTele;
+    }
+
+    public void setContactmanTele(String contactmanTele) {
+        this.contactmanTele = contactmanTele == null ? null : contactmanTele.trim();
+    }
+
+    public String getContactmanMp() {
+        return contactmanMp;
+    }
+
+    public void setContactmanMp(String contactmanMp) {
+        this.contactmanMp = contactmanMp == null ? null : contactmanMp.trim();
+    }
+
+    public String getContactmanFax() {
+        return contactmanFax;
+    }
+
+    public void setContactmanFax(String contactmanFax) {
+        this.contactmanFax = contactmanFax == null ? null : contactmanFax.trim();
+    }
+
+    public String getContactmanEmail() {
+        return contactmanEmail;
+    }
+
+    public void setContactmanEmail(String contactmanEmail) {
+        this.contactmanEmail = contactmanEmail == null ? null : contactmanEmail.trim();
+    }
+
+    public String getNetStation() {
+        return netStation;
+    }
+
+    public void setNetStation(String netStation) {
+        this.netStation = netStation == null ? null : netStation.trim();
+    }
+
+    public String getLoginDate() {
+        return loginDate;
+    }
+
+    public void setLoginDate(String loginDate) {
+        this.loginDate = loginDate == null ? null : loginDate.trim();
+    }
+
+    public String getBranchCode() {
+        return branchCode;
+    }
+
+    public void setBranchCode(String branchCode) {
+        this.branchCode = branchCode == null ? null : branchCode.trim();
+    }
+
+    public String getDbdCode() {
+        return dbdCode;
+    }
+
+    public void setDbdCode(String dbdCode) {
+        this.dbdCode = dbdCode == null ? null : dbdCode.trim();
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status == null ? null : status.trim();
+    }
+
+    public String getWritemanCode() {
+        return writemanCode;
+    }
+
+    public void setWritemanCode(String writemanCode) {
+        this.writemanCode = writemanCode == null ? null : writemanCode.trim();
+    }
+
+    public String getWriteCode() {
+        return writeCode;
+    }
+
+    public void setWriteCode(String writeCode) {
+        this.writeCode = writeCode == null ? null : writeCode.trim();
+    }
+
+    public String getWriteDate() {
+        return writeDate;
+    }
+
+    public void setWriteDate(String writeDate) {
+        this.writeDate = writeDate == null ? null : writeDate.trim();
+    }
+
+    public String getRemitType() {
+        return remitType;
+    }
+
+    public void setRemitType(String remitType) {
+        this.remitType = remitType == null ? null : remitType.trim();
+    }
+
+    public String getRemitName() {
+        return remitName;
+    }
+
+    public void setRemitName(String remitName) {
+        this.remitName = remitName == null ? null : remitName.trim();
+    }
+
+    public String getRemitCode() {
+        return remitCode;
+    }
+
+    public void setRemitCode(String remitCode) {
+        this.remitCode = remitCode == null ? null : remitCode.trim();
+    }
+
+    public String getRemitAddress() {
+        return remitAddress;
+    }
+
+    public void setRemitAddress(String remitAddress) {
+        this.remitAddress = remitAddress == null ? null : remitAddress.trim();
+    }
+
+    public BigDecimal getRemitAmount() {
+        return remitAmount;
+    }
+
+    public void setRemitAmount(BigDecimal remitAmount) {
+        this.remitAmount = remitAmount;
+    }
+
+    public String getRemitBank() {
+        return remitBank;
+    }
+
+    public void setRemitBank(String remitBank) {
+        this.remitBank = remitBank == null ? null : remitBank.trim();
+    }
+
+    public String getRemitPurpose() {
+        return remitPurpose;
+    }
+
+    public void setRemitPurpose(String remitPurpose) {
+        this.remitPurpose = remitPurpose == null ? null : remitPurpose.trim();
+    }
+
+    public String getRemitDate() {
+        return remitDate;
+    }
+
+    public void setRemitDate(String remitDate) {
+        this.remitDate = remitDate == null ? null : remitDate.trim();
+    }
+
+    public BigDecimal getMoney() {
+        return money;
+    }
+
+    public void setMoney(BigDecimal money) {
+        this.money = money;
+    }
+
+    public String getMemo() {
+        return memo;
+    }
+
+    public void setMemo(String memo) {
+        this.memo = memo == null ? null : memo.trim();
+    }
+
+    public String getAnnexname() {
+        return annexname;
+    }
+
+    public void setAnnexname(String annexname) {
+        this.annexname = annexname == null ? null : annexname.trim();
+    }
+
+    public String getAnnexroute() {
+        return annexroute;
+    }
+
+    public void setAnnexroute(String annexroute) {
+        this.annexroute = annexroute == null ? null : annexroute.trim();
+    }
+
+    public String getWishusedNum() {
+        return wishusedNum;
+    }
+
+    public void setWishusedNum(String wishusedNum) {
+        this.wishusedNum = wishusedNum == null ? null : wishusedNum.trim();
+    }
+
+    public String getAppoveOpinion() {
+        return appoveOpinion;
+    }
+
+    public void setAppoveOpinion(String appoveOpinion) {
+        this.appoveOpinion = appoveOpinion == null ? null : appoveOpinion.trim();
+    }
+
+    public String getAppovedate() {
+        return appovedate;
+    }
+
+    public void setAppovedate(String appovedate) {
+        this.appovedate = appovedate == null ? null : appovedate.trim();
+    }
+
+    public String getTransMan() {
+        return transMan;
+    }
+
+    public void setTransMan(String transMan) {
+        this.transMan = transMan == null ? null : transMan.trim();
+    }
+
+    public String getIsOnline() {
+        return isOnline;
+    }
+
+    public void setIsOnline(String isOnline) {
+        this.isOnline = isOnline == null ? null : isOnline.trim();
+    }
+
+}

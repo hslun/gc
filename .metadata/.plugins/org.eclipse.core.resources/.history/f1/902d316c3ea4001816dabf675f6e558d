@@ -1,0 +1,62 @@
+package com.ancc.common.yyzz;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+
+/**
+ * 获取上海的营业执照信息
+ * @author hfga
+ *
+ */
+@BranchCode(setBranchCode="3101")
+public class StragtegySH implements YYZZStrategy {
+
+	@Override
+	public Map<String, String> getByQrCode(String url) {
+		HashMap<String, String> hashMap = new HashMap<String, String>();
+		try {
+			Document doc = Jsoup.connect(url).get();
+			//得到talbe的所有东西
+			Elements content = doc.getElementsByClass("tableYyzz");
+			Elements tds = content.select("td");
+			for (Element td : tds) {
+				if (!td.text().isEmpty()) {
+					String iText = td.select("i").text();
+					td.select("i").remove();
+					String tdText = td.text().substring(2, td.text().length()-1);
+					hashMap.put(tdText, iText);
+				}
+				
+			}
+			System.out.print("\t" + hashMap);
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return  hashMap;
+	}
+	public static void main(String[] args) {
+		//上海嘉宝贸易发展有限公司
+		String url = "http://www.sgs.gov.cn/notice/notice/view?uuid=X2DSjivNBIeM.Y7INhLVjihBHJhSOvzN";
+		QrCodeFactory qrCodeFactory=QrCodeFactory.getInstance();
+		
+		YYZZStrategy yyzz=qrCodeFactory.createYyzzStrategy("3101");
+		String firmName=yyzz.getByQrCode(url).get("企业名称");
+		System.out.println(firmName);
+		System.out.println(new StragtegyJS().getByQrCode(url).get("企业名称"));
+		System.out.println(new StragtegyJS().getByQrCode(url).get("类型"));
+		System.out.println(new StragtegyJS().getByQrCode(url).get("住所"));
+	}
+	@Override
+	public String registerBack(String fid) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+}	

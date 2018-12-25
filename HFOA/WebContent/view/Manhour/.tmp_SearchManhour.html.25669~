@@ -1,0 +1,391 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="viewport"
+	content="width=device-width,initial-scale=1.0,user-scalable=no" />
+
+<link rel="stylesheet" href="../../view/test/js/jquery.mobile-1.4.5.css" />
+<script src="../../view/test/js/jquery-1.8.3.min.js"></script>
+<script src="../../view/test/js/jquery.mobile-1.4.5.js"></script>
+<script src="../../view/test/js/jquery.cookie.js"></script>
+<link rel="stylesheet" type="text/css" href="../../CSS/hour.css" />
+
+<script type="text/javascript">
+	//防止进行非法登录
+	//jquery mobile 特有的加载时间
+	function getLastMonthYestdy(date) {
+		var daysInMonth = new Array([ 0 ], [ 31 ], [ 28 ], [ 31 ], [ 30 ],
+				[ 31 ], [ 30 ], [ 31 ], [ 31 ], [ 30 ], [ 31 ], [ 30 ], [ 31 ]);
+		var strYear = date.getFullYear();
+		var strDay = date.getDate();
+		var strMonth = date.getMonth() + 1;
+		if (strYear % 4 == 0 && strYear % 100 != 0) {
+			daysInMonth[2] = 29;
+		}
+		if (strMonth - 1 == 0) {
+			strYear -= 1;
+			strMonth = 12;
+		} else {
+			strMonth -= 1;
+		}
+		strDay = daysInMonth[strMonth] >= strDay ? strDay
+				: daysInMonth[strMonth];
+		if (strMonth < 10) {
+			strMonth = "0" + strMonth;
+		}
+		if (strDay < 10) {
+			strDay = "0" + strDay;
+		}
+		datastr = strYear + "-" + strMonth + "-" + strDay;
+		return datastr;
+	}
+	function judgeSelected(departmentid) {
+		if (departmentid == "1") {
+			$("#department").val("101");
+			$("#department-button span").html("全部");
+		} else if (departmentid == "2") {
+			$("#department").val("102");
+			$("#department-button span").html("综合办公室");
+			$("#department").attr("disabled", "disabled");
+		} else if (departmentid == "3") {
+			$("#department").val("103");
+			$("#department-button span").html("财务部");
+			$("#department").attr("disabled", "disabled");
+		} else if (departmentid == "5") {
+			$("#department").val("104");
+			$("#department-button span").html("通航项目部");
+			$("#department").attr("disabled", "disabled");
+		} else if (departmentid == "6") {
+			$("#department").val("105");
+			$("#department-button span").html("机电产品部");
+			$("#department").attr("disabled", "disabled");
+		} else if (departmentid == "7") {
+			$("#department").val("106");
+			$("#department-button span").html("信息技术部");
+			$("#department").attr("disabled", "disabled");
+		} else if (departmentid == "8") {
+			$("#department").val("107");
+			$("#department-button span").html("无人机项目部");
+			$("#department").attr("disabled", "disabled");
+		} else {
+			$("#department").attr("disabled", "disabled");
+		}
+	}
+	$(document)
+			.on(
+					"pageinit",
+					function(event) {
+						if ($.cookie("username") == null
+								|| $.cookie("username") == "") {
+									location.href="Login.html?Action=2"
+						} else {
+							$
+									.ajax({
+										url : "/HFOA/web/GetRole",
+										dataType : "json",
+										success : function(data) {
+											var roleid;
+											var departmentid;
+											var realname;
+											
+											$(data)
+													.each(
+															function() {
+																//从服务器获取当前用户信息
+																roleid = this.roleid;
+																departmentid = this.departmentid;
+																realname = this.realname;
+															});
+											$("#name").val("" + realname);
+											if (roleid == "1") {
+												judgeSelected(departmentid);
+												$("#name").attr("disabled",
+														"disabled");
+											} else if (roleid == "2") {
+												judgeSelected(departmentid);
+												$("#name").removeAttr("disabled");
+												
+											} else if (roleid == "3") {
+												judgeSelected(departmentid);
+												$("#department").removeAttr("disabled");
+												$("#name").removeAttr("disabled");
+											} else {
+
+											}
+										}
+
+									});
+
+						}
+
+						//动态加载js文件
+						$
+								.extend({
+									includePath : '',
+									include : function(file) {
+										var files = typeof file == "string" ? [ file ]
+												: file;
+										for ( var i = 0; i < files.length; i++) {
+											var name = files[i].replace(
+													/^\s|\s$/g, "");
+											var att = name.split('.');
+											var ext = att[att.length - 1]
+													.toLowerCase();
+											var isCSS = ext == "css";
+											var tag = isCSS ? "link" : "script";
+											var attr = isCSS ? " type='text/css' rel='stylesheet' "
+													: " language='javascript' type='text/javascript' ";
+											var link = (isCSS ? "href" : "src")
+													+ "='" + $.includePath
+													+ name + "'";
+											if ($(tag + "[" + link + "]").length == 0)
+												document
+														.write("<" + tag + attr + link + "></" + tag + ">");
+										}
+									}
+								});
+
+						//增加页面缓存
+						//$.mobile.page.prototype.options.domCache=true;
+
+						//参数传递
+						function getParameterByName(name) {
+							var match = RegExp('[?&]' + name + '=([^&]*)')
+									.exec(window.location.search);
+							return match
+									&& decodeURIComponent(match[1].replace(
+											/+/g, ' '));
+						}
+
+
+
+						//页面2隐藏事件
+						$(document).on("pagehide", "#pagetwo", function() {
+							$("#cc").empty();
+						});
+
+						if ($.cookie("username") == null) {
+							$.mobile.changePage(
+									"../../view/Manhour/Login.html", {
+										transition : "slideup"
+									});
+						} else {
+
+						}
+
+						function clre() {
+							$("#cc").empty();
+						}
+
+						$("#back")
+								.click(
+										function() {
+											
+											$("#pagetwo").children("#cc")
+													.empty();
+											$.mobile
+													.changePage(
+															"../../view/Manhour/SearchManhour.html#pageone",
+															{
+																transition : "slideup"
+															});
+
+										});
+
+					});
+	$(document)
+			.ready(
+					function() {
+						Date.prototype.format = function(format) {
+							var o = {
+								"M+" : this.getMonth() + 1, //month 
+								"d+" : this.getDate(), //day 
+								"h+" : this.getHours(), //hour 
+								"m+" : this.getMinutes(), //minute 
+								"s+" : this.getSeconds(), //second 
+								"q+" : Math.floor((this.getMonth() + 3) / 3), //quarter 
+								"S" : this.getMilliseconds()
+							//millisecond 
+							}
+
+							if (/(y+)/.test(format)) {
+								format = format.replace(RegExp.$1, (this
+										.getFullYear() + "")
+										.substr(4 - RegExp.$1.length));
+							}
+
+							for ( var k in o) {
+								if (new RegExp("(" + k + ")").test(format)) {
+									format = format
+											.replace(
+													RegExp.$1,
+													RegExp.$1.length == 1 ? o[k]
+															: ("00" + o[k])
+																	.substr(("" + o[k]).length));
+								}
+							}
+							return format;
+						}
+
+						var myDate = new Date();
+						var defaulttime = (myDate).format("yyyy-MM-dd");
+						var lastMonth = getLastMonthYestdy(myDate);
+						$("#starttime").val("" + lastMonth);
+						$("#endtime").val("" + defaulttime);
+						$(document).on(
+								"pagebeforeshow",
+								"#pageone",
+								function() {
+									$("#submit").removeAttr("disabled");
+								});
+						$("#submit")
+								.click(
+										function() {
+											$("#submit").attr({"disabled": "disabled"});
+											var dto = {
+												department : $("#department-button span").html(),
+												kind : $("#kind-button span").html(),
+												name : $("#name").val(),
+												starttime : $("#starttime")
+														.val(),
+												endtime : $("#endtime").val()
+											};
+
+											$
+													.ajax({
+														type : "post",
+														url : "/HFOA/web/SearchInfo",
+														dataType : 'json',
+														data : dto,
+													    //beforeSend: //加载执行方法    
+														success : function(data) {
+															//查询 成功
+															var tbody = "";
+															if (data != null) {
+																$.mobile
+																		.changePage(
+																				"../../view/Manhour/SearchManhour.html#pagetwo",
+																				{
+																					transition : "slideup"
+																				});
+																$(data)
+																		.each(
+																				function() {
+																					var trs = "";
+																					trs = trs
+																							+ "<div data-role='collapsible'> <h1>"
+																							+ this.realName
+																							+ " "
+																							+ this.kind
+																							+" "
+																							+this.kdescrib
+																							+ " "
+																							+ this.day
+																							+ "</h1> <p>工作描述："
+																							+ this.describe
+																							+ "</p> <p>提交时间："
+																							+ this.fillTime
+																							+ "</p> </div>"
+																					tbody += trs;
+																				});
+
+																$("#cc")
+																		.append(
+																				tbody);
+																tbody="";
+																//给div增加jqm的样式
+																$("div")
+																		.trigger(
+																				'create')
+																//迭代之后别忘了刷新
+																//$('ul').listview('refresh'); 
+															}
+															//查询结果为空
+															else {
+																alert("查询结果为空!");
+															}
+														},
+														error : function(data) {
+															alert("网络错误");
+														}
+													})
+											return false;
+										});
+					})
+</script>
+<title>日志查询</title>
+</head>
+<body>
+	<!-- 查询条件显示 -->
+	<div data-role="page" id="pageone">
+		<div data-role="content" data-position="fixed" data-fullscreen="true"
+			data-theme="a">
+			<form id="form1">
+			<table width="100%" cellpadding="10">
+				<tr>
+					<td><h4>部门</h4></td>
+					<td><select name="type" id="department">
+							<option value="101">全部</option>
+							<option value="102">综合办公室</option>
+							<option value="103">财务部</option>
+							<option value="104">通航项目部</option>
+							<option value="105">机电产品部</option>
+							<option value="106">信息技术部</option>
+							<option value="107">无人机项目部</option>
+					</select></td>
+				</tr>
+				<tr>
+					<td><h4>类型</h4></td>
+					<td><select id="kind">
+							<option>全部</option>
+							<option>出差</option>
+							<option>销售</option>
+							<option>会议</option>
+							<option>试验</option>
+							<option>其他</option>
+					</select></td>
+				</tr>
+				<tr>
+
+					<td><h4>姓名</h4></td>
+					<td><input type="text" id="name" /></td>
+
+				</tr>
+				<tr>
+					<td><h4>开始</h4></td>
+					<td><input type="date" data-role="datebox"
+						data-options='{"mode": "datebox", "overrideDateFormat": "%m-%d-%Y"}'
+						id="starttime" /></td>
+
+				</tr>
+				<tr>
+					<td><h4>结束</h4></td>
+					<td><input type="date" data-role="datebox"
+						data-options='{"mode": "datebox", "overrideDateFormat": "%m-%d-%Y"}'
+						id="endtime" /></td>
+
+				</tr>
+
+			</table>
+			<div align="center">
+				<!-- 使用圆角按钮 -->
+				<input id="submit" type="button" data-inline="true" value="查  询" />
+				<!-- <a href="#pagetwo" data-role="button" data-icon="check" id="back" >查询</a>-->
+				<!-- <input id="reset" type="button" data-inline="true" data-icon="back" value="返回" /> -->
+			</div>
+			</form>
+		</div>
+	</div>
+
+	<!-- 查询结果显示 pagetwo -->
+	<div data-role="page" id="pagetwo" data-dom-cache="true">
+		<div data-role="content" id="cc"></div>
+		<div align="center">
+			<!-- 使用圆角按钮 -->
+			<input id="back" type="submit" data-inline="true" value="返  回" />
+		</div>
+	</div>
+</body>
+</html>

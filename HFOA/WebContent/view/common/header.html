@@ -1,0 +1,154 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="pragma" content="no-cach" />
+<meta http-equiv="cache-control" content="no-cache" />
+<meta http-equiv="expires" content="0" />
+<title>header</title>
+<link href="../../static/css/comstyle/css/login.css" rel="stylesheet"
+	type="text/css" />
+<link href="../../static/css/component/common/common.css"
+	rel="stylesheet" type="text/css" />
+<script src="../../static/css/comstyle/js/jquery-1.2.1.min.js"
+	type="text/javascript"></script>
+<script src="../../static/css/comstyle/js/menu.js"
+	type="text/javascript"></script>
+<script src="../../static/css/comstyle/js/matic.js"
+	type="text/javascript"></script>
+<!--IE6下PNG图片背景透明JS代码-->
+<script type="text/javascript"
+	src="../../static/css/comstyle/js/jquery-1.3.2.min-vsdoc.js"></script>
+<script type="text/javascript"
+	src="../../static/css/comstyle/js/jquery.pngFix.js"></script>
+
+
+<style type="text/css" media="screen,print">
+.portletcontent {
+	padding: 0 7px 0 0px;
+	background: #fff url(/hfgaApp/static/css/comstyle/images/borders2.gif) 100%
+		0 repeat-y;
+}
+
+.bi {
+	padding: 0 0 0 1px;
+	background: #fff url(/hfgaApp/static/css/comstyle/images/borders.gif) 0 0
+		repeat-y;
+}
+
+.bb {
+	height: 30px;
+	margin: 0 -6px 0 -6px;
+	background: url(/hfgaApp/static/css/comstyle/images/box.gif) 100% 100%
+		no-repeat;
+}
+
+.bb div {
+	width: 18px;
+	height: 30px;
+	background: url(/hfgaApp/static/css/comstyle/images/box.gif) 0 100%
+		no-repeat;
+}
+
+.portlet {
+	position: relative;
+}
+
+.portlet h2 {
+	height: 46px;
+	-height: 52px;
+	padding: 0 -10 0 -10px;
+	-padding: 0 -10 0 -10px;
+	background-image: url(/hfgaApp/static/css/comstyle/images/box2.png);
+	background-position: left top;
+	background-repeat: no-repeat;
+	color: #592C16;
+	line-height: 45px;
+	width: 99%;
+	-width: 99.7%;
+	font-size: 12px;
+	color: #666666;
+	overflow: hidden;
+	-margin-bottom: -4px;
+	border-right: 0px solid #cccccc;
+}
+
+.portlet h2 table {
+	margin: 0px 10px;
+}
+
+.topright {
+	width: 18px;
+	height: 46px;
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	overflow: hidden;
+	-right: -99999px;
+}
+
+.portletcontent p {
+	padding: 0px 10px 0px 10px;
+	background: #fff;
+}
+
+.portletcontent list_gw {
+	padding: 0px 10px 0px 10px;
+	background: #fff;
+}
+</style>
+<!--IE6下PNG图片背景透明JS代码-->
+<script type="text/javascript"
+	src="../../static/css/comstyle/js/jquery-1.3.2.min-vsdoc.js"></script>
+<script type="text/javascript"
+	src="../../static/css/comstyle/js/jquery.pngFix.js"></script>
+<script type="text/javascript"
+	src="../../static/javascript/component/common/common.js"></script>
+<script type="text/javascript">
+	var clickmedPermission = new Array();
+	var userName = "";
+	var userCode = "";
+	
+   /*  $(document).ready(function(){
+ 		 $(document).pngFix();
+		 doJsonRequest("/user/getCurrentUserInfo",null,function(result,status){
+	 		 	if(status=="success") {
+	 		 		$("#userNameSpan").html(result.userName);
+	 		 		userName = result.userName;
+	 		 		userCode = result.userCode;
+	 		 	} else {
+	 		 		$.alert("获取用户信息出错。");
+	 		 	}
+	 	})
+	}); */
+	
+	function doLoginOut() {
+		doJsonRequest("/doLoginOut", null, function(data, status){
+			if(status == "success") {
+				window.parent.location.href = baseUrl+data;
+			} else {
+				$.alert("注销失败");
+			}
+		});
+	}
+	
+</script>
+</head>
+<body>
+	<div class="header">
+		<div class="leftimg">
+			<div class="top">
+				<div class="help">
+					<span id="userNameSpan" style="color: black"></span><a
+						onclick="doLoginOut();"><label style="color: #428bca">退出</label></a>
+				</div>
+				<div class="logo2">
+					<!-- <img src="../../static/css/comstyle/images/logo.png" /> -->
+				</div>
+			</div>
+			<div class="nav"></div>
+			<!--<div class="rightimg"></div>-->
+		</div>
+	</div>
+</body>
+</html>

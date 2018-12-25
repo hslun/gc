@@ -1,0 +1,13 @@
+[{ 
+"id":1,
+"text":"待审核事后登记",
+"url":"unapproved.jsp"},
+{ 
+"id":2,
+"text":"已审核招待明细",
+"url":"approved.jsp"},
+{ 
+"id":3,
+"text":"已驳回招待明细",
+"url":"allentertain.jsp"}
+]

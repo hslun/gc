@@ -1,0 +1,65 @@
+package com.ancc.common.yyzz;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
+import net.sf.json.JSONObject;
+
+/**
+ * 获取江苏的营业执照信息
+ * @author hfga
+ *
+ */
+@BranchCode(setBranchCode="3201")
+public class StragtegyJS implements YYZZStrategy {
+
+	@Override
+	public Map<String, String> getByQrCode(String url) {
+		HashMap<String, String> hashMap = new HashMap<String, String>();
+		try {
+			Document doc = Jsoup.connect(url).userAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36").get();
+			JSONObject json=JSONObject.fromObject(doc.text());
+//			System.out.println(json);
+			hashMap.put("统一社会信用代码/注册号", json.get("REG_NO").toString());
+			hashMap.put("企业名称", json.get("CORP_NAME").toString());
+			hashMap.put("类型", json.get("ZJ_ECON_KIND").toString());
+			hashMap.put("法定代表人", json.get("OPER_MAN_NAME").toString());
+			hashMap.put("注册资本", json.get("REG_CAPI").toString());
+			hashMap.put("成立日期", json.get("START_DATE").toString());
+			hashMap.put("营业期限自", json.get("FARE_TERM_START").toString());
+			hashMap.put("营业期限至", json.get("REVOKE_DATE").toString());
+			hashMap.put("登记机关", json.get("BELONG_ORG").toString());
+			hashMap.put("核准日期", json.get("CHECK_DATE").toString());
+			hashMap.put("登记状态", json.get("CORP_STATUS").toString());
+			hashMap.put("住所", json.get("ADDR").toString());
+			hashMap.put("经营范围", json.get("FARE_SCOPE").toString());
+//			System.out.print("\t" + hashMap);
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return  hashMap;
+	}
+	public static void main(String[] args) {
+		//盐城市大丰区紫叶有限公司
+		String url = "http://www.jsgsj.gov.cn:58888/ecipplatform/publicInfoQueryServlet.json?pageView=true&org=B347DF4E32FACD30B53BB06B4D0A41FD&id=70133ABC72BCD408275929EA68B607DA&seqId=68111F6D1804BE3E49B9D03F0E29EB27&abnormal=&activeTabId=&tmp=82";
+		QrCodeFactory qrCodeFactory=QrCodeFactory.getInstance();
+		
+		YYZZStrategy yyzz=qrCodeFactory.createYyzzStrategy("3201");
+		String firmName=yyzz.getByQrCode(url).get("企业名称");
+		System.out.println(firmName);
+		System.out.println(new StragtegyJS().getByQrCode(url).get("企业名称"));
+		System.out.println(new StragtegyJS().getByQrCode(url).get("类型"));
+		System.out.println(new StragtegyJS().getByQrCode(url).get("住所"));
+	}
+	@Override
+	public String registerBack(String fid) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+}	

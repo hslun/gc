@@ -1,0 +1,35 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">		
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta http-equiv="pragma" content="no-cach" /> 
+		<meta http-equiv="cache-control" content="no-cache" /> 
+		<meta http-equiv="expires" content="0" />
+		<title>404</title>
+		<link rel="stylesheet" href="/static/css/component/bootstrap/css/bootstrap.min.css"/>
+		<link rel="stylesheet" href="/static/css/component/bootstrap/css/bootstrap-theme.min.css"/>
+		<link rel="stylesheet" href="/static/css/component/common/common.css"/>
+		<script type="text/javascript">
+			function getRootPath(){
+				var curWwwPath=window.document.location.href;
+				var pathName=window.document.location.pathname;
+				var pos=curWwwPath.indexOf(pathName);
+				var localhostPaht=curWwwPath.substring(0,pos);
+				var projectName=pathName.substring(0,pathName.substr(1).indexOf('/')+1);
+				return(localhostPaht+projectName);
+			}
+			
+			
+			function goMain(){
+				window.parent.location.href = "/hfgaApp";
+			}
+		</script>
+	</head>
+  <body data-spy="scroll" data-target=".bs-docs-sidebar">
+  <div >
+  	<H2>服务器内部错误</H2>
+  	<h4><a onclick="goMain()" href="#">返回首页</a></h4>
+  </div>
+  </body>
+</html>

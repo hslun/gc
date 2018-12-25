@@ -1,0 +1,57 @@
+package com.ancc.common.yyzz;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+
+
+/**
+ * 获取深圳的营业执照信息
+ * @author hfga
+ *
+ */
+@BranchCode(setBranchCode="4402")
+public class StragtegySZ implements YYZZStrategy {
+
+	@Override
+	public Map<String, String> getByQrCode(String url) {
+		HashMap<String, String> hashMap = new HashMap<String, String>();
+		try {
+			hashMap.put("统一社会信用代码/注册号", TagText(url, "lblEntSCCode"));
+			hashMap.put(TagText(url, "companypost"), TagText(url, "lblCompanyBoss"));
+			hashMap.put("登记机关", TagText(url, "lblDeptName"));
+			hashMap.put("成立日期", TagText(url, "lblEstDate"));
+			hashMap.put("经营住所", TagText(url, "lblAddress"));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return  hashMap;
+	}
+	public  String TagText(String url, String tag) {
+		try {
+			Document doc = Jsoup.connect(url).get();
+			Elements content = doc.getElementsByClass("shuxing_ul");
+			return content.select("#" + tag).text();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			return "";
+		}
+	}
+	
+	public static void main(String[] args) {
+		//盐城市大丰区紫叶有限公司
+		String url = "https://www.szcredit.org.cn/GJQYCredit1/GSZJGSPT/QYGS_Jump.aspx?rid=4D7670C4BF0DC7CA6360F82E483E0196ACFD006DFCDD998DC48A7F6375F7AD976989F4F946BFDC13";
+		QrCodeFactory qrCodeFactory=QrCodeFactory.getInstance();
+		
+		//YYZZStrategy yyzz=qrCodeFactory.createYyzzStrategy("4402");
+		//String firmName=yyzz.getByQrCode(url).get("企业名称");
+		System.out.println(new StragtegySZ().getByQrCode(url).get("企业名称"));
+		System.out.println(new StragtegySZ().getByQrCode(url).get("类型"));
+		System.out.println(new StragtegySZ().getByQrCode(url).get("住所"));
+	}
+}	

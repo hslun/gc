@@ -1,0 +1,1000 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ancc.mapper.addcode.ZheaNupctempMapper" >
+
+    <resultMap id="BaseResultMap" type="com.ancc.pojo.addcode.ZheanUpcTemp" >
+        <id column="SN" property="sn" jdbcType="CHAR" />
+        <result column="CODE" property="code" jdbcType="CHAR" />
+        <result column="RSTYPE" property="rstype" jdbcType="CHAR" />
+        <result column="CODELENGTH" property="codelength" jdbcType="CHAR" />
+        <result column="FIRM_NAME" property="firmName" jdbcType="VARCHAR" />
+        <result column="FIRM_NAME1" property="firmName1" jdbcType="VARCHAR" />
+        <result column="REGISTER_ADDRESS" property="registerAddress" jdbcType="VARCHAR" />
+        <result column="REGISTER_ADDRESS1" property="registerAddress1" jdbcType="VARCHAR" />
+        <result column="REGISTER_POSTALCODE" property="registerPostalcode" jdbcType="CHAR" />
+        <result column="ADDRESS" property="address" jdbcType="VARCHAR" />
+        <result column="ADDRESS1" property="address1" jdbcType="VARCHAR" />
+        <result column="POSTCODE" property="postcode" jdbcType="CHAR" />
+        <result column="CERTIFICATE_CODE" property="certificateCode" jdbcType="CHAR" />
+        <result column="POLITICAL" property="political" jdbcType="CHAR" />
+        <result column="REGISTER_PRINCIPAL" property="registerPrincipal" jdbcType="DECIMAL" />
+        <result column="COIN_TYPE" property="coinType" jdbcType="CHAR" />
+        <result column="FIRM_TYPE" property="firmType" jdbcType="CHAR" />
+        <result column="DM" property="dm" jdbcType="CHAR" />
+        <result column="T_J_DM" property="tJDm" jdbcType="CHAR" />
+        <result column="FIRM_CODE" property="firmCode" jdbcType="CHAR" />
+        <result column="LEADER" property="leader" jdbcType="VARCHAR" />
+        <result column="LEADER_TELE" property="leaderTele" jdbcType="CHAR" />
+        <result column="LEADER_HANDSET" property="leaderHandset" jdbcType="CHAR" />
+        <result column="CONTACTMAN" property="contactman" jdbcType="VARCHAR" />
+        <result column="CONTACTMAN_CTQH" property="contactmanCtqh" jdbcType="CHAR" />
+        <result column="CONTACTMAN_TELE" property="contactmanTele" jdbcType="VARCHAR" />
+        <result column="CONTACTMAN_MP" property="contactmanMp" jdbcType="CHAR" />
+        <result column="CONTACTMAN_FAX" property="contactmanFax" jdbcType="VARCHAR" />
+        <result column="CONTACTMAN_EMAIL" property="contactmanEmail" jdbcType="CHAR" />
+        <result column="NET_STATION" property="netStation" jdbcType="CHAR" />
+        <result column="LOGIN_DATE" property="loginDate" jdbcType="CHAR" />
+        <result column="BRANCH_CODE" property="branchCode" jdbcType="CHAR" />
+        <result column="DBD_CODE" property="dbdCode" jdbcType="CHAR" />
+        <result column="STATUS" property="status" jdbcType="CHAR" />
+        <result column="WRITEMAN_CODE" property="writemanCode" jdbcType="CHAR" />
+        <result column="WRITE_CODE" property="writeCode" jdbcType="CHAR" />
+        <result column="WRITE_DATE" property="writeDate" jdbcType="CHAR" />
+        <result column="REMIT_TYPE" property="remitType" jdbcType="CHAR" />
+        <result column="REMIT_NAME" property="remitName" jdbcType="VARCHAR" />
+        <result column="REMIT_CODE" property="remitCode" jdbcType="CHAR" />
+        <result column="REMIT_ADDRESS" property="remitAddress" jdbcType="VARCHAR" />
+        <result column="REMIT_AMOUNT" property="remitAmount" jdbcType="DECIMAL" />
+        <result column="REMIT_BANK" property="remitBank" jdbcType="VARCHAR" />
+        <result column="REMIT_PURPOSE" property="remitPurpose" jdbcType="VARCHAR" />
+        <result column="REMIT_DATE" property="remitDate" jdbcType="CHAR" />
+        <result column="MONEY" property="money" jdbcType="DECIMAL" />
+        <result column="MEMO" property="memo" jdbcType="VARCHAR" />
+        <result column="ANNEXNAME" property="annexname" jdbcType="VARCHAR" />
+        <result column="ANNEXROUTE" property="annexroute" jdbcType="VARCHAR" />
+        <result column="WISHUSED_NUM" property="wishusedNum" jdbcType="CHAR" />
+        <result column="APPOVE_OPINION" property="appoveOpinion" jdbcType="VARCHAR" />
+        <result column="APPOVEDATE" property="appovedate" jdbcType="CHAR" />
+        <result column="TRANS_MAN" property="transMan" jdbcType="VARCHAR" />
+        <result column="IS_ONLINE" property="isOnline" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <sql id="Example_Where_Clause" >
+        <where >
+            <foreach collection="oredCriteria" item="criteria" separator="or" >
+                <if test="criteria.valid" >
+                    <trim prefix="(" suffix=")" prefixOverrides="and" >
+                        <foreach collection="criteria.criteria" item="criterion" >
+                            <choose >
+                                <when test="criterion.noValue" >
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue" >
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue" >
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue" >
+                                    and ${criterion.condition}
+                                    <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+
+    <sql id="Update_By_Example_Where_Clause" >
+        <where >
+            <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+                <if test="criteria.valid" >
+                    <trim prefix="(" suffix=")" prefixOverrides="and" >
+                        <foreach collection="criteria.criteria" item="criterion" >
+                            <choose >
+                                <when test="criterion.noValue" >
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue" >
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue" >
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue" >
+                                    and ${criterion.condition}
+                                    <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+
+    <sql id="Base_Column_List" >
+        SN, CODE, RSTYPE, CODELENGTH, FIRM_NAME, FIRM_NAME1, REGISTER_ADDRESS, REGISTER_ADDRESS1, 
+        REGISTER_POSTALCODE, ADDRESS, ADDRESS1, POSTCODE, CERTIFICATE_CODE, POLITICAL, REGISTER_PRINCIPAL, 
+        COIN_TYPE, FIRM_TYPE, DM, T_J_DM, FIRM_CODE, LEADER, LEADER_TELE, LEADER_HANDSET, 
+        CONTACTMAN, CONTACTMAN_CTQH, CONTACTMAN_TELE, CONTACTMAN_MP, CONTACTMAN_FAX, CONTACTMAN_EMAIL, 
+        NET_STATION, LOGIN_DATE, BRANCH_CODE, DBD_CODE, STATUS, WRITEMAN_CODE, WRITE_CODE, 
+        WRITE_DATE, REMIT_TYPE, REMIT_NAME, REMIT_CODE, REMIT_ADDRESS, REMIT_AMOUNT, REMIT_BANK, 
+        REMIT_PURPOSE, REMIT_DATE, MONEY, MEMO, ANNEXNAME, ANNEXROUTE, WISHUSED_NUM, APPOVE_OPINION, 
+        APPOVEDATE, TRANS_MAN, IS_ONLINE
+    </sql>
+
+    <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.ancc.pojo.addcode.ZheanUpcTempExample" >
+        select
+        <if test="distinct" >
+            distinct
+        </if>
+        <include refid="Base_Column_List" />
+        from ZH_EAN_UPC_TEMP
+        <if test="_parameter != null" >
+            <include refid="Example_Where_Clause" />
+        </if>
+        <if test="orderByClause != null" >
+            order by ${orderByClause}
+        </if>
+    </select>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+        select 
+        <include refid="Base_Column_List" />
+        from ZH_EAN_UPC_TEMP
+        where trim(SN) = #{sn,jdbcType=CHAR}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+        delete from ZH_EAN_UPC_TEMP
+        where trim(SN) = #{sn,jdbcType=CHAR}
+    </delete>
+
+    <delete id="deleteByExample" parameterType="com.ancc.pojo.addcode.ZheanUpcTempExample" >
+        delete from ZH_EAN_UPC_TEMP
+        <if test="_parameter != null" >
+            <include refid="Example_Where_Clause" />
+        </if>
+    </delete>
+
+    <insert id="insert" parameterType="com.ancc.pojo.addcode.ZheanUpcTemp" >
+        insert into ZH_EAN_UPC_TEMP (SN, CODE, RSTYPE, CODELENGTH, 
+            FIRM_NAME, FIRM_NAME1, REGISTER_ADDRESS, 
+            REGISTER_ADDRESS1, REGISTER_POSTALCODE, ADDRESS, 
+            ADDRESS1, POSTCODE, CERTIFICATE_CODE, 
+            POLITICAL, REGISTER_PRINCIPAL, COIN_TYPE, 
+            FIRM_TYPE, DM, T_J_DM, FIRM_CODE, 
+            LEADER, LEADER_TELE, LEADER_HANDSET, 
+            CONTACTMAN, CONTACTMAN_CTQH, CONTACTMAN_TELE, 
+            CONTACTMAN_MP, CONTACTMAN_FAX, CONTACTMAN_EMAIL, 
+            NET_STATION, LOGIN_DATE, BRANCH_CODE, 
+            DBD_CODE, STATUS, WRITEMAN_CODE, 
+            WRITE_CODE, WRITE_DATE, REMIT_TYPE, 
+            REMIT_NAME, REMIT_CODE, REMIT_ADDRESS, 
+            REMIT_AMOUNT, REMIT_BANK, REMIT_PURPOSE, 
+            REMIT_DATE, MONEY, MEMO, 
+            ANNEXNAME, ANNEXROUTE, WISHUSED_NUM, 
+            APPOVE_OPINION, APPOVEDATE, TRANS_MAN, 
+            IS_ONLINE)
+        values (#{sn,jdbcType=CHAR}, #{code,jdbcType=CHAR}, #{rstype,jdbcType=CHAR}, #{codelength,jdbcType=CHAR}, 
+            #{firmName,jdbcType=VARCHAR}, #{firmName1,jdbcType=VARCHAR}, #{registerAddress,jdbcType=VARCHAR}, 
+            #{registerAddress1,jdbcType=VARCHAR}, #{registerPostalcode,jdbcType=CHAR}, #{address,jdbcType=VARCHAR}, 
+            #{address1,jdbcType=VARCHAR}, #{postcode,jdbcType=CHAR}, #{certificateCode,jdbcType=CHAR}, 
+            #{political,jdbcType=CHAR}, #{registerPrincipal,jdbcType=DECIMAL}, #{coinType,jdbcType=CHAR}, 
+            #{firmType,jdbcType=CHAR}, #{dm,jdbcType=CHAR}, #{tJDm,jdbcType=CHAR}, #{firmCode,jdbcType=CHAR}, 
+            #{leader,jdbcType=VARCHAR}, #{leaderTele,jdbcType=CHAR}, #{leaderHandset,jdbcType=CHAR}, 
+            #{contactman,jdbcType=VARCHAR}, #{contactmanCtqh,jdbcType=CHAR}, #{contactmanTele,jdbcType=VARCHAR}, 
+            #{contactmanMp,jdbcType=CHAR}, #{contactmanFax,jdbcType=VARCHAR}, #{contactmanEmail,jdbcType=CHAR}, 
+            #{netStation,jdbcType=CHAR}, #{loginDate,jdbcType=CHAR}, #{branchCode,jdbcType=CHAR}, 
+            #{dbdCode,jdbcType=CHAR}, #{status,jdbcType=CHAR}, #{writemanCode,jdbcType=CHAR}, 
+            #{writeCode,jdbcType=CHAR}, #{writeDate,jdbcType=CHAR}, #{remitType,jdbcType=CHAR}, 
+            #{remitName,jdbcType=VARCHAR}, #{remitCode,jdbcType=CHAR}, #{remitAddress,jdbcType=VARCHAR}, 
+            #{remitAmount,jdbcType=DECIMAL}, #{remitBank,jdbcType=VARCHAR}, #{remitPurpose,jdbcType=VARCHAR}, 
+            #{remitDate,jdbcType=CHAR}, #{money,jdbcType=DECIMAL}, #{memo,jdbcType=VARCHAR}, 
+            #{annexname,jdbcType=VARCHAR}, #{annexroute,jdbcType=VARCHAR}, #{wishusedNum,jdbcType=CHAR}, 
+            #{appoveOpinion,jdbcType=VARCHAR}, #{appovedate,jdbcType=CHAR}, #{transMan,jdbcType=VARCHAR}, 
+            #{isOnline,jdbcType=VARCHAR})
+    </insert>
+
+    <insert id="insertSelective" parameterType="com.ancc.pojo.addcode.ZheanUpcTemp" >
+        insert into ZH_EAN_UPC_TEMP
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="sn != null" >
+                SN,
+            </if>
+            <if test="code != null" >
+                CODE,
+            </if>
+            <if test="rstype != null" >
+                RSTYPE,
+            </if>
+            <if test="codelength != null" >
+                CODELENGTH,
+            </if>
+            <if test="firmName != null" >
+                FIRM_NAME,
+            </if>
+            <if test="firmName1 != null" >
+                FIRM_NAME1,
+            </if>
+            <if test="registerAddress != null" >
+                REGISTER_ADDRESS,
+            </if>
+            <if test="registerAddress1 != null" >
+                REGISTER_ADDRESS1,
+            </if>
+            <if test="registerPostalcode != null" >
+                REGISTER_POSTALCODE,
+            </if>
+            <if test="address != null" >
+                ADDRESS,
+            </if>
+            <if test="address1 != null" >
+                ADDRESS1,
+            </if>
+            <if test="postcode != null" >
+                POSTCODE,
+            </if>
+            <if test="certificateCode != null" >
+                CERTIFICATE_CODE,
+            </if>
+            <if test="political != null" >
+                POLITICAL,
+            </if>
+            <if test="registerPrincipal != null" >
+                REGISTER_PRINCIPAL,
+            </if>
+            <if test="coinType != null" >
+                COIN_TYPE,
+            </if>
+            <if test="firmType != null" >
+                FIRM_TYPE,
+            </if>
+            <if test="dm != null" >
+                DM,
+            </if>
+            <if test="tJDm != null" >
+                T_J_DM,
+            </if>
+            <if test="firmCode != null" >
+                FIRM_CODE,
+            </if>
+            <if test="leader != null" >
+                LEADER,
+            </if>
+            <if test="leaderTele != null" >
+                LEADER_TELE,
+            </if>
+            <if test="leaderHandset != null" >
+                LEADER_HANDSET,
+            </if>
+            <if test="contactman != null" >
+                CONTACTMAN,
+            </if>
+            <if test="contactmanCtqh != null" >
+                CONTACTMAN_CTQH,
+            </if>
+            <if test="contactmanTele != null" >
+                CONTACTMAN_TELE,
+            </if>
+            <if test="contactmanMp != null" >
+                CONTACTMAN_MP,
+            </if>
+            <if test="contactmanFax != null" >
+                CONTACTMAN_FAX,
+            </if>
+            <if test="contactmanEmail != null" >
+                CONTACTMAN_EMAIL,
+            </if>
+            <if test="netStation != null" >
+                NET_STATION,
+            </if>
+            <if test="loginDate != null" >
+                LOGIN_DATE,
+            </if>
+            <if test="branchCode != null" >
+                BRANCH_CODE,
+            </if>
+            <if test="dbdCode != null" >
+                DBD_CODE,
+            </if>
+            <if test="status != null" >
+                STATUS,
+            </if>
+            <if test="writemanCode != null" >
+                WRITEMAN_CODE,
+            </if>
+            <if test="writeCode != null" >
+                WRITE_CODE,
+            </if>
+            <if test="writeDate != null" >
+                WRITE_DATE,
+            </if>
+            <if test="remitType != null" >
+                REMIT_TYPE,
+            </if>
+            <if test="remitName != null" >
+                REMIT_NAME,
+            </if>
+            <if test="remitCode != null" >
+                REMIT_CODE,
+            </if>
+            <if test="remitAddress != null" >
+                REMIT_ADDRESS,
+            </if>
+            <if test="remitAmount != null" >
+                REMIT_AMOUNT,
+            </if>
+            <if test="remitBank != null" >
+                REMIT_BANK,
+            </if>
+            <if test="remitPurpose != null" >
+                REMIT_PURPOSE,
+            </if>
+            <if test="remitDate != null" >
+                REMIT_DATE,
+            </if>
+            <if test="money != null" >
+                MONEY,
+            </if>
+            <if test="memo != null" >
+                MEMO,
+            </if>
+            <if test="annexname != null" >
+                ANNEXNAME,
+            </if>
+            <if test="annexroute != null" >
+                ANNEXROUTE,
+            </if>
+            <if test="wishusedNum != null" >
+                WISHUSED_NUM,
+            </if>
+            <if test="appoveOpinion != null" >
+                APPOVE_OPINION,
+            </if>
+            <if test="appovedate != null" >
+                APPOVEDATE,
+            </if>
+            <if test="transMan != null" >
+                TRANS_MAN,
+            </if>
+            <if test="isOnline != null" >
+                IS_ONLINE,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="sn != null" >
+                #{sn,jdbcType=CHAR},
+            </if>
+            <if test="code != null" >
+                #{code,jdbcType=CHAR},
+            </if>
+            <if test="rstype != null" >
+                #{rstype,jdbcType=CHAR},
+            </if>
+            <if test="codelength != null" >
+                #{codelength,jdbcType=CHAR},
+            </if>
+            <if test="firmName != null" >
+                #{firmName,jdbcType=VARCHAR},
+            </if>
+            <if test="firmName1 != null" >
+                #{firmName1,jdbcType=VARCHAR},
+            </if>
+            <if test="registerAddress != null" >
+                #{registerAddress,jdbcType=VARCHAR},
+            </if>
+            <if test="registerAddress1 != null" >
+                #{registerAddress1,jdbcType=VARCHAR},
+            </if>
+            <if test="registerPostalcode != null" >
+                #{registerPostalcode,jdbcType=CHAR},
+            </if>
+            <if test="address != null" >
+                #{address,jdbcType=VARCHAR},
+            </if>
+            <if test="address1 != null" >
+                #{address1,jdbcType=VARCHAR},
+            </if>
+            <if test="postcode != null" >
+                #{postcode,jdbcType=CHAR},
+            </if>
+            <if test="certificateCode != null" >
+                #{certificateCode,jdbcType=CHAR},
+            </if>
+            <if test="political != null" >
+                #{political,jdbcType=CHAR},
+            </if>
+            <if test="registerPrincipal != null" >
+                #{registerPrincipal,jdbcType=DECIMAL},
+            </if>
+            <if test="coinType != null" >
+                #{coinType,jdbcType=CHAR},
+            </if>
+            <if test="firmType != null" >
+                #{firmType,jdbcType=CHAR},
+            </if>
+            <if test="dm != null" >
+                #{dm,jdbcType=CHAR},
+            </if>
+            <if test="tJDm != null" >
+                #{tJDm,jdbcType=CHAR},
+            </if>
+            <if test="firmCode != null" >
+                #{firmCode,jdbcType=CHAR},
+            </if>
+            <if test="leader != null" >
+                #{leader,jdbcType=VARCHAR},
+            </if>
+            <if test="leaderTele != null" >
+                #{leaderTele,jdbcType=CHAR},
+            </if>
+            <if test="leaderHandset != null" >
+                #{leaderHandset,jdbcType=CHAR},
+            </if>
+            <if test="contactman != null" >
+                #{contactman,jdbcType=VARCHAR},
+            </if>
+            <if test="contactmanCtqh != null" >
+                #{contactmanCtqh,jdbcType=CHAR},
+            </if>
+            <if test="contactmanTele != null" >
+                #{contactmanTele,jdbcType=VARCHAR},
+            </if>
+            <if test="contactmanMp != null" >
+                #{contactmanMp,jdbcType=CHAR},
+            </if>
+            <if test="contactmanFax != null" >
+                #{contactmanFax,jdbcType=VARCHAR},
+            </if>
+            <if test="contactmanEmail != null" >
+                #{contactmanEmail,jdbcType=CHAR},
+            </if>
+            <if test="netStation != null" >
+                #{netStation,jdbcType=CHAR},
+            </if>
+            <if test="loginDate != null" >
+                #{loginDate,jdbcType=CHAR},
+            </if>
+            <if test="branchCode != null" >
+                #{branchCode,jdbcType=CHAR},
+            </if>
+            <if test="dbdCode != null" >
+                #{dbdCode,jdbcType=CHAR},
+            </if>
+            <if test="status != null" >
+                #{status,jdbcType=CHAR},
+            </if>
+            <if test="writemanCode != null" >
+                #{writemanCode,jdbcType=CHAR},
+            </if>
+            <if test="writeCode != null" >
+                #{writeCode,jdbcType=CHAR},
+            </if>
+            <if test="writeDate != null" >
+                #{writeDate,jdbcType=CHAR},
+            </if>
+            <if test="remitType != null" >
+                #{remitType,jdbcType=CHAR},
+            </if>
+            <if test="remitName != null" >
+                #{remitName,jdbcType=VARCHAR},
+            </if>
+            <if test="remitCode != null" >
+                #{remitCode,jdbcType=CHAR},
+            </if>
+            <if test="remitAddress != null" >
+                #{remitAddress,jdbcType=VARCHAR},
+            </if>
+            <if test="remitAmount != null" >
+                #{remitAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="remitBank != null" >
+                #{remitBank,jdbcType=VARCHAR},
+            </if>
+            <if test="remitPurpose != null" >
+                #{remitPurpose,jdbcType=VARCHAR},
+            </if>
+            <if test="remitDate != null" >
+                #{remitDate,jdbcType=CHAR},
+            </if>
+            <if test="money != null" >
+                #{money,jdbcType=DECIMAL},
+            </if>
+            <if test="memo != null" >
+                #{memo,jdbcType=VARCHAR},
+            </if>
+            <if test="annexname != null" >
+                #{annexname,jdbcType=VARCHAR},
+            </if>
+            <if test="annexroute != null" >
+                #{annexroute,jdbcType=VARCHAR},
+            </if>
+            <if test="wishusedNum != null" >
+                #{wishusedNum,jdbcType=CHAR},
+            </if>
+            <if test="appoveOpinion != null" >
+                #{appoveOpinion,jdbcType=VARCHAR},
+            </if>
+            <if test="appovedate != null" >
+                #{appovedate,jdbcType=CHAR},
+            </if>
+            <if test="transMan != null" >
+                #{transMan,jdbcType=VARCHAR},
+            </if>
+            <if test="isOnline != null" >
+                #{isOnline,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+    <select id="countByExample" parameterType="com.ancc.pojo.addcode.ZheanUpcTempExample" resultType="java.lang.Integer" >
+        select count(*) from ZH_EAN_UPC_TEMP
+        <if test="_parameter != null" >
+            <include refid="Example_Where_Clause" />
+        </if>
+    </select>
+
+    <update id="updateByExampleSelective" parameterType="map" >
+        update ZH_EAN_UPC_TEMP
+        <set >
+            <if test="record.sn != null" >
+                trim(SN) = #{record.sn,jdbcType=CHAR},
+            </if>
+            <if test="record.code != null" >
+                CODE = #{record.code,jdbcType=CHAR},
+            </if>
+            <if test="record.rstype != null" >
+                RSTYPE = #{record.rstype,jdbcType=CHAR},
+            </if>
+            <if test="record.codelength != null" >
+                CODELENGTH = #{record.codelength,jdbcType=CHAR},
+            </if>
+            <if test="record.firmName != null" >
+                FIRM_NAME = #{record.firmName,jdbcType=VARCHAR},
+            </if>
+            <if test="record.firmName1 != null" >
+                FIRM_NAME1 = #{record.firmName1,jdbcType=VARCHAR},
+            </if>
+            <if test="record.registerAddress != null" >
+                REGISTER_ADDRESS = #{record.registerAddress,jdbcType=VARCHAR},
+            </if>
+            <if test="record.registerAddress1 != null" >
+                REGISTER_ADDRESS1 = #{record.registerAddress1,jdbcType=VARCHAR},
+            </if>
+            <if test="record.registerPostalcode != null" >
+                REGISTER_POSTALCODE = #{record.registerPostalcode,jdbcType=CHAR},
+            </if>
+            <if test="record.address != null" >
+                ADDRESS = #{record.address,jdbcType=VARCHAR},
+            </if>
+            <if test="record.address1 != null" >
+                ADDRESS1 = #{record.address1,jdbcType=VARCHAR},
+            </if>
+            <if test="record.postcode != null" >
+                POSTCODE = #{record.postcode,jdbcType=CHAR},
+            </if>
+            <if test="record.certificateCode != null" >
+                CERTIFICATE_CODE = #{record.certificateCode,jdbcType=CHAR},
+            </if>
+            <if test="record.political != null" >
+                POLITICAL = #{record.political,jdbcType=CHAR},
+            </if>
+            <if test="record.registerPrincipal != null" >
+                REGISTER_PRINCIPAL = #{record.registerPrincipal,jdbcType=DECIMAL},
+            </if>
+            <if test="record.coinType != null" >
+                COIN_TYPE = #{record.coinType,jdbcType=CHAR},
+            </if>
+            <if test="record.firmType != null" >
+                FIRM_TYPE = #{record.firmType,jdbcType=CHAR},
+            </if>
+            <if test="record.dm != null" >
+                DM = #{record.dm,jdbcType=CHAR},
+            </if>
+            <if test="record.tJDm != null" >
+                T_J_DM = #{record.tJDm,jdbcType=CHAR},
+            </if>
+            <if test="record.firmCode != null" >
+                FIRM_CODE = #{record.firmCode,jdbcType=CHAR},
+            </if>
+            <if test="record.leader != null" >
+                LEADER = #{record.leader,jdbcType=VARCHAR},
+            </if>
+            <if test="record.leaderTele != null" >
+                LEADER_TELE = #{record.leaderTele,jdbcType=CHAR},
+            </if>
+            <if test="record.leaderHandset != null" >
+                LEADER_HANDSET = #{record.leaderHandset,jdbcType=CHAR},
+            </if>
+            <if test="record.contactman != null" >
+                CONTACTMAN = #{record.contactman,jdbcType=VARCHAR},
+            </if>
+            <if test="record.contactmanCtqh != null" >
+                CONTACTMAN_CTQH = #{record.contactmanCtqh,jdbcType=CHAR},
+            </if>
+            <if test="record.contactmanTele != null" >
+                CONTACTMAN_TELE = #{record.contactmanTele,jdbcType=VARCHAR},
+            </if>
+            <if test="record.contactmanMp != null" >
+                CONTACTMAN_MP = #{record.contactmanMp,jdbcType=CHAR},
+            </if>
+            <if test="record.contactmanFax != null" >
+                CONTACTMAN_FAX = #{record.contactmanFax,jdbcType=VARCHAR},
+            </if>
+            <if test="record.contactmanEmail != null" >
+                CONTACTMAN_EMAIL = #{record.contactmanEmail,jdbcType=CHAR},
+            </if>
+            <if test="record.netStation != null" >
+                NET_STATION = #{record.netStation,jdbcType=CHAR},
+            </if>
+            <if test="record.loginDate != null" >
+                LOGIN_DATE = #{record.loginDate,jdbcType=CHAR},
+            </if>
+            <if test="record.branchCode != null" >
+                BRANCH_CODE = #{record.branchCode,jdbcType=CHAR},
+            </if>
+            <if test="record.dbdCode != null" >
+                DBD_CODE = #{record.dbdCode,jdbcType=CHAR},
+            </if>
+            <if test="record.status != null" >
+                STATUS = #{record.status,jdbcType=CHAR},
+            </if>
+            <if test="record.writemanCode != null" >
+                WRITEMAN_CODE = #{record.writemanCode,jdbcType=CHAR},
+            </if>
+            <if test="record.writeCode != null" >
+                WRITE_CODE = #{record.writeCode,jdbcType=CHAR},
+            </if>
+            <if test="record.writeDate != null" >
+                WRITE_DATE = #{record.writeDate,jdbcType=CHAR},
+            </if>
+            <if test="record.remitType != null" >
+                REMIT_TYPE = #{record.remitType,jdbcType=CHAR},
+            </if>
+            <if test="record.remitName != null" >
+                REMIT_NAME = #{record.remitName,jdbcType=VARCHAR},
+            </if>
+            <if test="record.remitCode != null" >
+                REMIT_CODE = #{record.remitCode,jdbcType=CHAR},
+            </if>
+            <if test="record.remitAddress != null" >
+                REMIT_ADDRESS = #{record.remitAddress,jdbcType=VARCHAR},
+            </if>
+            <if test="record.remitAmount != null" >
+                REMIT_AMOUNT = #{record.remitAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="record.remitBank != null" >
+                REMIT_BANK = #{record.remitBank,jdbcType=VARCHAR},
+            </if>
+            <if test="record.remitPurpose != null" >
+                REMIT_PURPOSE = #{record.remitPurpose,jdbcType=VARCHAR},
+            </if>
+            <if test="record.remitDate != null" >
+                REMIT_DATE = #{record.remitDate,jdbcType=CHAR},
+            </if>
+            <if test="record.money != null" >
+                MONEY = #{record.money,jdbcType=DECIMAL},
+            </if>
+            <if test="record.memo != null" >
+                MEMO = #{record.memo,jdbcType=VARCHAR},
+            </if>
+            <if test="record.annexname != null" >
+                ANNEXNAME = #{record.annexname,jdbcType=VARCHAR},
+            </if>
+            <if test="record.annexroute != null" >
+                ANNEXROUTE = #{record.annexroute,jdbcType=VARCHAR},
+            </if>
+            <if test="record.wishusedNum != null" >
+                WISHUSED_NUM = #{record.wishusedNum,jdbcType=CHAR},
+            </if>
+            <if test="record.appoveOpinion != null" >
+                APPOVE_OPINION = #{record.appoveOpinion,jdbcType=VARCHAR},
+            </if>
+            <if test="record.appovedate != null" >
+                APPOVEDATE = #{record.appovedate,jdbcType=CHAR},
+            </if>
+            <if test="record.transMan != null" >
+                TRANS_MAN = #{record.transMan,jdbcType=VARCHAR},
+            </if>
+            <if test="record.isOnline != null" >
+                IS_ONLINE = #{record.isOnline,jdbcType=VARCHAR},
+            </if>
+        </set>
+        <if test="_parameter != null" >
+            <include refid="Update_By_Example_Where_Clause" />
+        </if>
+    </update>
+
+    <update id="updateByExample" parameterType="map" >
+        update ZH_EAN_UPC_TEMP
+        set trim(SN) = #{record.sn,jdbcType=CHAR},
+            CODE = #{record.code,jdbcType=CHAR},
+            RSTYPE = #{record.rstype,jdbcType=CHAR},
+            CODELENGTH = #{record.codelength,jdbcType=CHAR},
+            FIRM_NAME = #{record.firmName,jdbcType=VARCHAR},
+            FIRM_NAME1 = #{record.firmName1,jdbcType=VARCHAR},
+            REGISTER_ADDRESS = #{record.registerAddress,jdbcType=VARCHAR},
+            REGISTER_ADDRESS1 = #{record.registerAddress1,jdbcType=VARCHAR},
+            REGISTER_POSTALCODE = #{record.registerPostalcode,jdbcType=CHAR},
+            ADDRESS = #{record.address,jdbcType=VARCHAR},
+            ADDRESS1 = #{record.address1,jdbcType=VARCHAR},
+            POSTCODE = #{record.postcode,jdbcType=CHAR},
+            CERTIFICATE_CODE = #{record.certificateCode,jdbcType=CHAR},
+            POLITICAL = #{record.political,jdbcType=CHAR},
+            REGISTER_PRINCIPAL = #{record.registerPrincipal,jdbcType=DECIMAL},
+            COIN_TYPE = #{record.coinType,jdbcType=CHAR},
+            FIRM_TYPE = #{record.firmType,jdbcType=CHAR},
+            DM = #{record.dm,jdbcType=CHAR},
+            T_J_DM = #{record.tJDm,jdbcType=CHAR},
+            FIRM_CODE = #{record.firmCode,jdbcType=CHAR},
+            LEADER = #{record.leader,jdbcType=VARCHAR},
+            LEADER_TELE = #{record.leaderTele,jdbcType=CHAR},
+            LEADER_HANDSET = #{record.leaderHandset,jdbcType=CHAR},
+            CONTACTMAN = #{record.contactman,jdbcType=VARCHAR},
+            CONTACTMAN_CTQH = #{record.contactmanCtqh,jdbcType=CHAR},
+            CONTACTMAN_TELE = #{record.contactmanTele,jdbcType=VARCHAR},
+            CONTACTMAN_MP = #{record.contactmanMp,jdbcType=CHAR},
+            CONTACTMAN_FAX = #{record.contactmanFax,jdbcType=VARCHAR},
+            CONTACTMAN_EMAIL = #{record.contactmanEmail,jdbcType=CHAR},
+            NET_STATION = #{record.netStation,jdbcType=CHAR},
+            LOGIN_DATE = #{record.loginDate,jdbcType=CHAR},
+            BRANCH_CODE = #{record.branchCode,jdbcType=CHAR},
+            DBD_CODE = #{record.dbdCode,jdbcType=CHAR},
+            STATUS = #{record.status,jdbcType=CHAR},
+            WRITEMAN_CODE = #{record.writemanCode,jdbcType=CHAR},
+            WRITE_CODE = #{record.writeCode,jdbcType=CHAR},
+            WRITE_DATE = #{record.writeDate,jdbcType=CHAR},
+            REMIT_TYPE = #{record.remitType,jdbcType=CHAR},
+            REMIT_NAME = #{record.remitName,jdbcType=VARCHAR},
+            REMIT_CODE = #{record.remitCode,jdbcType=CHAR},
+            REMIT_ADDRESS = #{record.remitAddress,jdbcType=VARCHAR},
+            REMIT_AMOUNT = #{record.remitAmount,jdbcType=DECIMAL},
+            REMIT_BANK = #{record.remitBank,jdbcType=VARCHAR},
+            REMIT_PURPOSE = #{record.remitPurpose,jdbcType=VARCHAR},
+            REMIT_DATE = #{record.remitDate,jdbcType=CHAR},
+            MONEY = #{record.money,jdbcType=DECIMAL},
+            MEMO = #{record.memo,jdbcType=VARCHAR},
+            ANNEXNAME = #{record.annexname,jdbcType=VARCHAR},
+            ANNEXROUTE = #{record.annexroute,jdbcType=VARCHAR},
+            WISHUSED_NUM = #{record.wishusedNum,jdbcType=CHAR},
+            APPOVE_OPINION = #{record.appoveOpinion,jdbcType=VARCHAR},
+            APPOVEDATE = #{record.appovedate,jdbcType=CHAR},
+            TRANS_MAN = #{record.transMan,jdbcType=VARCHAR},
+            IS_ONLINE = #{record.isOnline,jdbcType=VARCHAR},
+        <if test="_parameter != null" >
+            <include refid="Update_By_Example_Where_Clause" />
+        </if>
+    </update>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.ancc.pojo.addcode.ZheanUpcTemp" >
+        update ZH_EAN_UPC_TEMP
+        <set >
+            <if test="code != null" >
+                CODE = #{code,jdbcType=CHAR},
+            </if>
+            <if test="rstype != null" >
+                RSTYPE = #{rstype,jdbcType=CHAR},
+            </if>
+            <if test="codelength != null" >
+                CODELENGTH = #{codelength,jdbcType=CHAR},
+            </if>
+            <if test="firmName != null" >
+                FIRM_NAME = #{firmName,jdbcType=VARCHAR},
+            </if>
+            <if test="firmName1 != null" >
+                FIRM_NAME1 = #{firmName1,jdbcType=VARCHAR},
+            </if>
+            <if test="registerAddress != null" >
+                REGISTER_ADDRESS = #{registerAddress,jdbcType=VARCHAR},
+            </if>
+            <if test="registerAddress1 != null" >
+                REGISTER_ADDRESS1 = #{registerAddress1,jdbcType=VARCHAR},
+            </if>
+            <if test="registerPostalcode != null" >
+                REGISTER_POSTALCODE = #{registerPostalcode,jdbcType=CHAR},
+            </if>
+            <if test="address != null" >
+                ADDRESS = #{address,jdbcType=VARCHAR},
+            </if>
+            <if test="address1 != null" >
+                ADDRESS1 = #{address1,jdbcType=VARCHAR},
+            </if>
+            <if test="postcode != null" >
+                POSTCODE = #{postcode,jdbcType=CHAR},
+            </if>
+            <if test="certificateCode != null" >
+                CERTIFICATE_CODE = #{certificateCode,jdbcType=CHAR},
+            </if>
+            <if test="political != null" >
+                POLITICAL = #{political,jdbcType=CHAR},
+            </if>
+            <if test="registerPrincipal != null" >
+                REGISTER_PRINCIPAL = #{registerPrincipal,jdbcType=DECIMAL},
+            </if>
+            <if test="coinType != null" >
+                COIN_TYPE = #{coinType,jdbcType=CHAR},
+            </if>
+            <if test="firmType != null" >
+                FIRM_TYPE = #{firmType,jdbcType=CHAR},
+            </if>
+            <if test="dm != null" >
+                DM = #{dm,jdbcType=CHAR},
+            </if>
+            <if test="tJDm != null" >
+                T_J_DM = #{tJDm,jdbcType=CHAR},
+            </if>
+            <if test="firmCode != null" >
+                FIRM_CODE = #{firmCode,jdbcType=CHAR},
+            </if>
+            <if test="leader != null" >
+                LEADER = #{leader,jdbcType=VARCHAR},
+            </if>
+            <if test="leaderTele != null" >
+                LEADER_TELE = #{leaderTele,jdbcType=CHAR},
+            </if>
+            <if test="leaderHandset != null" >
+                LEADER_HANDSET = #{leaderHandset,jdbcType=CHAR},
+            </if>
+            <if test="contactman != null" >
+                CONTACTMAN = #{contactman,jdbcType=VARCHAR},
+            </if>
+            <if test="contactmanCtqh != null" >
+                CONTACTMAN_CTQH = #{contactmanCtqh,jdbcType=CHAR},
+            </if>
+            <if test="contactmanTele != null" >
+                CONTACTMAN_TELE = #{contactmanTele,jdbcType=VARCHAR},
+            </if>
+            <if test="contactmanMp != null" >
+                CONTACTMAN_MP = #{contactmanMp,jdbcType=CHAR},
+            </if>
+            <if test="contactmanFax != null" >
+                CONTACTMAN_FAX = #{contactmanFax,jdbcType=VARCHAR},
+            </if>
+            <if test="contactmanEmail != null" >
+                CONTACTMAN_EMAIL = #{contactmanEmail,jdbcType=CHAR},
+            </if>
+            <if test="netStation != null" >
+                NET_STATION = #{netStation,jdbcType=CHAR},
+            </if>
+            <if test="loginDate != null" >
+                LOGIN_DATE = #{loginDate,jdbcType=CHAR},
+            </if>
+            <if test="branchCode != null" >
+                BRANCH_CODE = #{branchCode,jdbcType=CHAR},
+            </if>
+            <if test="dbdCode != null" >
+                DBD_CODE = #{dbdCode,jdbcType=CHAR},
+            </if>
+            <if test="status != null" >
+                STATUS = #{status,jdbcType=CHAR},
+            </if>
+            <if test="writemanCode != null" >
+                WRITEMAN_CODE = #{writemanCode,jdbcType=CHAR},
+            </if>
+            <if test="writeCode != null" >
+                WRITE_CODE = #{writeCode,jdbcType=CHAR},
+            </if>
+            <if test="writeDate != null" >
+                WRITE_DATE = #{writeDate,jdbcType=CHAR},
+            </if>
+            <if test="remitType != null" >
+                REMIT_TYPE = #{remitType,jdbcType=CHAR},
+            </if>
+            <if test="remitName != null" >
+                REMIT_NAME = #{remitName,jdbcType=VARCHAR},
+            </if>
+            <if test="remitCode != null" >
+                REMIT_CODE = #{remitCode,jdbcType=CHAR},
+            </if>
+            <if test="remitAddress != null" >
+                REMIT_ADDRESS = #{remitAddress,jdbcType=VARCHAR},
+            </if>
+            <if test="remitAmount != null" >
+                REMIT_AMOUNT = #{remitAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="remitBank != null" >
+                REMIT_BANK = #{remitBank,jdbcType=VARCHAR},
+            </if>
+            <if test="remitPurpose != null" >
+                REMIT_PURPOSE = #{remitPurpose,jdbcType=VARCHAR},
+            </if>
+            <if test="remitDate != null" >
+                REMIT_DATE = #{remitDate,jdbcType=CHAR},
+            </if>
+            <if test="money != null" >
+                MONEY = #{money,jdbcType=DECIMAL},
+            </if>
+            <if test="memo != null" >
+                MEMO = #{memo,jdbcType=VARCHAR},
+            </if>
+            <if test="annexname != null" >
+                ANNEXNAME = #{annexname,jdbcType=VARCHAR},
+            </if>
+            <if test="annexroute != null" >
+                ANNEXROUTE = #{annexroute,jdbcType=VARCHAR},
+            </if>
+            <if test="wishusedNum != null" >
+                WISHUSED_NUM = #{wishusedNum,jdbcType=CHAR},
+            </if>
+            <if test="appoveOpinion != null" >
+                APPOVE_OPINION = #{appoveOpinion,jdbcType=VARCHAR},
+            </if>
+            <if test="appovedate != null" >
+                APPOVEDATE = #{appovedate,jdbcType=CHAR},
+            </if>
+            <if test="transMan != null" >
+                TRANS_MAN = #{transMan,jdbcType=VARCHAR},
+            </if>
+            <if test="isOnline != null" >
+                IS_ONLINE = #{isOnline,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where trim(SN) = #{sn,jdbcType=CHAR}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.ancc.pojo.addcode.ZheanUpcTemp" >
+        update ZH_EAN_UPC_TEMP
+        set CODE = #{code,jdbcType=CHAR},
+            RSTYPE = #{rstype,jdbcType=CHAR},
+            CODELENGTH = #{codelength,jdbcType=CHAR},
+            FIRM_NAME = #{firmName,jdbcType=VARCHAR},
+            FIRM_NAME1 = #{firmName1,jdbcType=VARCHAR},
+            REGISTER_ADDRESS = #{registerAddress,jdbcType=VARCHAR},
+            REGISTER_ADDRESS1 = #{registerAddress1,jdbcType=VARCHAR},
+            REGISTER_POSTALCODE = #{registerPostalcode,jdbcType=CHAR},
+            ADDRESS = #{address,jdbcType=VARCHAR},
+            ADDRESS1 = #{address1,jdbcType=VARCHAR},
+            POSTCODE = #{postcode,jdbcType=CHAR},
+            CERTIFICATE_CODE = #{certificateCode,jdbcType=CHAR},
+            POLITICAL = #{political,jdbcType=CHAR},
+            REGISTER_PRINCIPAL = #{registerPrincipal,jdbcType=DECIMAL},
+            COIN_TYPE = #{coinType,jdbcType=CHAR},
+            FIRM_TYPE = #{firmType,jdbcType=CHAR},
+            DM = #{dm,jdbcType=CHAR},
+            T_J_DM = #{tJDm,jdbcType=CHAR},
+            FIRM_CODE = #{firmCode,jdbcType=CHAR},
+            LEADER = #{leader,jdbcType=VARCHAR},
+            LEADER_TELE = #{leaderTele,jdbcType=CHAR},
+            LEADER_HANDSET = #{leaderHandset,jdbcType=CHAR},
+            CONTACTMAN = #{contactman,jdbcType=VARCHAR},
+            CONTACTMAN_CTQH = #{contactmanCtqh,jdbcType=CHAR},
+            CONTACTMAN_TELE = #{contactmanTele,jdbcType=VARCHAR},
+            CONTACTMAN_MP = #{contactmanMp,jdbcType=CHAR},
+            CONTACTMAN_FAX = #{contactmanFax,jdbcType=VARCHAR},
+            CONTACTMAN_EMAIL = #{contactmanEmail,jdbcType=CHAR},
+            NET_STATION = #{netStation,jdbcType=CHAR},
+            LOGIN_DATE = #{loginDate,jdbcType=CHAR},
+            BRANCH_CODE = #{branchCode,jdbcType=CHAR},
+            DBD_CODE = #{dbdCode,jdbcType=CHAR},
+            STATUS = #{status,jdbcType=CHAR},
+            WRITEMAN_CODE = #{writemanCode,jdbcType=CHAR},
+            WRITE_CODE = #{writeCode,jdbcType=CHAR},
+            WRITE_DATE = #{writeDate,jdbcType=CHAR},
+            REMIT_TYPE = #{remitType,jdbcType=CHAR},
+            REMIT_NAME = #{remitName,jdbcType=VARCHAR},
+            REMIT_CODE = #{remitCode,jdbcType=CHAR},
+            REMIT_ADDRESS = #{remitAddress,jdbcType=VARCHAR},
+            REMIT_AMOUNT = #{remitAmount,jdbcType=DECIMAL},
+            REMIT_BANK = #{remitBank,jdbcType=VARCHAR},
+            REMIT_PURPOSE = #{remitPurpose,jdbcType=VARCHAR},
+            REMIT_DATE = #{remitDate,jdbcType=CHAR},
+            MONEY = #{money,jdbcType=DECIMAL},
+            MEMO = #{memo,jdbcType=VARCHAR},
+            ANNEXNAME = #{annexname,jdbcType=VARCHAR},
+            ANNEXROUTE = #{annexroute,jdbcType=VARCHAR},
+            WISHUSED_NUM = #{wishusedNum,jdbcType=CHAR},
+            APPOVE_OPINION = #{appoveOpinion,jdbcType=VARCHAR},
+            APPOVEDATE = #{appovedate,jdbcType=CHAR},
+            TRANS_MAN = #{transMan,jdbcType=VARCHAR},
+            IS_ONLINE = #{isOnline,jdbcType=VARCHAR},
+        where trim(SN) = #{sn,jdbcType=CHAR}
+    </update>
+</mapper>

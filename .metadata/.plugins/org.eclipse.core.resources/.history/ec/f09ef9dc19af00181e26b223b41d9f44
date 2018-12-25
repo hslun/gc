@@ -1,0 +1,542 @@
+package com.ancc.controller;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.FileCopyUtils;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.ancc.common.AnccResult;
+import com.ancc.common.ArchiveFileMove;
+import com.ancc.common.Constants;
+import com.ancc.common.Utility;
+import com.ancc.common.yyzz.QrCodeFactory;
+import com.ancc.common.yyzz.YYZZStrategy;
+import com.ancc.mapper.log.BaOperLogMapper;
+import com.ancc.pojo.archive.DaFileRecive;
+import com.ancc.pojo.archive.TM_SN;
+import com.ancc.pojo.enterprise.JcFirm;
+import com.ancc.pojo.log.BaOperFlag;
+import com.ancc.pojo.log.BaOperLog;
+import com.ancc.pojo.register.ZcCashinOnline;
+import com.ancc.pojo.resume.XzCashinOnLine;
+import com.ancc.pojo.resume.XzCodeTemp;
+import com.ancc.pojo.resume.XzResumeTemp;
+import com.ancc.service.archive.DaFileReciveService;
+import com.ancc.service.archive.TmSnService;
+import com.ancc.service.enterprise.JcEanUpcService;
+import com.ancc.service.enterprise.JcFirmService;
+import com.ancc.service.log.BaOperFlagService;
+import com.ancc.service.log.BaOperLogService;
+import com.ancc.service.resume.XzCashinOnlineService;
+import com.ancc.service.resume.XzCodeTempService;
+import com.ancc.service.resume.XzResumeTempService;
+import com.ancc.util.FileUtil;
+import com.ancc.util.GreenBarCodeImg;
+import com.ancc.util.SendMsg_webchinese;
+import com.ancc.util.Uploader;
+
+/**
+ * 续展业务操作
+ * @author hfga
+ *
+ */
+@Component
+@Scope("prototype")
+@Controller
+@RequestMapping("/resume")
+public class ResumeController {
+
+	@Value("${XzImg.Path}")
+    private String imgPath;
+	
+	@Autowired
+	private XzResumeTempService XzResumeTempService;
+	
+	//续展查询
+	@RequestMapping(value="/getResumeInfoBySn/{sn}",method = RequestMethod.GET)
+	@ResponseBody
+	public AnccResult getResumeInfoBySn(@PathVariable String sn){
+		return AnccResult.ok(XzResumeTempService.getResumeInfoBySn(sn));
+	}
+	
+	@Autowired
+	private BaOperLogService BaOperLogService;
+	
+	@Autowired
+	private BaOperLogMapper BaOperLogMapper;
+	
+	@Autowired
+	private TmSnService tmSnService;
+	
+	@Autowired
+	private ArchiveFileMove archiveFileMove;
+	
+	@Autowired
+	private BaOperFlagService baOperFlagService;
+	
+	//续展保存
+	@RequestMapping(value="/addTemp",method = RequestMethod.POST)
+	@ResponseBody
+	public AnccResult addObj(XzResumeTemp XzResumeTemp) throws Exception {
+		//判断是否存在
+		XzResumeTemp isExist = XzResumeTempService.getByFrimName(XzResumeTemp.getFirmName());
+		if (isExist != null) {
+			return  AnccResult.build(16, "该企业名已经存在于续展申请信息中，不能使用");
+		}
+		List<BaOperFlag> Exist = baOperFlagService.getByFirmName(XzResumeTemp.getFirmName(), "");
+		if (!Exist.isEmpty()) {
+			return  AnccResult.build(16, "公司名称已在其他业务中使用");
+		}
+		//插入数据
+		String result = XzResumeTempService.addObj(XzResumeTemp);
+		//添加日志
+		BaOperLog BaOperLog = new BaOperLog();
+		String num = BaOperLogMapper.selectbillsn(7);
+		BaOperLog.setBillsn(num);
+		BaOperLog.setSn(result);
+		BaOperLog.setFirmName(XzResumeTemp.getFirmName());
+		String OperType = BaOperLogService.getOperCode(XzResumeTemp.getSn());
+		BaOperLog.setOperType(OperType);
+		BaOperLog.setOptypeid(XzResumeTemp.getStatus());
+		BaOperLog.setMyear(Utility.getYear()+"");
+		BaOperLog.setMdate(Utility.getMonth()+Utility.getDay()+"");
+		BaOperLog.setMtime(Utility.getHHMMSS());
+		BaOperLogService.addOperLog(BaOperLog);
+		
+		BaOperFlag BaOperFlag = new BaOperFlag();
+		BaOperFlag.setBranchCode(XzResumeTemp.getBranchCode());
+		BaOperFlag.setDbdCode(XzResumeTemp.getDbdCode());
+		BaOperFlag.setFirmName(XzResumeTemp.getFirmName());
+		BaOperFlag.setSn(result);
+		BaOperFlag.setStatus("H");
+		BaOperFlag.setOperType("3");
+		baOperFlagService.insertSelective(BaOperFlag);
+		
+//		//发短信
+	    Object[] object = {result};
+	    String phonenum = XzResumeTemp.getContactmanMp();
+	    SendMsg_webchinese.onlySend(11,object,phonenum);
+		String path="";
+		path = GreenBarCodeImg.generat(imgPath, result);
+		FileInputStream is = null;
+		TM_SN tm_SN=new TM_SN();
+		try {
+	    	tm_SN.setSn(result);
+	    	is = new FileInputStream(new File(path));
+		    byte[] bytes = FileCopyUtils.copyToByteArray(is);
+		    tm_SN.setImg(bytes);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		tmSnService.save(tm_SN);
+		
+		return  AnccResult.ok(result);
+		
+	}
+	
+	
+	//续展修改
+	@RequestMapping(value="/modObj",method = RequestMethod.POST)
+	@ResponseBody
+	public AnccResult modObj(XzResumeTemp XzResumeTemp) throws Exception {
+		String result = XzResumeTempService.modObj(XzResumeTemp);
+		BaOperLog BaOperLog = new BaOperLog();
+		String num = BaOperLogMapper.selectbillsn(7);
+		BaOperLog.setBillsn(num);
+		BaOperLog.setSn(result);
+		BaOperLog.setFirmName(XzResumeTemp.getFirmName());
+		String OperType = BaOperLogService.getOperCode(XzResumeTemp.getSn());
+		BaOperLog.setOperType(OperType);
+		BaOperLog.setOptypeid(XzResumeTempService.getResumeInfoBySn(XzResumeTemp.getSn()).getStatus());
+		BaOperLog.setMyear(Utility.getYear()+"");
+		BaOperLog.setMdate(Utility.getMonth()+Utility.getDay()+"");
+		BaOperLog.setMtime(Utility.getHHMMSS());
+		BaOperLogService.addOperLog(BaOperLog);
+//		//发短信
+	    Object[] object = {result};
+	    String phonenum = XzResumeTemp.getContactmanMp();
+	    SendMsg_webchinese.onlySend(11,object,phonenum);
+		return  AnccResult.ok(result);
+		
+	}
+	
+	@Autowired
+	private JcEanUpcService JcEanUpcService;
+	
+	//通过f_id来获取厂商所有的code
+	@RequestMapping(value="/getCodes/{fid}",method = RequestMethod.GET)
+	@ResponseBody
+	public AnccResult getCodes(@PathVariable String fid){
+		return AnccResult.ok(JcEanUpcService.getCodes(fid));
+	}
+	
+	@Autowired
+	private XzCodeTempService XzCodeTempService;
+	
+	//根据sn号获取用户续展的code
+	@RequestMapping(value="/getXZCodesBySn/{sn}",method = RequestMethod.GET)
+	@ResponseBody
+	public AnccResult getXZCodesBySn(@PathVariable String sn){
+		return AnccResult.ok(XzCodeTempService.getXZCodesBySn(sn));
+	}
+	
+	//续展保存
+	@RequestMapping(value="/addCode",method = RequestMethod.POST)
+	@ResponseBody
+	public AnccResult addObjWL(@RequestBody XzCodeTemp[] xzCodeTemp) throws Exception {
+		System.out.println("续展");
+		for(int i=0;i<xzCodeTemp.length;i++) {
+			XzCodeTempService.addObjWL(xzCodeTemp[i]);
+		}
+		return  AnccResult.ok(xzCodeTemp[0]);
+	}
+
+	//删除续展相关所有记录
+	@RequestMapping(value="/delete/{sn}",method = RequestMethod.GET)
+	@ResponseBody
+	public int delete(@PathVariable String sn) throws Exception {
+		BaOperLog BaOperLog = new BaOperLog();
+		String num = BaOperLogMapper.selectbillsn(7);
+		BaOperLog.setBillsn(num);
+		BaOperLog.setSn(sn);
+		BaOperLog.setFirmName(XzResumeTempService.getResumeInfoBySn(sn).getFirmName());
+		String OperType = BaOperLogService.getOperCode(sn);
+		BaOperLog.setOperType(OperType);
+		BaOperLog.setOptypeid(XzResumeTempService.getResumeInfoBySn(sn).getStatus());
+		BaOperLog.setMyear(Utility.getYear()+"");
+		BaOperLog.setMdate(Utility.getMonth()+Utility.getDay()+"");
+		BaOperLog.setMtime(Utility.getHHMMSS());
+		BaOperLogService.addOperLog(BaOperLog);
+		return  XzResumeTempService.delete(sn);
+	}
+	
+	//续展code修改
+	@RequestMapping(value="/modCode",method = RequestMethod.POST)
+	@ResponseBody
+	public AnccResult modObjWL(@RequestBody XzCodeTemp[] xzCodeTemp) throws Exception {
+		for(int i=0;i<xzCodeTemp.length;i++) {
+			XzCodeTempService.modObj(xzCodeTemp[i]);
+		}
+		return  AnccResult.ok(xzCodeTemp[0]);
+	}
+	
+	
+	//打印PDF相关操作
+	@RequestMapping(value="/pdf/{sn}",method = RequestMethod.GET)
+	@ResponseBody
+	public AnccResult createXZPDF(@PathVariable String sn) throws Exception {
+		String path="";
+		path = GreenBarCodeImg.generat(imgPath, sn);
+		FileInputStream is = null;
+		TM_SN tm_SN=new TM_SN();
+		try {
+	    	tm_SN.setSn(sn);
+	    	is = new FileInputStream(new File(path));
+		    byte[] bytes = FileCopyUtils.copyToByteArray(is);
+		    tm_SN.setImg(bytes);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		tmSnService.save(tm_SN);
+		XzResumeTemp xzResumeTemp = XzResumeTempService.getResumeInfoBySn(sn);
+		return AnccResult.ok(XzResumeTempService.createXZPDF(xzResumeTemp).replace("\\", "*").replace("/", "*").replace(".", "-"));
+	}
+	
+	@Autowired
+	private XzCashinOnlineService xzCashinOnlineService;
+	
+	//测试付款接口--先让流程走下去
+	@RequestMapping(value="/payTest",method = RequestMethod.POST)
+	@ResponseBody
+	public  AnccResult payTest(String sn){
+		XzCashinOnLine xzCashinOnline=new XzCashinOnLine();
+		xzCashinOnline.setOrderno(sn);
+		xzCashinOnline.setFeesum("18.00");
+		xzCashinOnline.setPaybatno("20180731");
+		xzCashinOnline.setMerchbatchno("");
+		xzCashinOnline.setTrandate("20180731");
+		xzCashinOnline.setTrandate("145533");
+		xzCashinOnline.setSerialno("hahaha");
+		xzCashinOnline.setBankmono("");
+		return  AnccResult.ok(xzCashinOnlineService.addObj(xzCashinOnline));
+	}
+	
+	@Autowired
+	private FileUtil fileUtil;
+	
+	@Autowired
+	private DaFileReciveService daFileReciveService;
+	
+	@Autowired
+	private Uploader uploader;
+	
+//	//上传文件
+//	@RequestMapping(value="/uploadFile",method = RequestMethod.POST)
+//	@ResponseBody
+//	@Transactional
+//	public  AnccResult uploadFile(@RequestParam("file") MultipartFile[] files,@RequestParam("sn")String sn) throws Exception{
+//		XzCashinOnLine xzCashinOnline=new XzCashinOnLine();
+//		xzCashinOnline.setOrderno(sn);
+//		AnccResult anccResult=null;
+//		
+//		boolean isExist=false;
+//		boolean isPay=false;
+//		try {
+//			isExist = archiveFileMove.isExist(sn,"a1.jpg");
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		String status="";
+//	    if(isExist){
+//	    	status = Constants.WEBSITE_UPDATE;
+//	    }else{
+//	    	status = Constants.WEBSITE_SAVE;
+//	    }
+//	    //multipartFile 要转化成file
+//	    try {
+//			if(uploader.upFile(files,"a",sn,"web")){
+//				if (daFileReciveService.loadObj(sn)!=null) {
+//					//说明档案存在
+//					uploader.deleteFile("web", sn);
+//					daFileReciveService.delObj(sn);
+//				}
+//				//文件插入数据库
+//				DaFileRecive daFileRecive=new DaFileRecive();
+//				daFileRecive.setFileName(sn+".tif");
+//				daFileRecive.setSn(sn);
+//				daFileReciveService.addObj(daFileRecive);
+//			}
+//			//合成
+//			boolean bl = archiveFileMove.compoundTif(sn);
+//			System.out.println(files.length);
+//			System.out.println("_________________________________");
+//			if(!bl){
+//				//上传失败
+//				anccResult=AnccResult.build(500, "tif合成失败",null);
+//			}
+//			XzResumeTemp xzResumeTemp = new XzResumeTemp();
+//			XzCashinOnLine xzCashin=xzCashinOnlineService.loadObj(xzCashinOnline);
+//			if(xzCashin==null){
+//				isPay=true;
+//				status = Constants.WEBSITE_PAY;//存在网上支付信息，设置完成支付标志位
+//				anccResult=AnccResult.build(200, "已付款",new HashMap<>().put("status", Constants.WEBSITE_SAVE));
+//				
+//				XzResumeTempService.modObjWLXZ(xzResumeTemp, sn, status);
+//			}
+//			else{
+//				anccResult=AnccResult.build(200, "未付款",new HashMap<>().put("status", Constants.WEBSITE_SAVE));
+//				XzResumeTempService.modObjWLXZ(xzResumeTemp, sn, Constants.WEBSITE_SAVE);
+//			}
+//			
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		return anccResult;
+//	}
+	
+	//上传文件
+	@RequestMapping(value="/uploadFile",method = RequestMethod.POST)
+	@ResponseBody
+	@Transactional
+	public  AnccResult uploadFile(@RequestParam("file") MultipartFile[] files,@RequestParam("sn")String sn) throws Exception{
+		AnccResult anccResult=null;
+		Map<String,String> map=new HashMap<>();
+		boolean isExist=false;
+		boolean isPay=false;
+		try {
+			isExist = archiveFileMove.isExist(sn,"a1.jpg");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		String status="";
+		System.out.println("判断是"+isExist);
+		System.out.println("更一个判断"+daFileReciveService.loadObj(sn));
+	    if(isExist){
+	    	status = Constants.WEBSITE_UPDATE;
+	    	if (daFileReciveService.loadObj(sn)!=null) {
+				//说明档案存在
+				uploader.deleteFile("web", sn);
+				daFileReciveService.delObj(sn);
+			}
+	    }else{
+	    	status = Constants.WEBSITE_SAVE;
+	    }
+	    //multipartFile 要转化成file
+	    try {
+			if(uploader.upFile(files,"a",sn,"web")){
+				//文件插入数据库
+				DaFileRecive daFileRecive=new DaFileRecive();
+				daFileRecive.setFileName(sn+".tif");
+				daFileRecive.setSn(sn);
+				daFileReciveService.addObj(daFileRecive);
+			}
+			//合成
+			boolean bl = archiveFileMove.compoundTif(sn);
+			if(!bl){
+				//上传失败
+				anccResult=AnccResult.build(500, "tif合成失败",null);
+			}
+			System.out.println(files.length);
+			System.out.println("_________________________________");
+			System.out.println(bl);
+			
+//			ZcCashinOnline zcCashinOnline=zcCrashOnlineService.get(sn);
+//			HashMap<String,String> buid = new HashMap<String,String>();
+//			if(zcCashinOnline==null){
+//				isPay=true;
+//				status = Constants.WEBSITE_PAY;//存在网上支付信息，设置完成支付标志位
+//				System.out.println("状态未是"+status);
+//				buid.put("status", Constants.WEBSITE_PAY);
+//				System.out.println("buile是"+buid);
+//				anccResult=AnccResult.build(200, "已付款",buid);
+//				zcEanUpcTempService.modStatus(sn, status);
+//			}
+//			else{
+//				buid.put("status", Constants.WEBSITE_SAVE);
+//				anccResult=AnccResult.build(200, "未付款",buid);
+//				zcEanUpcTempService.modStatus(sn, Constants.WEBSITE_SAVE);
+//			}
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return anccResult;
+	}
+	
+	//文件下载接口
+	@RequestMapping(value="/downloadFile/{path}",method = RequestMethod.GET)
+	public void dowload(@PathVariable String path,HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws FileNotFoundException, UnsupportedEncodingException{
+		path = path.replace("*", "\\");
+		path = path.replace("-", ".");
+		
+		InputStream inStream = new FileInputStream(path);
+		httpServletResponse.reset();
+		httpServletResponse.setContentType("bin");
+		
+		String fileName=path.substring(path.lastIndexOf("\\")+1);
+		System.out.println("fileName是"+fileName);
+		System.out.println(path);
+	    String agent = httpServletRequest.getHeader("USER-AGENT");
+	    if(agent != null && agent.indexOf("MSIE") != -1) {
+	        fileName = URLEncoder.encode(fileName, "UTF8");
+	        fileName = fileName.replaceAll("\\+", "%20");
+	    } else {
+	        fileName = new String(fileName.getBytes("UTF-8"), "ISO8859-1");
+	    }
+		httpServletResponse.addHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+		byte[] b = new byte[100];
+		int len;
+		try {
+		while ((len = inStream.read(b)) > 0)
+			httpServletResponse.getOutputStream().write(b, 0, len);
+			inStream.close();
+			httpServletResponse.getOutputStream().close();
+			httpServletResponse.getOutputStream().flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	} 
+	
+	//线下付款  需要上传资料  线下付款的资料标识是@RequestParam("file") MultipartFile[] files
+//	@RequestMapping(value="/uploadOffineFile",method = RequestMethod.POST)
+//	@ResponseBody
+//	@Transactional
+//	public  AnccResult  offline(@RequestParam("file") MultipartFile[] files,@RequestParam("sn")String sn){
+//		AnccResult anccResult=null;
+//		ArchiveFileMove afm = new ArchiveFileMove();
+//	    try {
+//			if(uploader.upzdFile(files,"b",sn)){
+//				if (daFileReciveService.loadObj(sn)!=null) {
+//					//说明档案存在
+//					uploader.deleteFile("web", sn);
+//					daFileReciveService.delObj(sn);
+//				}
+//				//文件插入数据库
+//				DaFileRecive daFileRecive=new DaFileRecive();
+//				daFileRecive.setFileName(sn+".tif");
+//				daFileRecive.setSn(sn);
+//				daFileReciveService.addObj(daFileRecive);
+//			}
+//			//合成
+//			boolean bl = afm.compoundTif(sn);
+//			if(!bl){
+//				//上传失败
+//				anccResult=AnccResult.build(500, "tif合成失败",null);
+//			}else {
+//				ZcEanUpcTemp zcEanUpcTemp=new ZcEanUpcTemp();
+//				zcEanUpcTemp.setSn(sn);
+//				zcEanUpcTemp.setStatus(Constants.WEBBG_PAY);
+//				zcEanUpcTempService.modObjWLU(zcEanUpcTemp);
+//				anccResult=AnccResult.build(200, "已付款",new HashMap<>().put("status", Constants.WEBSITE_PAY));
+//			}
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		return anccResult;
+//	}
+	
+	@Autowired
+	private JcFirmService jcFirmService;
+	
+	@Value("${Pdf.Path}")
+	String filepath;
+	
+	//续展回执下载
+	@RequestMapping(value="/ResumeReceipt",method = RequestMethod.POST)
+	@ResponseBody
+	public  AnccResult ResumeReceipt(String fid, String qrCode, String  branchCode) throws Exception{
+		JcFirm info = jcFirmService.get(fid);
+		QrCodeFactory qrCodeFactory=QrCodeFactory.getInstance();
+		YYZZStrategy yyzz=qrCodeFactory.createYyzzStrategy(branchCode);
+		Map<String, String> map=yyzz.getByQrCode(qrCode);
+		String firmName = info.getFirmName();
+		String sn = XzResumeTempService.getByFrimName(firmName).getSn();
+		String codes = XzCodeTempService.getCodes(sn).toString();
+		codes = codes.replace("[", "(").replace("]", ")");
+		
+		String path="";
+		path = GreenBarCodeImg.generat(imgPath, sn);
+		FileInputStream is = null;
+		TM_SN tm_SN=new TM_SN();
+		try {
+	    	tm_SN.setSn(sn);
+	    	is = new FileInputStream(new File(path));
+		    byte[] bytes = FileCopyUtils.copyToByteArray(is);
+		    tm_SN.setImg(bytes);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		tmSnService.save(tm_SN);
+		
+		String result = yyzz.ResumeReceipt(filepath, sn, firmName, codes, imgPath);
+		return  AnccResult.ok(result);
+	}
+}

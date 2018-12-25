@@ -1,0 +1,15 @@
+eclipse.preferences.version=1
+encoding//WebContent/view/common/403.html=UTF-8
+encoding//WebContent/view/common/404.html=UTF-8
+encoding//WebContent/view/common/500.html=UTF-8
+encoding//WebContent/view/entertain/elogin.jsp=UTF-8
+encoding//WebContent/view/entertain/unapproved.jsp=UTF-8
+encoding//src/cn/com/hfga/controller/common/LoginController.java=UTF-8
+encoding//src/cn/com/hfga/controller/common/PrivateCarController.java=UTF-8
+encoding//src/cn/com/hfga/controller/common/Task.java=GBK
+encoding//src/cn/com/hfga/controller/file/FileController.java=UTF-8
+encoding//src/cn/com/hfga/entity/user/UserEntity.java=UTF-8
+encoding//src/cn/com/hfga/manageimpl/car/CarApplyInfoManageImpl.java=GBK
+encoding//src/cn/com/hfga/manager/car/CarBaseInfoManage.java=UTF-8
+encoding//src/cn/com/hfga/util/shiro/ShiroRealm.java=UTF-8
+encoding//src/cn/com/hfga/webservice/server/serviceimpl/ArithmeticServiceImpl.java=UTF-8

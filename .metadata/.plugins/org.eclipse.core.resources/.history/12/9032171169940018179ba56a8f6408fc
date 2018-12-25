@@ -1,0 +1,4 @@
+jdbc.driver=oracle.jdbc.driver.OracleDriver
+jdbc.url=jdbc:oracle:thin:@192.168.4.92:1521:ANCC20180116
+jdbc.username=system
+jdbc.password=123456

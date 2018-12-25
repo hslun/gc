@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>算法管理</title>
+</head>
+<link type="text/css" rel="stylesheet" href="../../static/css/comstyle/css/bootstrap.css" />
+<script type="text/javascript" src="../../static/javascript/common/jquery.min.js"></script>
+<script type="text/javascript" src="../../static/javascript/common/common.js"></script>
+<!-- <script type="text/javascript" src="../../static/javascript/common/d3.v3.js"></script> -->
+<script type="text/javascript">
+$(document).ready(function (){
+	jQuery.ajax({
+		type : "POST",
+		url : "/hfgaApp/arithmetic/getArithmetic",
+		dataType : 'json',
+		success : function(data) {
+			var str='<tr><td colspan="5"><h4>查看算法</h4></td></tr><tr><td>序号</td><td>类</td><td>识别编号</td><td>名称</td><td>方法名称</td><td>审核状态</td><td>运行状态</td></tr>';
+			$(data).each(function (){
+				str+='<tr><td>'+this.id+'</td><td>'+this.className+'</td><td>'+this.code+'</td><td>'+this.name+'</td><td>'+this.methodName+'</td><td>'+this.statusName+'</td><td><a href="#" onclick="return onFlag('+this.id+','+this.flag+','+this.status+')">'+this.flagName+'</a></td></tr>'
+			})
+			$(".table-hover").html(str);
+		}
+	});
+});
+function onFlag(id,flag,status){
+	if("2"==status || "2"==status){
+		alert("未审核，不能启动！")
+		return false;
+	}
+	dto={
+			id:id,
+			flag:flag
+	},
+	jQuery.ajax({
+		type : "POST",
+		url : "/hfgaApp/arithmetic/getFlag",
+		dataType : 'json',
+		data:dto,
+		success : function(data) {
+			if("success"==data){
+				alert("操作成功！");
+				history.go();
+			}
+		}
+	}); 
+}
+</script>
+<body>
+ <table class="table table-hover" style="width:95%;float:right;">
+ 		  
+</table>
+</body>
+</html>

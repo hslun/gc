@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Test HTML</title>
+<script type="text/javascript" src="../../static/javascript/common/jquery.min.js"></script>
+<script type="text/javascript" src="../../static/javascript/common/common.js"></script>
+<script type="text/javascript" src="../../static/javascript/common/d3.v3.js"></script>
+<!-- <script type="text/javascript" src="js/test.js"></script> -->
+<script type="text/javascript">
+
+jQuery.ajax({
+	type : "POST",
+	url : "hfgaApp/",
+	dataType : 'json',
+	success : function(data) {
+		alert(data)
+		/* var div = d3.select(".select");
+		$(data).each(function (){
+			alert(this.userName)
+			div.append("p").classed("user_info",true).attr("id","userName").style("float","right").style("display","none").html(this.userName);
+		}) */
+	}
+});
+</script>
+</head>
+<body>
+<div class="select"></div>
+	Hello Word!
+</body>
+</html>

@@ -1,0 +1,458 @@
+package com.ancc.controller;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.FileCopyUtils;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.ancc.common.AnccResult;
+import com.ancc.common.ArchiveFileMove;
+import com.ancc.common.Constants;
+import com.ancc.common.Utility;
+import com.ancc.common.yyzz.QrCodeFactory;
+import com.ancc.common.yyzz.YYZZStrategy;
+import com.ancc.mapper.log.BaOperLogMapper;
+import com.ancc.pojo.archive.DaFileRecive;
+import com.ancc.pojo.archive.TM_SN;
+import com.ancc.pojo.changeandresume.BgXzCashinOnline;
+import com.ancc.pojo.changeandresume.BgXzChangeResumeTemp;
+import com.ancc.pojo.changeandresume.BgXzCodeTemp;
+import com.ancc.pojo.enterprise.JcEanUpc;
+import com.ancc.pojo.enterprise.JcFirm;
+import com.ancc.pojo.log.BaOperFlag;
+import com.ancc.pojo.log.BaOperLog;
+import com.ancc.service.archive.DaFileReciveService;
+import com.ancc.service.archive.TmSnService;
+import com.ancc.service.changeandresume.BgXzCashinOnlineService;
+import com.ancc.service.changeandresume.BgXzChangeResumeTempService;
+import com.ancc.service.changeandresume.BgXzCodeTempService;
+import com.ancc.service.enterprise.JcEanUpcService;
+import com.ancc.service.enterprise.JcFirmService;
+import com.ancc.service.log.BaOperFlagService;
+import com.ancc.service.log.BaOperLogService;
+import com.ancc.util.GreenBarCodeImg;
+import com.ancc.util.RedisCache;
+import com.ancc.util.RedisTemplateUtil;
+import com.ancc.util.Uploader;
+
+/**
+ * 变更加续展类
+ * @author hfga
+ *
+ */
+@Controller
+@RequestMapping("/bgxz")
+public class ChangAndResume {
+	@Autowired
+	private BgXzChangeResumeTempService BgXzChangeResumeTempService;
+	
+	@Autowired
+	private JcEanUpcService JcEanUpcService;
+		
+	@Autowired	
+	private JcFirmService JcFirmService;
+	
+	@Autowired
+	private DaFileReciveService daFileReciveService;
+	
+	@Autowired
+	private BgXzCashinOnlineService bgXzCashinOnlineService;
+	
+	@Autowired
+	private BgXzCodeTempService bgXzCodeTempService;
+	 
+	@Value("${ImgChange.Path}")
+    private String imgPath;
+	
+	@Autowired
+	private BaOperLogMapper BaOperLogMapper;
+	
+	@Autowired
+	private BaOperLogService BaOperLogService;
+	
+	@Autowired
+	private BaOperFlagService baOperFlagService;
+	@Autowired
+	private TmSnService tmSnService;
+	@Autowired
+	private ArchiveFileMove archiveFileMove;
+	@Autowired
+	private Uploader uploader;
+	@Resource
+	private RedisTemplateUtil redisTemplateUtil;
+
+	//通过f_id来获取厂商所有的code
+	@RequestMapping(value="/getCodes/{fId}",method = RequestMethod.GET)
+	@ResponseBody
+	public AnccResult getCodes(@PathVariable String fId){
+		List<JcEanUpc> codes = JcEanUpcService.getCodes(fId);
+		for(JcEanUpc c:codes){
+			System.out.println("所有厂商的code是"+c);
+		}
+		return AnccResult.ok(JcEanUpcService.getCodes(fId));
+	}
+	
+	//通过f_id来获取企业信息
+	@RedisCache(name="bgxzGetJc",value="fid")
+	@RequestMapping(value="/getJcFirm/{fid}",method = RequestMethod.GET)
+	@ResponseBody
+	public AnccResult getJcFirm(@PathVariable String fid){
+		JcFirm jcFirm = (JcFirm) redisTemplateUtil.get(fid+"bgxzGetJc");
+		if(null == jcFirm){
+			JcFirm jc=JcFirmService.cardLogin(fid+"               ");
+			if(null == jc){
+				 return AnccResult.ok("暂无记录信息");
+			}
+			redisTemplateUtil.set(fid+"bgxzGetJc", jc);
+			return AnccResult.ok(jc);
+		}else{
+			redisTemplateUtil.set(fid+"bgxzGetJc", jcFirm);
+			return AnccResult.ok(jcFirm);
+		}
+		
+	}
+	
+	
+	//增加变更加续展
+	@RequestMapping(value="/addObj",method = RequestMethod.POST)
+	@ResponseBody
+	public AnccResult addObj(BgXzChangeResumeTemp BgXzChangeResumeTemp,String fId) throws Exception {
+		String result = BgXzChangeResumeTempService.addObj(BgXzChangeResumeTemp,fId);
+		BaOperLog BaOperLog = new BaOperLog();
+		String num = BaOperLogMapper.selectbillsn(7);
+		BaOperLog.setBillsn(num);
+		BaOperLog.setSn(BgXzChangeResumeTemp.getSn());
+		BaOperLog.setFirmName(BgXzChangeResumeTemp.getFirmName());
+		String OperType = BaOperLogService.getOperCode(BgXzChangeResumeTemp.getSn());
+		BaOperLog.setOperType(OperType);
+		BaOperLog.setOptypeid("L");
+		BaOperLog.setMyear(Utility.getYear()+"");
+		BaOperLog.setMdate(Utility.getMonth()+Utility.getDay()+"");
+		BaOperLog.setMtime(Utility.getHHMMSS());
+		System.out.println("fId是"+fId);
+		
+		BaOperFlag BaOperFlag = new BaOperFlag();
+		BaOperFlag.setBranchCode(BgXzChangeResumeTemp.getBranchCode());
+		BaOperFlag.setDbdCode(BgXzChangeResumeTemp.getDbdCode());
+		BaOperFlag.setFirmName(BgXzChangeResumeTemp.getFirmName());
+		BaOperFlag.setSn(result);
+		BaOperFlag.setStatus("L");
+		BaOperFlag.setOperType("H");
+		baOperFlagService.insertSelective(BaOperFlag);
+		
+		return AnccResult.ok(result);
+	}
+	
+	
+	@RequestMapping(value="/del/{sn}",method = RequestMethod.GET)
+	@ResponseBody
+	public AnccResult delObj(@PathVariable String sn) throws Exception {
+		BgXzChangeResumeTemp temp = BgXzChangeResumeTempService.loadObj(sn);
+		BaOperLog BaOperLog = new BaOperLog();
+		String num = BaOperLogMapper.selectbillsn(7);
+		BaOperLog.setBillsn(num);
+		BaOperLog.setSn(sn);
+		BaOperLog.setFirmName(temp.getFirmName());
+		String OperType = BaOperLogService.getOperCode(sn);
+		BaOperLog.setOperType(OperType);
+		BaOperLog.setOptypeid("C");
+		BaOperLog.setMyear(Utility.getYear()+"");
+		BaOperLog.setMdate(Utility.getMonth()+Utility.getDay()+"");
+		BaOperLog.setMtime(Utility.getHHMMSS());
+		return AnccResult.ok(BgXzChangeResumeTempService.delObj(sn));
+	}
+	
+	//修改变更
+	@RequestMapping(value="/modObj",method = RequestMethod.POST)
+	@ResponseBody
+	public AnccResult modObj(BgXzChangeResumeTemp BgXzChangeResumeTemp) throws Exception {
+		System.out.println("修改变更+续展");
+		System.out.println("传过来的参数为"+BgXzChangeResumeTemp);
+		BaOperLog BaOperLog = new BaOperLog();
+		String num = BaOperLogMapper.selectbillsn(7);
+		BaOperLog.setBillsn(num);
+		BaOperLog.setSn(BgXzChangeResumeTemp.getSn());
+		BaOperLog.setFirmName(BgXzChangeResumeTemp.getFirmName());
+		String OperType = BaOperLogService.getOperCode(BgXzChangeResumeTemp.getSn());
+		BaOperLog.setOperType(OperType);
+		BaOperLog.setOptypeid("L");
+		BaOperLog.setMyear(Utility.getYear()+"");
+		BaOperLog.setMdate(Utility.getMonth()+Utility.getDay()+"");
+		BaOperLog.setMtime(Utility.getHHMMSS());
+		return AnccResult.ok(BgXzChangeResumeTempService.modObj(BgXzChangeResumeTemp));
+	}
+	
+	//查询变更加续展表
+	@RequestMapping(value="/loadObj",method = RequestMethod.POST)
+	@ResponseBody
+	public AnccResult loadObj(BgXzChangeResumeTemp BgXzChangeResumeTemp) throws Exception {
+		return AnccResult.ok(BgXzChangeResumeTempService.loadObj(BgXzChangeResumeTemp));
+	}
+	
+	//插入code
+	//变更+续展保存
+		@RequestMapping(value="/addCode",method = RequestMethod.POST)
+		@ResponseBody
+		public AnccResult addObjWL(@RequestBody BgXzCodeTemp[] bgXzCodeTemp) throws Exception {
+			System.out.println("查看"+bgXzCodeTemp);
+			for(int i=0;i<bgXzCodeTemp.length;i++) {
+				bgXzCodeTempService.addCodeXMl(bgXzCodeTemp[i]);
+			}
+			return  AnccResult.ok(bgXzCodeTemp[0]);
+		}
+		//查询code表（码表）
+		@RequestMapping(value="/getCode/{sn}",method = RequestMethod.GET)
+		@ResponseBody
+		public AnccResult selectCode(@PathVariable String sn){
+			System.out.println("查询sn是"+sn);
+			return AnccResult.ok(bgXzCodeTempService.getBGXZCodesBySn(sn));
+		}
+		
+	//修改CODe
+		@RequestMapping(value="/updateCode",method = RequestMethod.POST)
+		@ResponseBody
+		public AnccResult updateObjCode(@RequestBody BgXzCodeTemp[] bgXzCodeTemp){
+			
+			return AnccResult.ok(bgXzCodeTempService.updateCodeXML(bgXzCodeTemp[0].getSn(), bgXzCodeTemp));
+		}
+		
+		//生成pdf
+		@RequestMapping(value= "/pdf/{sn}" ,method = RequestMethod.GET)
+		@ResponseBody
+		public AnccResult BgXzChangeresumPdf(@PathVariable String sn) throws IOException{
+			String path="";
+			path = GreenBarCodeImg.generat(imgPath, sn);
+			FileInputStream is = null;
+			TM_SN tm_SN=new TM_SN();
+			try {
+		    	tm_SN.setSn(sn);
+		    	is = new FileInputStream(new File(path));
+			    byte[] bytes = FileCopyUtils.copyToByteArray(is);
+			    tm_SN.setImg(bytes);
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+			tmSnService.save(tm_SN);
+			System.out.println("查询sn是"+sn);
+			return AnccResult.ok(BgXzChangeResumeTempService.pdfutil(sn).replace("\\", "*").replace(".", "-"));
+		}
+		
+		//测试付款接口--先让流程走下去
+		@RequestMapping(value="/payTest",method = RequestMethod.POST)
+		@ResponseBody
+		public  AnccResult payTest(String sn){
+			BgXzCashinOnline bgXzCashinOnline=new BgXzCashinOnline();
+			bgXzCashinOnline.setOrderno(sn);
+			bgXzCashinOnline.setFeesum("18.00");
+			bgXzCashinOnline.setPaybatno("20180731");
+			bgXzCashinOnline.setMerchbatchno("");
+			bgXzCashinOnline.setTrandate("20180731");
+			bgXzCashinOnline.setTrandate("145533");
+			bgXzCashinOnline.setSerialno("hahaha");
+			bgXzCashinOnline.setBankmono("");
+			BgXzChangeResumeTempService.modObjWLBGXZ(sn, Constants.WEBSITE_PAY);
+			BaOperFlag BaOperFlag = new BaOperFlag();
+			BaOperFlag.setSn(sn);
+			BaOperFlag.setStatus(Constants.WEBSITE_PAY);
+			baOperFlagService.updateBaoperFlag(BaOperFlag);
+			return  AnccResult.ok(bgXzCashinOnlineService.insert(bgXzCashinOnline));
+		}
+		
+		/*@RequestMapping(value="/logj",method=RequestMethod.POST)
+		@ResponseBody
+		public AnccResult log4j(String sn) throws Exception{
+			//应要求增加日志
+			BgXzChangeResumeTemp bgXzChangeResumeTemp = BgXzChangeResumeTempService.loadObj(sn);
+			System.out.println("变更临时表"+bgXzChangeResumeTemp);
+			BaOperLog BaOperLog = new BaOperLog();
+			String num = BaOperLogMapper.selectbillsn(7);
+			BaOperLog.setBillsn(num);
+			BaOperLog.setSn(bgXzChangeResumeTemp.getSn());
+			BaOperLog.setFirmName(bgXzChangeResumeTemp.getFirmName());
+			String OperType = BaOperLogService.getOperCode(bgXzChangeResumeTemp.getSn());
+			BaOperLog.setOperType(OperType);
+			BaOperLog.setOptypeid(bgXzChangeResumeTemp.getStatus());
+			BaOperLog.setMyear(Utility.getYear()+"");
+			BaOperLog.setMdate(Utility.getMonth()+Utility.getDay()+"");
+			BaOperLog.setMtime(Utility.getHHMMSS());
+			
+			System.out.println("变更续展插入");
+			if(BaOperLogService.addOperLog(BaOperLog)!=1){
+				StringBuffer s = new StringBuffer();
+				s.append("日志记录失败：功能菜单ID ");
+				s.append(BaOperLog.getFuncid());
+				s.append("，操作ID ");
+				s.append(BaOperLog.getOptypeid());
+				s.append("，操作人 ");
+				s.append(BaOperLog.getPersonid());
+				s.append("操作时间 ");
+				s.append(BaOperLog.getMyear());
+				s.append(BaOperLog.getMdate());
+				s.append(BaOperLog.getMtime());
+				throw new Exception(s.toString());
+			}
+			BaOperFlag baOpeerFlag = new BaOperFlag();
+			
+			baOpeerFlag.setSn(bgXzChangeResumeTemp.getSn());
+			baOpeerFlag.setOperType(OperType);
+			baOpeerFlag.setFirmName(bgXzChangeResumeTemp.getFirmName());
+			baOpeerFlag.setBranchCode(bgXzChangeResumeTemp.getBranchCode());
+			baOpeerFlag.setDbdCode(bgXzChangeResumeTemp.getDbdCode());
+			baOpeerFlag.setStatus(bgXzChangeResumeTemp.getStatus());
+			// 记录业务办理标志
+			if(baOperFlagService.get(bgXzChangeResumeTemp.getSn())==null){
+				baOperFlagService.insertSelective(baOpeerFlag);
+			}else if(Constants.CENTER_FINAL_APPROVE.equals(BaOperLog.getOptypeid())){
+				baOperFlagService.delete(bgXzChangeResumeTemp.getSn());
+			}else{//否则更新
+				baOperFlagService.updateBaoperFlag(baOpeerFlag);
+			}
+			
+			
+			return AnccResult.ok();
+		}*/
+		
+		
+		//上传文件
+		@RequestMapping(value="/uploadFile",method = RequestMethod.POST)
+		@ResponseBody
+		@Transactional
+		public  AnccResult uploadFile(@RequestParam("file") MultipartFile[] files,@RequestParam("sn")String sn) throws Exception{
+		
+			AnccResult anccResult=null;
+			
+			boolean isExist=false;
+//			boolean isPay=false;
+			try {
+				isExist = archiveFileMove.isExist(sn,"a1.jpg");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			String status="";
+		    if(isExist){
+		    	status = Constants.WEBSITE_UPDATE;
+		    }else{
+		    	status = Constants.WEBSITE_SAVE;
+		    }
+		    //multipartFile 要转化成file
+		    try {
+				if(uploader.upFile(files,"a",sn,"web")){
+					
+					//文件插入数据库
+					DaFileRecive daFileRecive=new DaFileRecive();
+					daFileRecive.setFileName(sn+".tif");
+					daFileRecive.setSn(sn);
+					daFileReciveService.addObj(daFileRecive);
+				}
+				//合成
+				boolean bl = archiveFileMove.compoundTif(sn);
+
+				if(!bl){
+					//上传失败
+					anccResult=AnccResult.build(500, "tif合成失败",null);
+				}
+				BaOperFlag BaOperFlag = new BaOperFlag();
+				BaOperFlag.setSn(sn);
+				
+				List<BgXzCashinOnline> bgXzCashinOnlines=bgXzCashinOnlineService.get(sn);
+				BgXzCashinOnline bgXzCashinOnline = null;
+				if (!bgXzCashinOnlines.isEmpty()){
+					bgXzCashinOnline = bgXzCashinOnlines.get(0);
+				}else{
+					bgXzCashinOnline = null;
+				}
+				HashMap<String,String> buid = new HashMap<String,String>();
+				BgXzChangeResumeTemp bgXzChangeResumeTemp = new BgXzChangeResumeTemp();
+				if(bgXzCashinOnline!=null){
+//					isPay=true;
+					status = Constants.WEBSITE_PAY;//存在网上支付信息，设置完成支付标志位
+					System.out.println("状态未是"+status);
+					buid.put("status", Constants.WEBSITE_PAY);
+					System.out.println("buile是"+buid);
+					BgXzChangeResumeTempService.modObjWLBGXZ(sn, status);
+					anccResult=AnccResult.build(200, "已付款",buid);
+					BaOperFlag.setStatus(status);
+				}
+				else{
+					buid.put("status", Constants.WEBSITE_SAVE);
+					BgXzChangeResumeTempService.modObjWLBGXZ(sn, Constants.WEBSITE_SAVE);
+					anccResult=AnccResult.build(200, "未付款",buid);
+					BaOperFlag.setStatus(Constants.WEBSITE_SAVE);
+				}
+				baOperFlagService.updateBaoperFlag(BaOperFlag);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return anccResult;
+		}
+
+		@Autowired
+		private JcFirmService jcFirmService;
+		
+		@Value("${Pdf.Path}")
+		String filepath;
+		
+		
+		//线下付款  需要上传资料  线下付款的资料标识是@RequestParam("file") MultipartFile[] files
+//		@RequestMapping(value="/uploadOffineFile",method = RequestMethod.POST)
+//		@ResponseBody
+//		@Transactional
+//		public  AnccResult  offline(@RequestParam("file") MultipartFile[] files,@RequestParam("sn")String sn){
+//			AnccResult anccResult=null;
+//			ArchiveFileMove afm = new ArchiveFileMove();
+//		    try {
+//				if(uploader.upzdFile(files,"b",sn)){
+//					if (daFileReciveService.loadObj(sn)!=null) {
+//						//说明档案存在
+//						uploader.deleteFile("web", sn);
+//						daFileReciveService.delObj(sn);
+//					}
+//					//文件插入数据库
+//					DaFileRecive daFileRecive=new DaFileRecive();
+//					daFileRecive.setFileName(sn+".tif");
+//					daFileRecive.setSn(sn);
+//					daFileReciveService.addObj(daFileRecive);
+//				}
+//				//合成
+//				boolean bl = afm.compoundTif(sn);
+//				if(!bl){
+//					//上传失败
+//					anccResult=AnccResult.build(500, "tif合成失败",null);
+//				}else {
+//					ZcEanUpcTemp zcEanUpcTemp=new ZcEanUpcTemp();
+//					zcEanUpcTemp.setSn(sn);
+//					zcEanUpcTemp.setStatus(Constants.WEBBG_PAY);
+//					zcEanUpcTempService.modObjWLU(zcEanUpcTemp);
+//					anccResult=AnccResult.build(200, "已付款",new HashMap<>().put("status", Constants.WEBSITE_PAY));
+//				}
+//			} catch (Exception e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//			return anccResult;
+//		}
+}

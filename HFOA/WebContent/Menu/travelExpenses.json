@@ -1,0 +1,12 @@
+[
+  {
+    "id": 2,
+    "text": "待登记列表",
+    "url": "waitRegisterList.jsp"
+  },
+  {
+    "id": 1,
+    "text": "已登记列表",
+    "url": "registeredList.jsp"
+  }
+]

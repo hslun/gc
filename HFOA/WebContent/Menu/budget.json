@@ -1,0 +1,9 @@
+[{ 
+"id":1,
+"text":"招待年度预算",
+"url":"annualBudget.jsp"},
+{ 
+"id":2,
+"text":"预算执行情况",
+"url":"implementation.jsp"}
+]

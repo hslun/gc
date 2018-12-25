@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="viewport"
+	content="width=device-width,initial-scale=1.0,user-scalable=no" />
+<title>信息化管理系统</title>
+<link rel="stylesheet" href="../../view/test/js/jquery.mobile-1.4.5.css" />
+<script src="../../view/test/js/jquery-1.8.3.min.js"></script>
+<script src="../../view/test/js/jquery.mobile-1.4.5.js"></script>
+<script src="../../view/test/js/jquery.cookie.js"></script>
+<script src="../js/applyInfo.js"></script>
+</head>
+<body>
+	<div data-role="page" id="applyInfo">
+		<div data-role="header">
+			<h4>借车申请单</h4>
+			<a href="#" data-role="button" class="ui-btn-left" data-icon="back" id="back">返 回</a>
+		</div>
+		<div data-role="content">
+			<table width="100%">
+				<tr id="applyMan_tr" >
+					<td align="center"><h4>申&nbsp;请&nbsp;人</h4></td>
+					<td colspan="2"><input type="text" id="applyMan" value="" /></td>
+
+				</tr>
+				<tr>
+					<td><h4>车&nbsp;&nbsp;&nbsp;&nbsp;型</h4></td>
+					<td colspan="2"><select name="type" id="carType">
+							<option value="101">切诺基 京HV3507</option>
+							<option value="102">GL8 京NH8845</option>
+							<option value="103">新捷达 京NTU976</option>
+							<option value="105">奔驰 京Q1L932</option>
+							<option value="106">奔驰 京QMQ381</option>
+					</select></td>
+				</tr>
+				<tr id="approveMan_tr">
+					<td><h4>审&nbsp;批&nbsp;人</h4></td>
+					<td colspan="2"><select id="approveMan">
+					</select></td>
+				</tr>
+				<tr id="realApplyMan_tr">
+					<td><h4>审&nbsp;批&nbsp;人</h4></td>
+					<td colspan="2"><input type="text" id="realApproveMan" value="" /></td>
+
+				</tr>
+				<tr>
+					<td><h4>驾&nbsp;驶&nbsp;人</h4></td>
+					<td colspan="2"><input type="text" id="driver" value="" /></td>
+
+				</tr>
+				<tr>
+					<td><h4>同行人数</h4></td>
+					<td colspan="2"><input type="text"
+						onkeyup="this.value=this.value.replace(/[^\d]/g,'')"
+						id="compareManNum" value="0" /></td>
+				</tr>
+				<tr>
+					<td><h4>出&nbsp;发&nbsp;地</h4></td>
+					<td colspan="2"><input type="text" id="startAddress" value="" /></td>
+				</tr>
+				<tr>
+					<td><h4>目&nbsp;的&nbsp;地</h4></td>
+					<td colspan="2"><input type="text" id="endAddress" value="" /></td>
+				</tr>
+				<tr>
+					<td><h4>预借时间</h4></td>
+					<td><input type="date" data-role="datebox"
+						data-options='{"mode": "datebox", "overrideDateFormat": "%m-%d-%Y"}'
+						id="beginTimePlan_date" /></td>
+					<td><input type="time" data-role="datebox"
+						data-options='{"mode": "datebox", "overrideDateFormat": "%m-%d-%Y"}'
+						id="beginTimePlan_time" /></td>
+				</tr>
+				<tr>
+					<td><h4>预还时间</h4></td>
+					<td><input type="date" data-role="datebox"
+						data-options='{"mode": "datebox", "overrideDateFormat": "%m-%d-%Y"}'
+						id="endTimePlan_date" /></td>
+					<td><input type="time" data-role="datebox"
+						data-options='{"mode": "datebox", "overrideDateFormat": "%m-%d-%Y"}'
+						id="endTimePlan_time" /></td>
+				</tr>
+				<tr>
+					<td><label id="reason"><h4>借车事由</h4></label></td>
+					<td colspan="2"><textarea id="useCarReason" rows="5" value=""></textarea></td>
+				</tr>
+
+			</table>
+			<div align="center" id="submit_div">
+				<!-- 使用圆角按钮 -->
+				<input id="submit" type="button" data-inline="true" value="提 交" />
+				<input id="reset" type="button" data-inline="true" value="重 置" />
+			</div>
+			<div align="center" id="change_div">
+				<!-- 使用圆角按钮 -->
+				<input id="change" type="button" data-inline="true" value="修 改"/>
+				<input id="delete"  class="delete" type="button" data-inline="true" value="删 除" />
+			</div>
+			<div align="center" id="approve_div">
+				<!-- 使用圆角按钮 -->
+				<input id="pass" type="button" data-inline="true" value="通 过" />
+				<input id="overruled" type="button" data-inline="true" value="否 决" />
+			</div>
+			<div align="center" id="del_div">
+				<input id="del" class="delete" type="button" data-inline="true" value="删 除" />
+			</div>
+		</div>
+	</div>
+</body>
+</html>

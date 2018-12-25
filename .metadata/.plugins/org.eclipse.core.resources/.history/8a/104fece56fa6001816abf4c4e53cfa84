@@ -1,0 +1,1102 @@
+package com.ancc.common.yyzz;
+
+
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Value;
+
+import com.ancc.common.Constants;
+import com.ancc.common.Utility;
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.ColumnText;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.draw.LineSeparator;
+import com.ancc.util.CustomDashedLineSeparator;
+
+/**
+ * 使用工厂对策略模式进行优化
+ * @author hfga
+ * 只是将代码从客户端分离出来
+ */
+public class QrCodeFactory {
+
+	//这里是一个常量，表示我们扫描策略的包  营业执照的包
+	private static final String BRANCH_QRCODE_PACKAGE = "com.ancc.common.yyzz";
+
+    private ClassLoader classLoader = getClass().getClassLoader();
+    private static QrCodeFactory instance=null;
+//    单例设计模式(饿汉式)
+    private QrCodeFactory() {
+    	init();
+    } 
+    
+    public static synchronized QrCodeFactory getInstance() {
+       System.out.println("0"+instance);
+       if(instance==null){
+    	   System.out.println("new");
+    	   instance=new QrCodeFactory();
+       }
+       System.out.println("1"+instance);
+       return instance;
+    }
+    
+    //策略列表  不同分中心对应不同策略
+    private List<Class<? extends YYZZStrategy>> yyzzStrategyLists;
+    
+	//根据分中心的编码来选择相应的策略 传递进来 
+	public  YYZZStrategy createYyzzStrategy(String branch_code){
+		 //在策略列表查找策略
+        for (Class<? extends YYZZStrategy> clazz : yyzzStrategyLists) {
+            BranchCode validRegion = handleAnnotation(clazz);//获取该策略的注解
+            //判断金额是否在注解的区间
+            if (branch_code.equals(validRegion.setBranchCode())) {
+                try {
+                    //是的话我们返回一个当前策略的实例
+                    return clazz.newInstance();
+                } catch (Exception e) {
+                   System.out.println("未获取相关策略资源");
+                }
+            }
+        }
+        return null;
+    }
+
+	//处理注解，我们传入一个策略类，返回它的注解
+	private BranchCode handleAnnotation(Class<? extends YYZZStrategy> clazz) {
+	    Annotation[] annotations = clazz.getDeclaredAnnotations();
+	    if (annotations == null || annotations.length == 0) {
+	        return null;
+	    }
+	    for (int i = 0; i < annotations.length; i++) {
+	        if (annotations[i] instanceof BranchCode) {
+	            return (BranchCode) annotations[i];
+	        }
+	    }
+	    return null;
+	}
+	
+	//获取扫描的包下面所有的class文件
+    private File[] getResources() {
+        try {
+//        	System.out.println("path"+classLoader.getResource("/").toURI());
+//        	String a=classLoader.getResource(BRANCH_QRCODE_PACKAGE.replace(".", "/")).getPath();
+        	String a=QrCodeFactory.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+//        	URI url=classLoader.getResource(BRANCH_QRCODE_PACKAGE.replace(".", "/")).toURI();
+
+            File file = new File(classLoader.getResource(BRANCH_QRCODE_PACKAGE.replace(".", "/")).toURI());
+//            a.replaceAll("!", "");
+            String path=java.net.URLDecoder.decode("F:/ysy_works_2017_3_2/aa/.m2/repository/com/ancc/ancc-common/0.0.1-SNAPSHOT/ancc-common-0.0.1-SNAPSHOT.jar/com/ancc/common/yyzz", "UTF-8");
+            System.out.println(classLoader.getResource(BRANCH_QRCODE_PACKAGE.replace(".", "/")).toURI());
+//            JarFile file1 = new JarFile("jar:fiel:/F:/ysy_works_2017_3_2/aa/ojdbc14.jar!/oracle/jdbc");
+//            Enumeration enu=file1.entries();
+//            JarEntry[] files=new JarEntry[100];
+//            int i=0;
+//            while(enu.hasMoreElements()){
+//            	JarEntry element=(JarEntry) enu.nextElement();
+//            	String name=element.getName();
+//            	if(name.toUpperCase().endsWith(".class")){
+//            		System.out.println(name);
+//            		i++;
+//            		files[i]=element;
+//            	}
+//            	
+//            }
+            return file.listFiles(new FileFilter() {
+                public boolean accept(File pathname) {
+                    if (pathname.getName().endsWith(".class")) {//我们只扫描class文件
+                        return true;
+                    }
+                    return false;
+                }
+            });
+        } catch (Exception e) {
+            System.out.println("未发现策略资源");
+        }
+        return null;
+    }
+	
+	
+    
+    //在工厂初始化时要初始化策略列表
+    @SuppressWarnings("unchecked")
+	private void init() {
+    	yyzzStrategyLists = new ArrayList<Class<? extends YYZZStrategy>>();
+        File[] resources = getResources();//获取到包下所有的class文件
+        Class<YYZZStrategy> calPriceClazz = null;
+        try {
+            calPriceClazz = (Class<YYZZStrategy>) classLoader.loadClass(YYZZStrategy.class.getName());//使用相同的加载器加载策略接口
+        } catch (ClassNotFoundException e1) {
+            throw new RuntimeException("未找到策略接口");
+        }
+        for (int i = 0; i < resources.length; i++) {
+        	System.out.println(resources[i].getName());
+            try {
+                //载入包下的类
+                Class<?> clazz = classLoader.loadClass(BRANCH_QRCODE_PACKAGE + "." + resources[i].getName().replace(".class", ""));
+                if (YYZZStrategy.class.isAssignableFrom(clazz) && clazz != calPriceClazz) {
+                	yyzzStrategyLists.add((Class<? extends YYZZStrategy>) clazz);
+                }
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    //注册回执pdf
+    public String SzRegisterReceipt(String filepath, String sn, String firmName){
+		String fileDesc = "";
+		System.out.println(filepath);
+        FileOutputStream outr = null;// 创建输出流
+		//生成pdf文件
+		 fileDesc = filepath + "RegisterReceipt" + sn + ".pdf";//路径下一定要有此文件
+		 System.out.println(fileDesc);
+		 //对PDF文档的规定
+		//大标题
+		 int numD=19;
+		 int numY=15;
+		 //小标题
+		 int numX=13;
+		 
+		 //表格大
+		 int numTD=13;
+		 
+		 //表格小
+		 int numTX=11;
+		 
+		 //表格中
+		 int numM=12;
+		 int numS=9;
+		 
+		 Document document=new Document();
+	        //设置要输出到磁盘上的文件名称
+		  try{
+			   outr= new FileOutputStream(fileDesc);
+	            PdfWriter.getInstance(document, outr);
+	            document.open();
+	            
+	            Paragraph phase = new Paragraph();  
+		        Chunk par1=new Chunk("注册受理回执存根                                                    "
+		        		+ "                          ",setFont(numX,false));
+		        phase.add(par1);
+		        
+		        Chunk right1=new Chunk("No:  "+sn,setFont(numX,false));
+		        right1.setUnderline(0.2f, -2f);
+		        phase.add(right1);
+		        phase.setSpacingAfter(10);
+		        phase.setIndentationRight(29);
+		        phase.setAlignment(Element.ALIGN_LEFT);
+		        document.add(phase);
+		       
+		        //添加一个空行
+		        Paragraph phase1 = new Paragraph();
+		        Chunk par5=new Chunk(firmName+"：",setFont(numY,false));
+		        par5.setUnderline(0.2f, -2f);
+		        phase1.add(par5);
+		        phase1.setSpacingAfter(10);
+		        document.add(phase1);
+		        
+		        Paragraph par2=new Paragraph("该公司手续齐全，受理回执已发。",setFont(numX,false));
+		        par2.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par2);
+		        
+		        Paragraph par6=new Paragraph();
+		        Chunk label=new Chunk("经办人：",setFont(numX,false));
+		        Chunk person=new Chunk("赵",setFont(numY,false));
+		        person.setUnderline(0.2f, -2f);
+		        par6.add(label);
+		        par6.add(person);
+		        par6.setSpacingAfter(10);
+		        par6.setAlignment(Element.ALIGN_RIGHT);
+		        par6.setIndentationRight(143);
+		        document.add(par6);
+		        
+		        Paragraph par8=new Paragraph();
+		        Chunk date=new Chunk(Utility.getYear()+"年"+Utility.getMonth()+"月"+Utility.getDay()+"日",setFont(numY,false));
+		        date.setUnderline(0.2f, -2f);
+		        par8.add(date);
+		        par8.setAlignment(Element.ALIGN_RIGHT);
+		        par8.setIndentationRight(116);
+		        par8.setSpacingAfter(5);
+		        document.add(par8);
+		        
+		        CustomDashedLineSeparator separator = new CustomDashedLineSeparator();
+		        separator.setDash(5);
+		        separator.setGap(5);
+		        separator.setLineWidth((float) 0.1);
+		        Chunk linebreak = new Chunk(separator);
+		        document.add(linebreak);
+		        
+		        Paragraph parB=new Paragraph("\r\n",setFont(numX,false));
+		        document.add(parB);
+		        
+		        Paragraph par3=new Paragraph("注  册  受  理  回  执",setFont(numD,true));
+		        par3.setAlignment(Element.ALIGN_CENTER);
+		        document.add(par3);
+		        
+		        Paragraph parC=new Paragraph();
+		        Chunk right2=new Chunk("No:  "+sn,setFont(numX,false));
+		        right2.setUnderline(0.2f, -2f);
+		        parC.add(right2);
+		        parC.setSpacingBefore(10);
+		        parC.setSpacingAfter(10);
+		        parC.setIndentationRight(60);
+		        parC.setAlignment(Element.ALIGN_RIGHT);
+		        document.add(parC);
+		        
+		        Paragraph phase2 = new Paragraph();
+		        Chunk c2=new Chunk(firmName+"：",setFont(numY,false));
+		        c2.setUnderline(0.2f, -2f);
+		        phase2.add(c2);
+		        phase2.setSpacingAfter(10);
+		        document.add(phase2);
+			  
+		        Paragraph par4=new Paragraph("          贵公司申请中国商品条码注册，"
+		        		+ "手续齐全，予以受理。 于汇款十个工作日左右（以收到短信"
+		        		+ "通知为准，亦可进入www.sist.org.cn/wpbm查询办理"
+		        		+ "进度），凭此回执及填写完整的《商品条码信息备案表》领"
+		        		+ "取：",setFont(numX,false));
+		        par4.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par4);
+	            
+		        Paragraph par7=new Paragraph("1. 《中国商品条码系统成员证书"
+		        		+ "》和条码卡（GDS卡）",setFont(numX,false));
+		        par7.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par7);
+		        
+		        Paragraph par9=new Paragraph("2. 发票",setFont(numX,false));
+		        par9.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par9);
+		        
+		        Paragraph parA=new Paragraph("咨询电话：    83990505/83200183      "
+		        		+ "                                 "
+		        		+ "             中国物品编码中心深圳分"
+		        		+ "中心",setFont(numX,false));
+		        parA.setAlignment(Element.ALIGN_LEFT);
+		        document.add(parA);
+		        
+//		        Paragraph par61=new Paragraph();
+//		        Chunk label1=new Chunk("经办人：",setFont(numX,false));
+//		        Chunk person1=new Chunk("赵",setFont(numY,false));
+//		        person1.setUnderline(0.2f, -2f);
+//		        par61.add(label1);
+//		        par61.add(person1);
+//		        par61.setSpacingBefore(10);
+//		        par61.setSpacingAfter(10);
+//		        par61.setAlignment(Element.ALIGN_RIGHT);
+//		        par61.setIndentationRight(143);
+//		        document.add(par61);
+	            
+		        Paragraph par81=new Paragraph();
+		        par81.add(new Chunk("温馨提示：                                            "
+		        		+ "                                    "
+		        		+ "            ", setFont(numX,false)));
+		        Chunk date1=new Chunk(Utility.getYear()+"年"+Utility.getMonth()+"月"+Utility.getDay()+"日",setFont(numY,false));
+		        date1.setUnderline(0.2f, -2f);
+		        par81.add(date1);
+		        par81.setAlignment(Element.ALIGN_LEFT);
+		        par81.setIndentationRight(116);
+		        par81.setSpacingAfter(5);
+		        document.add(par81);
+		        
+		        Paragraph par11=new Paragraph("1. 汇款凭证回传：将汇款单E-mail至1295436691@qq.com，24小时内收到确认回复即可。",setFont(numX,false));
+		        par11.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par11);
+		        
+		        Paragraph par12=new Paragraph("2. 进度查询： 扫描回执右下角的二维码->添加“深圳编码中心” 微信公众号->进入“深圳编码中心”公众号->点击下方菜单中“报名与查询”->选择“办理进度查询”即可查询注册业务办理进度！",setFont(numX,false));
+		        par12.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par12);
+		        
+		        Paragraph par13=new Paragraph("3. 系统成员应选择获得《商品条码印刷资格证书》的印刷企业印制条码，保证条码印制品的质量。",setFont(numX,false));
+		        par13.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par13);
+		        
+		        Paragraph par14=new Paragraph("4. 培训方式：",setFont(numX,false));
+		        par14.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par14);
+		        
+		        Paragraph par15=new Paragraph("①参加培训：登录www.sist.org.cn/wpbm或前往“深圳编码中心”公众号点击“中国商品条码系统成员培训”， 选择培训课程报名，培训免费",setFont(numX,false));
+		        par15.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par15);
+		        
+		        Paragraph par16=new Paragraph("②观看学习视频：登录www.sist.org.cn/wpbm点击“视频教学”，选择“条码知识培训课程”自行学习",setFont(numX,false));
+		        par16.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par16);
+		        
+		        document.add(new Paragraph("\r\n",setFont(numX,false)));
+		        
+		        Image img =Image.getInstance(filepath+Constants.IMG_PATH+"qrCode.png");
+		        img.setAbsolutePosition(410, 18);
+		        img.setAlignment(Element.ALIGN_RIGHT);
+		        img.scaleAbsolute(160,160);//控制图片大小
+		        
+		        Paragraph par17=new Paragraph("深圳分公司网址：  http://www.sist.org.cn/wpbm",setFont(numX,false));
+		        par17.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par17);
+		        
+		        Paragraph par18=new Paragraph("办公地址：  深圳市华强南无线电管理大厦13楼1303室",setFont(numX,false));
+		        par18.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par18);
+		        
+		        document.add(img);
+		        
+		        
+		        document.close();
+		        outr.close();
+		  }catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return fileDesc;
+	}
+    
+    //续展回执pdf
+    public String SzResumeReceipt(String filepath, String sn, String firmName, String codes){
+		String fileDesc = "";
+		System.out.println(filepath);
+        FileOutputStream outr = null;// 创建输出流
+		//生成pdf文件
+		 fileDesc = filepath + "ResumeReceipt" + sn + ".pdf";//路径下一定要有此文件
+		 System.out.println(fileDesc);
+		 //对PDF文档的规定
+		//大标题
+		 int numD=19;
+		 int numY=15;
+		 //小标题
+		 int numX=13;
+		 
+		 //表格大
+		 int numTD=13;
+		 
+		 //表格小
+		 int numTX=11;
+		 
+		 //表格中
+		 int numM=12;
+		 int numS=9;
+		 
+		 Document document=new Document();
+	        //设置要输出到磁盘上的文件名称
+		  try{
+			   outr= new FileOutputStream(fileDesc);
+	            PdfWriter.getInstance(document, outr);
+	            document.open();
+	            
+	            Paragraph phase = new Paragraph();  
+		        Chunk par1=new Chunk("续展受理回执存根                                                    "
+		        		+ "                          ",setFont(numX,false));
+		        phase.add(par1);
+		        
+		        Chunk right1=new Chunk("No:  "+sn,setFont(numX,false));
+		        right1.setUnderline(0.2f, -2f);
+		        phase.add(right1);
+		        phase.setSpacingAfter(10);
+		        phase.setIndentationRight(29);
+		        phase.setAlignment(Element.ALIGN_LEFT);
+		        document.add(phase);
+		       
+		        //添加一个空行
+		        Paragraph phase1 = new Paragraph();
+		        Chunk par5=new Chunk(firmName+""+codes+"：",setFont(numY,false));
+		        par5.setUnderline(0.2f, -2f);
+		        phase1.add(par5);
+		        phase1.setSpacingAfter(10);
+		        document.add(phase1);
+		        
+		        Paragraph par2=new Paragraph("该公司手续齐全，受理回执已发。",setFont(numX,false));
+		        par2.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par2);
+		        
+		        Paragraph par6=new Paragraph();
+		        Chunk label=new Chunk("经办人：",setFont(numX,false));
+		        Chunk person=new Chunk("赵",setFont(numY,false));
+		        person.setUnderline(0.2f, -2f);
+		        par6.add(label);
+		        par6.add(person);
+		        par6.setSpacingAfter(10);
+		        par6.setAlignment(Element.ALIGN_RIGHT);
+		        par6.setIndentationRight(143);
+		        document.add(par6);
+		        
+		        Paragraph par8=new Paragraph();
+		        Chunk date=new Chunk(Utility.getYear()+"年"+Utility.getMonth()+"月"+Utility.getDay()+"日",setFont(numY,false));
+		        date.setUnderline(0.2f, -2f);
+		        par8.add(date);
+		        par8.setAlignment(Element.ALIGN_RIGHT);
+		        par8.setIndentationRight(116);
+		        par8.setSpacingAfter(5);
+		        document.add(par8);
+		        
+		        CustomDashedLineSeparator separator = new CustomDashedLineSeparator();
+		        separator.setDash(5);
+		        separator.setGap(5);
+		        separator.setLineWidth((float) 0.1);
+		        Chunk linebreak = new Chunk(separator);
+		        document.add(linebreak);
+		        
+		        Paragraph parB=new Paragraph("\r\n",setFont(numX,false));
+		        document.add(parB);
+		        
+		        Paragraph par3=new Paragraph("续  展  受  理  回  执",setFont(numD,true));
+		        par3.setAlignment(Element.ALIGN_CENTER);
+		        document.add(par3);
+		        
+		        Paragraph parC=new Paragraph();
+		        Chunk right2=new Chunk("No:  "+sn,setFont(numX,false));
+		        right2.setUnderline(0.2f, -2f);
+		        parC.add(right2);
+		        parC.setSpacingBefore(10);
+		        parC.setSpacingAfter(10);
+		        parC.setIndentationRight(60);
+		        parC.setAlignment(Element.ALIGN_RIGHT);
+		        document.add(parC);
+		        
+		        Paragraph phase2 = new Paragraph();
+		        Chunk c2=new Chunk(firmName+""+codes+"：",setFont(numY,false));
+		        c2.setUnderline(0.2f, -2f);
+		        phase2.add(c2);
+		        phase2.setSpacingAfter(10);
+		        document.add(phase2);
+			  
+		        Paragraph par4=new Paragraph("          贵公司申请中国商品条码厂商识别代码续展，"
+		        		+ "手续齐全，予以受理。 需确保商品条码在商品信息服务平台备案， 经核实已通报____条数据，"
+		        		+ "需补录____条缺失数据！汇款十个工作日左右（以收到短信"
+		        		+ "通知为准，亦可进入www.sist.org.cn/wpbm查询办理"
+		        		+ "进度），凭此回执及原证书领"
+		        		+ "取：",setFont(numX,false));
+		        par4.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par4);
+	            
+		        Paragraph par7=new Paragraph("《中国商品条码系统成员（续展）证书"
+		        		+ "》和发票",setFont(numX,false));
+		        par7.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par7);
+		        	        
+		        Paragraph parA=new Paragraph("咨询电话：    83200177/83990505      "
+		        		+ "                                 "
+		        		+ "             中国物品编码中心深圳分"
+		        		+ "中心",setFont(numX,false));
+		        parA.setAlignment(Element.ALIGN_LEFT);
+		        document.add(parA);
+		        
+		        Paragraph par61=new Paragraph();
+		        Chunk label1=new Chunk("经办人：",setFont(numX,false));
+		        Chunk person1=new Chunk("赵",setFont(numY,false));
+		        person1.setUnderline(0.2f, -2f);
+		        par61.add(label1);
+		        par61.add(person1);
+		        par61.setSpacingBefore(10);
+		        par61.setSpacingAfter(10);
+		        par61.setAlignment(Element.ALIGN_RIGHT);
+		        par61.setIndentationRight(143);
+		        document.add(par61);
+	            
+		        Paragraph par81=new Paragraph();
+		        par81.add(new Chunk("温馨提示：                                            "
+		        		+ "                                    "
+		        		+ "            ", setFont(numX,false)));
+		        Chunk date1=new Chunk(Utility.getYear()+"年"+Utility.getMonth()+"月"+Utility.getDay()+"日",setFont(numY,false));
+		        date1.setUnderline(0.2f, -2f);
+		        par81.add(date1);
+		        par81.setAlignment(Element.ALIGN_LEFT);
+		        par81.setIndentationRight(116);
+		        par81.setSpacingAfter(5);
+		        document.add(par81);
+		        
+		        Paragraph par11=new Paragraph("1. 汇款凭证回传：将汇款单E-mail至1918900795@qq.com，24小时内收到确认回复即可。",setFont(numX,false));
+		        par11.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par11);
+		        
+		        Paragraph par12=new Paragraph("2. 进度查询： 扫描回执右下角的二维码->添加“深圳编码中心” 微信公众号->进入“深圳编码中心”公众号->点击下方菜单中“报名与查询”->选择“办理进度查询”即可查询续展业务办理进度！",setFont(numX,false));
+		        par12.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par12);
+		        
+		        Paragraph par13=new Paragraph("3. 系统成员应选择获得《商品条码印刷资格证书》的印刷企业印制条码，保证条码印制品的质量。",setFont(numX,false));
+		        par13.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par13);
+		        
+		        Image img =Image.getInstance(filepath+Constants.IMG_PATH+"qrCode.png");
+		        img.setAbsolutePosition(410, 18);
+		        img.setAlignment(Element.ALIGN_RIGHT);
+		        img.scaleAbsolute(160,160);//控制图片大小
+		        
+		        Paragraph par17=new Paragraph("深圳分公司网址：  http://www.sist.org.cn/wpbm",setFont(numX,false));
+		        par17.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par17);
+		        
+		        Paragraph par18=new Paragraph("办公地址：  深圳市华强南无线电管理大厦13楼1303室",setFont(numX,false));
+		        par18.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par18);
+		        
+		        document.add(img);
+		        
+		        document.close();
+		        outr.close();
+		  }catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return fileDesc;
+	}
+    
+    //增号回执
+    public String SzAddCodeReceipt(String filepath, String sn, String firmName){
+		String fileDesc = "";
+		System.out.println(filepath);
+        FileOutputStream outr = null;// 创建输出流
+		//生成pdf文件
+		 fileDesc = filepath + "AddCodeReceipt" + sn + ".pdf";//路径下一定要有此文件
+		 System.out.println(fileDesc);
+		 //对PDF文档的规定
+		//大标题
+		 int numD=19;
+		 int numY=15;
+		 //小标题
+		 int numX=13;
+		 
+		 //表格大
+		 int numTD=13;
+		 
+		 //表格小
+		 int numTX=11;
+		 
+		 //表格中
+		 int numM=12;
+		 int numS=9;
+		 
+		 Document document=new Document();
+	        //设置要输出到磁盘上的文件名称
+		  try{
+			   outr= new FileOutputStream(fileDesc);
+	            PdfWriter.getInstance(document, outr);
+	            document.open();
+	            
+	            Paragraph phase = new Paragraph();  
+		        Chunk par1=new Chunk("增号受理回执存根                                                    "
+		        		+ "                          ",setFont(numX,false));
+		        phase.add(par1);
+		        
+		        Chunk right1=new Chunk("No:  "+sn,setFont(numX,false));
+		        right1.setUnderline(0.2f, -2f);
+		        phase.add(right1);
+		        phase.setSpacingAfter(10);
+		        phase.setIndentationRight(29);
+		        phase.setAlignment(Element.ALIGN_LEFT);
+		        document.add(phase);
+		       
+		        //添加一个空行
+		        Paragraph phase1 = new Paragraph();
+		        Chunk par5=new Chunk(firmName+"：",setFont(numY,false));
+		        par5.setUnderline(0.2f, -2f);
+		        phase1.add(par5);
+		        phase1.setSpacingAfter(10);
+		        document.add(phase1);
+		        
+		        Paragraph par2=new Paragraph("该公司手续齐全，受理回执已发。",setFont(numX,false));
+		        par2.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par2);
+		        
+		        Paragraph par6=new Paragraph();
+		        Chunk label=new Chunk("经办人：",setFont(numX,false));
+		        Chunk person=new Chunk("曾",setFont(numY,false));
+		        person.setUnderline(0.2f, -2f);
+		        par6.add(label);
+		        par6.add(person);
+		        par6.setSpacingAfter(10);
+		        par6.setAlignment(Element.ALIGN_RIGHT);
+		        par6.setIndentationRight(143);
+		        document.add(par6);
+		        
+		        Paragraph par8=new Paragraph();
+		        Chunk date=new Chunk(Utility.getYear()+"年"+Utility.getMonth()+"月"+Utility.getDay()+"日",setFont(numY,false));
+		        date.setUnderline(0.2f, -2f);
+		        par8.add(date);
+		        par8.setAlignment(Element.ALIGN_RIGHT);
+		        par8.setIndentationRight(116);
+		        par8.setSpacingAfter(5);
+		        document.add(par8);
+		        
+		        CustomDashedLineSeparator separator = new CustomDashedLineSeparator();
+		        separator.setDash(5);
+		        separator.setGap(5);
+		        separator.setLineWidth((float) 0.1);
+		        Chunk linebreak = new Chunk(separator);
+		        document.add(linebreak);
+		        
+		        Paragraph parB=new Paragraph("\r\n",setFont(numX,false));
+		        document.add(parB);
+		        
+		        Paragraph par3=new Paragraph("增  号  受  理  回  执",setFont(numD,true));
+		        par3.setAlignment(Element.ALIGN_CENTER);
+		        document.add(par3);
+		        
+		        Paragraph parC=new Paragraph();
+		        Chunk right2=new Chunk("No:  "+sn,setFont(numX,false));
+		        right2.setUnderline(0.2f, -2f);
+		        parC.add(right2);
+		        parC.setSpacingBefore(10);
+		        parC.setSpacingAfter(10);
+		        parC.setIndentationRight(60);
+		        parC.setAlignment(Element.ALIGN_RIGHT);
+		        document.add(parC);
+		        
+		        Paragraph phase2 = new Paragraph();
+		        Chunk c2=new Chunk(firmName+"：",setFont(numY,false));
+		        c2.setUnderline(0.2f, -2f);
+		        phase2.add(c2);
+		        phase2.setSpacingAfter(10);
+		        document.add(phase2);
+			  
+		        Paragraph par4=new Paragraph("          贵公司申请增号（UPC），"
+		        		+ "手续齐全，予以受理。 收到短信通知后（亦可进入www.sist.org.cn/wpbm查询办理"
+		        		+ "进度），凭此回执领取：",setFont(numX,false));
+		        par4.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par4);
+	            
+		        Paragraph par7=new Paragraph("1. 《中国商品条码系统成员证书"
+		        		+ "》和条码卡（GDS卡）",setFont(numX,false));
+		        par7.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par7);
+		        
+		        Paragraph par9=new Paragraph("2. 发票",setFont(numX,false));
+		        par9.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par9);
+		        
+		        Paragraph parA=new Paragraph("咨询电话：    83990505/83200183      "
+		        		+ "                                 "
+		        		+ "             中国物品编码中心深圳分"
+		        		+ "中心",setFont(numX,false));
+		        parA.setAlignment(Element.ALIGN_LEFT);
+		        document.add(parA);
+		        
+		        Paragraph par61=new Paragraph();
+		        Chunk label1=new Chunk("经办人：",setFont(numX,false));
+		        Chunk person1=new Chunk("曾",setFont(numY,false));
+		        person1.setUnderline(0.2f, -2f);
+		        par61.add(label1);
+		        par61.add(person1);
+		        par61.setSpacingBefore(10);
+		        par61.setSpacingAfter(10);
+		        par61.setAlignment(Element.ALIGN_RIGHT);
+		        par61.setIndentationRight(143);
+		        document.add(par61);
+	            
+		        Paragraph par81=new Paragraph();
+		        par81.add(new Chunk("温馨提示：                                            "
+		        		+ "                                    "
+		        		+ "            ", setFont(numX,false)));
+		        Chunk date1=new Chunk(Utility.getYear()+"年"+Utility.getMonth()+"月"+Utility.getDay()+"日",setFont(numY,false));
+		        date1.setUnderline(0.2f, -2f);
+		        par81.add(date1);
+		        par81.setAlignment(Element.ALIGN_LEFT);
+		        par81.setIndentationRight(116);
+		        par81.setSpacingAfter(5);
+		        document.add(par81);
+		        
+		        Paragraph par11=new Paragraph("1. 汇款凭证回传：将汇款单E-mail至1295436691@qq.com，24小时内收到确认回复即可。",setFont(numX,false));
+		        par11.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par11);
+		        
+		        Paragraph par12=new Paragraph("2. 进度查询： 扫描回执右下角的二维码->添加“深圳编码中心” 微信公众号->进入“深圳编码中心”公众号->点击下方菜单中“报名与查询”->选择“办理进度查询”即可查询增号业务办理进度！",setFont(numX,false));
+		        par12.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par12);
+		        
+		        Paragraph par13=new Paragraph("3. 系统成员应选择获得《商品条码印刷资格证书》的印刷企业印制条码，保证条码印制品的质量。",setFont(numX,false));
+		        par13.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par13);
+		        
+		        Paragraph par14=new Paragraph("4. 培训方式：",setFont(numX,false));
+		        par14.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par14);
+		        
+		        Paragraph par15=new Paragraph("①参加培训：登录www.sist.org.cn/wpbm或前往“深圳编码中心”公众号点击“中国商品条码系统成员培训”， 选择培训课程报名，培训免费",setFont(numX,false));
+		        par15.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par15);
+		        
+		        Paragraph par16=new Paragraph("②观看学习视频：登录www.sist.org.cn/wpbm点击“视频教学”，选择“条码知识培训课程”自行学习",setFont(numX,false));
+		        par16.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par16);
+		        
+		        document.add(new Paragraph("\r\n",setFont(numX,false)));
+		        
+		        Image img =Image.getInstance(filepath+Constants.IMG_PATH+"qrCode.png");
+		        img.setAbsolutePosition(410, 18);
+		        img.setAlignment(Element.ALIGN_RIGHT);
+		        img.scaleAbsolute(160,160);//控制图片大小
+		        
+		        Paragraph par17=new Paragraph("深圳分公司网址：  http://www.sist.org.cn/wpbm",setFont(numX,false));
+		        par17.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par17);
+		        
+		        Paragraph par18=new Paragraph("办公地址：  深圳市华强南无线电管理大厦13楼1303室",setFont(numX,false));
+		        par18.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par18);
+		        
+		        document.add(img);
+		        
+		        document.close();
+		        outr.close();
+		  }catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return fileDesc;
+	}
+    
+    
+  	//变更回执
+    public String SzChangeReceipt(String filepath, String sn, String firmName){
+		String fileDesc = "";
+		System.out.println(filepath);
+        FileOutputStream outr = null;// 创建输出流
+		//生成pdf文件
+		 fileDesc = filepath + "ChangeReceipt" + sn + ".pdf";//路径下一定要有此文件
+		 System.out.println(fileDesc);
+		 //对PDF文档的规定
+		//大标题
+		 int numD=19;
+		 int numY=15;
+		 //小标题
+		 int numX=13;
+		 
+		 //表格大
+		 int numTD=13;
+		 
+		 //表格小
+		 int numTX=11;
+		 
+		 //表格中
+		 int numM=12;
+		 int numS=9;
+		 
+		 Document document=new Document();
+	        //设置要输出到磁盘上的文件名称
+		  try{
+			   outr= new FileOutputStream(fileDesc);
+	            PdfWriter.getInstance(document, outr);
+	            document.open();
+	            
+	            Paragraph phase = new Paragraph();  
+		        Chunk par1=new Chunk("变更受理回执存根                                                    "
+		        		+ "                          ",setFont(numX,false));
+		        phase.add(par1);
+		        
+		        Chunk right1=new Chunk("No:  "+sn,setFont(numX,false));
+		        right1.setUnderline(0.2f, -2f);
+		        phase.add(right1);
+		        phase.setSpacingAfter(10);
+		        phase.setIndentationRight(29);
+		        phase.setAlignment(Element.ALIGN_LEFT);
+		        document.add(phase);
+		       
+		        //添加一个空行
+		        Paragraph phase1 = new Paragraph();
+		        Chunk par5=new Chunk(firmName+"：",setFont(numY,false));
+		        par5.setUnderline(0.2f, -2f);
+		        phase1.add(par5);
+		        phase1.setSpacingAfter(10);
+		        document.add(phase1);
+		        
+		        Paragraph par2=new Paragraph("该公司手续齐全，受理回执已发。",setFont(numX,false));
+		        par2.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par2);
+		        
+		        Paragraph par6=new Paragraph();
+		        Chunk label=new Chunk("经办人：",setFont(numX,false));
+		        Chunk person=new Chunk("曾",setFont(numY,false));
+		        person.setUnderline(0.2f, -2f);
+		        par6.add(label);
+		        par6.add(person);
+		        par6.setSpacingAfter(10);
+		        par6.setAlignment(Element.ALIGN_RIGHT);
+		        par6.setIndentationRight(143);
+		        document.add(par6);
+		        
+		        Paragraph par8=new Paragraph();
+		        Chunk date=new Chunk(Utility.getYear()+"年"+Utility.getMonth()+"月"+Utility.getDay()+"日",setFont(numY,false));
+		        date.setUnderline(0.2f, -2f);
+		        par8.add(date);
+		        par8.setAlignment(Element.ALIGN_RIGHT);
+		        par8.setIndentationRight(116);
+		        par8.setSpacingAfter(5);
+		        document.add(par8);
+		        
+		        CustomDashedLineSeparator separator = new CustomDashedLineSeparator();
+		        separator.setDash(5);
+		        separator.setGap(5);
+		        separator.setLineWidth((float) 0.1);
+		        Chunk linebreak = new Chunk(separator);
+		        document.add(linebreak);
+		        
+		        Paragraph parB=new Paragraph("\r\n",setFont(numX,false));
+		        document.add(parB);
+		        
+		        Paragraph par3=new Paragraph("变  更  受  理  回  执",setFont(numD,true));
+		        par3.setAlignment(Element.ALIGN_CENTER);
+		        document.add(par3);
+		        
+		        Paragraph parC=new Paragraph();
+		        Chunk right2=new Chunk("No:  "+sn,setFont(numX,false));
+		        right2.setUnderline(0.2f, -2f);
+		        parC.add(right2);
+		        parC.setSpacingBefore(10);
+		        parC.setSpacingAfter(10);
+		        parC.setIndentationRight(60);
+		        parC.setAlignment(Element.ALIGN_RIGHT);
+		        document.add(parC);
+		        
+		        Paragraph phase2 = new Paragraph();
+		        Chunk c2=new Chunk(firmName+"：",setFont(numY,false));
+		        c2.setUnderline(0.2f, -2f);
+		        phase2.add(c2);
+		        phase2.setSpacingAfter(10);
+		        document.add(phase2);
+			  
+		        Paragraph par4=new Paragraph("          贵公司办理变更（a、企业名称    b、地址    c、法人），"
+		        		+ "手续齐全，凭此回执两周后领取《变更证书》。",setFont(numX,false));
+		        par4.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par4);
+	            
+		        
+		        Paragraph parA=new Paragraph("咨询电话：   83200177      "
+		        		+ "                                         "
+		        		+ "                       中国物品编码中心深圳分"
+		        		+ "中心",setFont(numX,false));
+		        parA.setAlignment(Element.ALIGN_LEFT);
+		        document.add(parA);
+		        
+		        Paragraph par61=new Paragraph();
+		        Chunk label1=new Chunk("传        真：    83248113                                 "
+		        		+ "                         "
+		        		+ "             经办人：",setFont(numX,false));
+		        Chunk person1=new Chunk("曾",setFont(numY,false));
+		        person1.setUnderline(0.2f, -2f);
+		        par61.add(label1);
+		        par61.add(person1);
+		        par61.setSpacingBefore(10);
+		        par61.setSpacingAfter(10);
+		        par61.setAlignment(Element.ALIGN_RIGHT);
+		        par61.setIndentationRight(143);
+		        document.add(par61);
+	            
+		        Paragraph par81=new Paragraph();
+		        
+		        Chunk date1=new Chunk(Utility.getYear()+"年"+Utility.getMonth()+"月"+Utility.getDay()+"日",setFont(numY,false));
+		        date1.setUnderline(0.2f, -2f);
+		        par81.add(date1);
+		        par81.setAlignment(Element.ALIGN_RIGHT);
+		        par81.setIndentationRight(116);
+		        par81.setSpacingAfter(5);
+		        document.add(par81);
+		        
+		       
+		        
+		        document.close();
+		        outr.close();
+		  }catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return fileDesc;
+	}
+    
+    
+    //子公司回执
+    public String SzZgsReceipt(String filepath, String sn, String firmName){
+		String fileDesc = "";
+		System.out.println(filepath);
+        FileOutputStream outr = null;// 创建输出流
+		//生成pdf文件
+		 fileDesc = filepath + "ZgsReceipt" + sn + ".pdf";//路径下一定要有此文件
+		 System.out.println(fileDesc);
+		 //对PDF文档的规定
+		//大标题
+		 int numD=19;
+		 int numY=15;
+		 //小标题
+		 int numX=13;
+		 
+		 //表格大
+		 int numTD=13;
+		 
+		 //表格小
+		 int numTX=11;
+		 
+		 //表格中
+		 int numM=12;
+		 int numS=9;
+		 
+		 Document document=new Document();
+	        //设置要输出到磁盘上的文件名称
+		  try{
+			   outr= new FileOutputStream(fileDesc);
+	            PdfWriter.getInstance(document, outr);
+	            document.open();
+	            
+	            Paragraph phase = new Paragraph();  
+		        Chunk par1=new Chunk("子公司备案受理回执存根                                                    "
+		        		+ "             ",setFont(numX,false));
+		        phase.add(par1);
+		        
+		        Chunk right1=new Chunk("No:  "+sn,setFont(numX,false));
+		        right1.setUnderline(0.2f, -2f);
+		        phase.add(right1);
+		        phase.setSpacingAfter(10);
+		        phase.setIndentationRight(29);
+		        phase.setAlignment(Element.ALIGN_LEFT);
+		        document.add(phase);
+		       
+		        //添加一个空行
+		        Paragraph phase1 = new Paragraph();
+		        Chunk par5=new Chunk(firmName+"：",setFont(numY,false));
+		        par5.setUnderline(0.2f, -2f);
+		        phase1.add(par5);
+		        phase1.setSpacingAfter(10);
+		        document.add(phase1);
+		        
+		        Paragraph par2=new Paragraph("该公司手续齐全，受理回执已发。",setFont(numX,false));
+		        par2.setAlignment(Element.ALIGN_LEFT);
+		        document.add(par2);
+		        
+		        Paragraph par6=new Paragraph();
+		        Chunk label=new Chunk("经办人：",setFont(numX,false));
+		        Chunk person=new Chunk("詹",setFont(numY,false));
+		        person.setUnderline(0.2f, -2f);
+		        par6.add(label);
+		        par6.add(person);
+		        par6.setSpacingAfter(10);
+		        par6.setAlignment(Element.ALIGN_RIGHT);
+		        par6.setIndentationRight(143);
+		        document.add(par6);
+		        
+		        Paragraph par8=new Paragraph();
+		        Chunk date=new Chunk(Utility.getYear()+"年"+Utility.getMonth()+"月"+Utility.getDay()+"日",setFont(numY,false));
+		        date.setUnderline(0.2f, -2f);
+		        par8.add(date);
+		        par8.setAlignment(Element.ALIGN_RIGHT);
+		        par8.setIndentationRight(116);
+		        par8.setSpacingAfter(5);
+		        document.add(par8);
+		        
+		        CustomDashedLineSeparator separator = new CustomDashedLineSeparator();
+		        separator.setDash(5);
+		        separator.setGap(5);
+		        separator.setLineWidth((float) 0.1);
+		        Chunk linebreak = new Chunk(separator);
+		        document.add(linebreak);
+		        
+		        Paragraph parB=new Paragraph("\r\n",setFont(numX,false));
+		        document.add(parB);
+		        
+		        Paragraph par3=new Paragraph("子  公  司  备  案  受  理  回  执",setFont(numD,true));
+		        par3.setAlignment(Element.ALIGN_CENTER);
+		        document.add(par3);
+		        
+		        Paragraph parC=new Paragraph();
+		        Chunk right2=new Chunk("No:  "+sn,setFont(numX,false));
+		        right2.setUnderline(0.2f, -2f);
+		        parC.add(right2);
+		        parC.setSpacingBefore(10);
+		        parC.setSpacingAfter(10);
+		        parC.setIndentationRight(60);
+		        parC.setAlignment(Element.ALIGN_RIGHT);
+		        document.add(parC);
+		        
+		        Paragraph phase2 = new Paragraph();
+		        Chunk c2=new Chunk(firmName+"：",setFont(numY,false));
+		        c2.setUnderline(0.2f, -2f);
+		        phase2.add(c2);
+		        phase2.setSpacingAfter(10);
+		        document.add(phase2);
+			  
+		        Paragraph par4=new Paragraph("          贵公司申请子公司使用集团公司注册的条码备案，"
+		        		+ "手续齐全，予以受理。于十个工作日左右，凭此回执领取：",setFont(numX,false));
+		        par4.setAlignment(Element.ALIGN_LEFT);
+		        par4.setSpacingAfter(10);
+		        document.add(par4);
+	            
+		        Paragraph par7=new Paragraph("1. 《商品条码备案通知书"
+		        		+ "》",setFont(numX,false));
+		        par7.setAlignment(Element.ALIGN_LEFT);
+		        par7.setSpacingAfter(10);
+		        document.add(par7);
+		        		        
+		        Paragraph parA=new Paragraph("咨询电话：    83990505/83200183      "
+		        		+ "                                 "
+		        		+ "             中国物品编码中心深圳分"
+		        		+ "中心",setFont(numX,false));
+		        parA.setAlignment(Element.ALIGN_LEFT);
+		        document.add(parA);
+		        
+		        Paragraph par61=new Paragraph();
+		        Chunk label1=new Chunk("经办人：",setFont(numX,false));
+		        Chunk person1=new Chunk("詹",setFont(numY,false));
+		        person1.setUnderline(0.2f, -2f);
+		        par61.add(label1);
+		        par61.add(person1);
+		        par61.setSpacingBefore(10);
+		        par61.setSpacingAfter(10);
+		        par61.setAlignment(Element.ALIGN_RIGHT);
+		        par61.setIndentationRight(143);
+		        document.add(par61);
+	            
+		        Paragraph par81=new Paragraph();
+		        Chunk date1=new Chunk(Utility.getYear()+"年"+Utility.getMonth()+"月"+Utility.getDay()+"日",setFont(numY,false));
+		        date1.setUnderline(0.2f, -2f);
+		        par81.add(date1);
+		        par81.setAlignment(Element.ALIGN_RIGHT);
+		        par81.setIndentationRight(116);
+		        par81.setSpacingAfter(5);
+		        document.add(par81);
+		        
+		        document.close();
+		        outr.close();
+		  }catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return fileDesc;
+	}
+    
+    /**
+	 * 默认字体是黑色
+	 * @param fontSize 字体大小
+	 * @param flag  是否加粗
+	 * @return
+	 */
+	public Font setFont(int fontSize,boolean flag){
+	
+	    BaseFont baseFontChinese=null;
+		try {
+			baseFontChinese = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
+		} catch (DocumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	
+	     Font fontChinese =null;
+	     if(flag==true){
+	    	 fontChinese=new Font(baseFontChinese , fontSize , Font.BOLD, BaseColor.BLACK);
+	     }
+	     else{
+	    	 fontChinese=new Font(baseFontChinese , fontSize , Font.NORMAL, BaseColor.BLACK);
+	     }
+	     return fontChinese;
+	}
+}

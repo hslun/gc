@@ -1,0 +1,1172 @@
+package com.ancc.service.impl;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.util.List;
+
+import org.aspectj.weaver.NewConstructorTypeMunger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import com.ancc.common.Constants;
+import com.ancc.common.Utility;
+import com.ancc.mapper.XzResumeTempMapper;
+import com.ancc.pojo.BaOperFlag;
+import com.ancc.pojo.JcFirm;
+import com.ancc.pojo.XzResumeTemp;
+import com.ancc.pojo.XzResumeTempExample;
+import com.ancc.service.BaOperFlagService;
+import com.ancc.service.XzResumeTempService;
+import com.ancc.service.ZcEanUpcTempService;
+import com.ancc.service.TmSnService;
+import com.ancc.service.DaFileReciveService;
+import com.ancc.service.JcEanUpcService;
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Chunk;
+//import com.itextpdf.text.Chunk;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
+	
+@Service
+public class XzResumeTempServiceImpl  implements XzResumeTempService{
+	
+	@Autowired
+	private XzResumeTempMapper XzResumeTempMapper;
+	/**
+	 * 根据sn获取数据
+	 * @param sn
+	 */
+	@Override
+	public XzResumeTemp getResumeInfoBySn(String sn) {
+		XzResumeTempExample XzResumeTempExample=new XzResumeTempExample();
+		XzResumeTempExample.Criteria criteria=XzResumeTempExample.createCriteria();
+		criteria.andSnEqualTo(sn);
+		List<XzResumeTemp> lists=XzResumeTempMapper.selectByExample(XzResumeTempExample);
+		if(lists!=null&&!lists.isEmpty()){
+			return lists.get(0);
+		}
+		else{
+			return null;
+		}
+	}
+	
+	@Autowired
+	private ZcEanUpcTempService ZcEanUpcTempService;
+	
+	/**
+	 * 新增
+	 * @param XzResumeTemp
+	 */
+	@Override
+	public String addObj(XzResumeTemp XzResumeTemp) {
+		String operationCode = Constants.OPER_EAN_UPC_WEB_REG;
+	    int place = 5;
+	    String deptid = "0000";
+	    String num = XzResumeTempMapper.selectDual(place);
+	    String sn = ZcEanUpcTempService.getArchivesIndexCodeByCode(deptid, operationCode, place, num);
+	    XzResumeTemp.setSn(sn);
+	    
+	    XzResumeTemp.setMdate(Utility.getYYYYMMDD());
+	    XzResumeTemp.setStatus("H");
+	    XzResumeTemp.setWritemanCode("1");
+	    XzResumeTemp.setWriteCode("0000");
+	    XzResumeTemp.setWriteDate(Utility.getYYYYMMDD());
+	    
+		if(!operCheck(XzResumeTemp.getFirmName())) {
+			return "公司名称已在其他业务中使用，公司名： " + XzResumeTemp.getFirmName();
+		}
+		
+		if(Utility.isEmpty(XzResumeTemp.getIsOnline())){
+				XzResumeTemp.setIsOnline("N");
+			}
+		XzResumeTemp.setWriteDate(Utility.getYYYYMMDD());
+	    int result = XzResumeTempMapper.insertSelective(XzResumeTemp);
+	    if (result == 1) {
+	    	return XzResumeTemp.getSn();
+	    }else {
+	    	return "保存失败";
+	    }
+		 
+	}
+	
+	/**
+	 * 修改
+	 * @param XzResumeTemp
+	 */
+	@Override
+	public String modObj(XzResumeTemp XzResumeTemp) {
+		int result = XzResumeTempMapper.updateByPrimaryKeySelective(XzResumeTemp);
+		if (result == 1) {
+	    	return XzResumeTemp.getSn();
+	    }else {
+	    	return "保存失败";
+	    }
+	}
+
+	/**
+	 * 网上续展状态修改
+	 * @param connect
+	 * @param sn
+	 * @param status
+	 * @return
+	 * @throws Exception
+	 */
+	@Override
+	public String modObjWLXZ(XzResumeTemp XzResumeTemp, String sn,String status) {
+		XzResumeTempExample XzResumeTempExample=new XzResumeTempExample();
+		XzResumeTempExample.Criteria criteria=XzResumeTempExample.createCriteria();
+		criteria.andSnEqualTo(sn);
+
+		XzResumeTemp.setStatus(status);
+		int result = XzResumeTempMapper.updateByExampleSelective(XzResumeTemp, XzResumeTempExample);
+		
+		if (result == 1) {
+	    	return XzResumeTemp.getSn();
+	    }else {
+	    	return "保存失败";
+	    }
+	}
+	
+	@Autowired
+	private BaOperFlagService baOperFlagService;
+
+	public boolean operCheck(String firmName) {
+		List<BaOperFlag> BaOperFlag = baOperFlagService.getByFirmName(firmName, "");
+		if(Utility.isEmpty(BaOperFlag)){
+			return true;
+		}
+		else{
+			return false;
+		}
+
+	}
+	
+	@Value("${XzPdf.Path}")
+	String filepath;
+	
+	@Autowired
+	private JcEanUpcService JcEanUpcService;
+	
+	/**
+	 * 续展pdf打印
+	 * @param zc
+	 * @param filepath
+	 */
+	public String createXZPDF(XzResumeTemp zc, String fid){
+		
+		JcFirm jcFirm=new JcFirm();
+		String code=JcEanUpcService.getCodes(fid).get(0).getCode();
+		//输出路径
+		String fileDesc = "";
+        FileOutputStream outr = null;// 创建输出流
+ 				
+         //生成pdf文件
+		 fileDesc = filepath+Constants.XZPDF_PATH+ zc.getSn() + ".pdf";//路径下一定要有此文件
+	     //fileDesc="D:/"+zc.getSn()+".pdf";
+		 //对PDF文档的规定
+		 //大标题
+		 int numD=20;
+		 
+		 //小标题
+		 int numX=14;
+		 
+		 //表格大
+		 int numTD=14;
+		 
+		 //表格小
+		 int numTX=12;
+		 
+		 //表格中
+		 int numM=13;
+		 
+		 Document document=new Document();
+	        //设置要输出到磁盘上的文件名称
+		  try{
+			   outr= new FileOutputStream(fileDesc);
+
+	            PdfWriter.getInstance(document, outr);
+
+	           // step 3
+
+	            document.open();
+
+	            // step 4
+
+	            //添加登记表表头
+		        Paragraph par1=new Paragraph("中  国  商  品  条  码  系  统  成  员",setFont(numD,true));
+		        //设置局中对齐
+		        par1.setAlignment(Element.ALIGN_CENTER);
+		        //添加到文档
+		        document.add(par1);
+		        
+		        //添加一个空行
+		        Paragraph par5=new Paragraph("\r\n",setFont(numX,true));
+		        par5.setAlignment(Element.ALIGN_CENTER);
+		        document.add(par5);
+		        
+		        Paragraph par2=new Paragraph("续 展 登 记 表",setFont(numX,false));
+		        par2.setAlignment(Element.ALIGN_CENTER);
+		        document.add(par2);
+		        
+		        Paragraph par6=new Paragraph("\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n",setFont(numX,true));
+		        par6.setAlignment(Element.ALIGN_CENTER);
+		        document.add(par6);
+		        
+		        //约定事项
+		        PdfPTable table2=new PdfPTable(1);;
+		        //table.setWidth(210);
+		        PdfPCell cell11=new PdfPCell(new Phrase("约定事项：\n"+
+		        		"1.厂商识别代码有效期为二年。有效期满后需继续使用厂商识别代码的应在《中国商品条"
++"码系统成员证书》有效期满前的三个月内,持企业法人营业执照或营业执照及《中国"
++"商品条码系统成员证书》到所在地编码分支机构办理续展手续；\n"+"2.企业不履行《商品条码管理办法》等有关规定所造成的一切损失由企业自行承担"
++"地编码分支机构办理续展手续。逾期未办理续展手续的，注销其厂商识别代码；\n"
++"3. 为了帮助系统成员更好地应用商品条码，提供相关产品或电子商务等技术服务及贸易流通服"
++"务，中国物品编码中心对系统成员信息（除注册资金外）可向从事物品编码或 EDI 领域的组"
++"织或商贸公司公开。如果贵公司负责人不希望公开企业信息，不接收除中国物品编码中心以"
++"外单位的信件、电子邮件或电话，请在下面□中划“√” 。如果下面□中无“√” ，表示贵公"
++"司负责人对上述内容不反对。\n",setFont(numM,false)));
+		        cell11.setHorizontalAlignment(Element.ALIGN_LEFT);
+		        cell11.setVerticalAlignment(Element.ALIGN_CENTER);
+		        //cell11.setBorder(1);
+		        
+		        table2.addCell(cell11);
+		        document.add(table2);
+		        
+		        Paragraph par8=new Paragraph("中国物品编码中心制",setFont(numX,true));
+		        par8.setAlignment(Element.ALIGN_CENTER);
+		        document.add(par8);
+			  
+		        //第二页
+		        document.newPage();
+		        //一次定义多次使用 效率高？
+		        Paragraph paragraph;
+		        
+		        
+		        Image img =Image.getInstance(filepath+Constants.IMG_PATH+zc.getSn()+".png");
+		        img.setAlignment(Element.ALIGN_RIGHT);
+		        img.scaleAbsolute(120,50);//控制图片大小
+		        
+		        PdfPTable phead=new PdfPTable(2);
+		        phead.setTotalWidth((float)600.00);
+		        phead.setLockedWidth(true);
+		        int []width={10,90};
+		       phead.setWidths(width);
+		        PdfPCell celli;
+		        celli = new PdfPCell(new Paragraph("NO:",setFont(numX,true)));
+	            celli.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            celli.setHorizontalAlignment(Element.ALIGN_RIGHT);
+	            celli.setBorder(0);
+	            phead.addCell(celli);
+	           
+	           
+	            celli = new PdfPCell(img);
+	            celli.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            celli.setHorizontalAlignment(Element.ALIGN_LEFT);
+	            celli.setBorder(0);
+	            phead.addCell(celli);
+	            document.add(phead);
+	            //续展类型
+	            String rsTypeName="";
+	            if(zc.getRstype().equals("1")){
+	            	rsTypeName="按码续展";
+	            }else{
+	            	rsTypeName="按名称续展";
+	            }
+	            
+		        paragraph=new Paragraph("一、企业基本信息表",setFont(numX,true));
+		        paragraph.setAlignment(Element.ALIGN_LEFT);
+		        document.add(paragraph);
+		        
+		        paragraph=new Paragraph("续展类型："+rsTypeName+"      厂商识别代码："+code,setFont(numX,false));
+		        paragraph.setAlignment(Element.ALIGN_MIDDLE);
+		        document.add(paragraph);
+		        
+		        paragraph=new Paragraph("\r\n",setFont(numTX,true));
+		        paragraph.setAlignment(Element.ALIGN_LEFT);
+		        document.add(paragraph);
+		        
+		        //整个基本信息表
+	            PdfPTable table = new PdfPTable(8);
+	            
+	            //作为邮政编码使用
+	            PdfPTable table1 = new PdfPTable(6);
+	            
+	            table.setTotalWidth((float)530.0);
+	            table.setLockedWidth(true);
+	            PdfPCell cell;
+		        //------------------企业名称------------------------
+	            cell = new PdfPCell(new Phrase("企业名称",setFont(numTX,false)));
+
+	            cell.setRowspan(2);
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+
+	            table.addCell(cell);
+	            
+	            
+	            //------------------企业名称-中文------------------------
+	            cell = new PdfPCell(new Phrase("中文:"+zc.getFirmName(),setFont(numTX,false)));
+	            cell.setColspan(7);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE); 
+
+	            table.addCell(cell);
+	            
+	            
+	            //------------------企业名称-英文------------------------
+	            cell = new PdfPCell(new Phrase("英文:"+zc.getFirmName1(),setFont(numTX,false)));
+	            cell.setColspan(7);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+
+	            
+	            table.addCell(cell);
+		        
+	            
+	            
+	            //------------------注册地址------------------------
+	            cell = new PdfPCell(new Phrase("注册地址",setFont(numTX,false)));
+
+	            cell.setRowspan(2);
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+
+	            table.addCell(cell);
+	            
+	            
+	            //------------------注册地址-中文------------------------
+	            cell = new PdfPCell(new Phrase("中文:"+zc.getRegisterAddress(),setFont(numTX,false)));
+	            cell.setColspan(7);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            
+	            //------------------注册地址-英文------------------------
+	            cell = new PdfPCell(new Phrase("英文:"+zc.getRegisterAddress1(),setFont(numTX,false)));
+	            cell.setColspan(4);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            //------------------邮政编码------------------------
+	            cell = new PdfPCell(new Phrase("邮政编码",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	           //------------------邮政编码的值------------------------
+	            cell = new PdfPCell(new Phrase(zc.getRegisterPostalcode(),setFont(numTX,false)));
+	            cell.setColspan(2);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            //------------------办公地址-----------------------
+	            cell = new PdfPCell(new Phrase("办公地址",setFont(numTX,false)));
+
+	            cell.setRowspan(2);
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            //------------------办公地址-中文------------------------
+	            cell = new PdfPCell(new Phrase("中文:"+zc.getAddress(),setFont(numTX,false)));
+	            cell.setColspan(7);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            
+	            //------------------办公地址-英文------------------------
+	            cell = new PdfPCell(new Phrase("英文:"+zc.getAddress1(),setFont(numTX,false)));
+	            cell.setColspan(4);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            //------------------邮政编码------------------------
+	            cell = new PdfPCell(new Phrase("邮政编码",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	           //------------------邮政编码的值------------------------
+	            cell = new PdfPCell(new Phrase(zc.getPostcode(),setFont(numTX,false)));
+	            cell.setColspan(2);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            //------------------营业执照号------------------------
+	            cell = new PdfPCell(new Phrase("营业执照号",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            cell.setRowspan(2);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            //------------------营业执照号的值------------------------
+	            cell = new PdfPCell(new Phrase(zc.getCertificateCode(),setFont(numTX,false)));
+	            cell.setColspan(3);
+	            cell.setRowspan(2);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            
+	            //------------------注册地行政区域代码------------------------
+	            cell = new PdfPCell(new Phrase("注册地区行政区域代码",setFont(numTX,false)));
+	            cell.setColspan(2);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            //------------------注册地行政区域代码的值------------------------
+	            cell = new PdfPCell(new Phrase(zc.getPolitical(),setFont(numTX,false)));
+	            cell.setColspan(2);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            
+	            //------------------注册资金-----------------------
+	            cell = new PdfPCell(new Phrase("注册资金",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            //-----------------注册资金值------------------------
+	            DecimalFormat decimalFormat = new DecimalFormat("###################.###########");  
+	            cell = new PdfPCell(new Phrase(decimalFormat.format(zc.getRegisterPrincipal())+" 万元",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            //------------------货币种类-----------------------
+	            cell = new PdfPCell(new Phrase("货币种类",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            //------------------货币种类的值-----------------------
+	            cell = new PdfPCell(new Phrase(zc.getCoinType(),setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            //------------------企业类别-----------------------
+	            cell = new PdfPCell(new Phrase("企业类别",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            //------------------企业类别的值-----------------------
+	            cell = new PdfPCell(new Phrase(zc.getFirmType(),setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            //------------------经济类型代码-----------------------
+	            cell = new PdfPCell(new Phrase("经济类型代码",setFont(numTX,false)));
+	            cell.setColspan(2);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            //------------------经济类型代码的值-----------------------
+	            cell = new PdfPCell(new Phrase(zc.getDm(),setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            //------------------国民经济行业分类代码-----------------------
+	            cell = new PdfPCell(new Phrase("国民经济行业分类代码",setFont(numTX,false)));
+	            cell.setColspan(2);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            //------------------国民经济行业分类代码的值-----------------------
+	            cell = new PdfPCell(new Phrase(zc.gettJDm(),setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            //------------------组织机构代码-----------------------
+	            cell = new PdfPCell(new Phrase("组织机构代码",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            cell.setRowspan(2);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            //------------------组织机构代码的值-----------------------
+	            cell = new PdfPCell(new Phrase("",setFont(numTX,false)));
+	            cell.setColspan(3);
+	            cell.setRowspan(2);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            //------------------法定代表人-----------------------
+	            cell = new PdfPCell(new Phrase("法定代表人",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            cell.setRowspan(2);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            
+	            //------------------法定代表人的值-----------------------
+	            cell = new PdfPCell(new Phrase(zc.getLeader(),setFont(numTX,false)));
+	            cell.setColspan(1);
+	            cell.setRowspan(2);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            //------------------手机----------------------
+	            cell = new PdfPCell(new Phrase("手机",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            //------------------手机的值----------------------
+	            cell = new PdfPCell(new Phrase(zc.getLeaderHandset(),setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            
+	            //------------------电话----------------------
+	            cell = new PdfPCell(new Phrase("电话",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	           //------------------电话的值----------------------
+	            cell = new PdfPCell(new Phrase(zc.getLeaderTele(),setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            
+	            //------------------联系人---------------------
+	            cell = new PdfPCell(new Phrase("联系人",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            cell.setRowspan(2);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            //------------------联系人的值---------------------
+	            cell = new PdfPCell(new Phrase(zc.getContactman(),setFont(numTX,false)));
+	            cell.setColspan(1);
+	            cell.setRowspan(2);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            
+	            //------------------长途区号---------------------
+	            cell = new PdfPCell(new Phrase("长途区号",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            //------------------长途区号的值---------------------
+	            cell = new PdfPCell(new Phrase(zc.getContactmanCtqh(),setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            //------------------电话---------------------
+	            cell = new PdfPCell(new Phrase("电话",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            //------------------电话的值---------------------
+	            cell = new PdfPCell(new Phrase(zc.getContactmanTele(),setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            //------------------手机---------------------
+	            cell = new PdfPCell(new Phrase("手机",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            //------------------手机的值---------------------
+	            cell = new PdfPCell(new Phrase(zc.getContactmanMp(),setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            //------------------电子邮箱---------------------
+	            cell = new PdfPCell(new Phrase("电子邮箱",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            //------------------电子邮箱的值---------------------
+	            cell = new PdfPCell(new Phrase(zc.getContactmanEmail(),setFont(numTX,false)));
+	            cell.setColspan(3);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            
+	            //------------------传真---------------------
+	            cell = new PdfPCell(new Phrase("传真",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            
+	            //------------------传真的值---------------------
+	            cell = new PdfPCell(new Phrase(zc.getContactmanFax(),setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            //------------------企业网站---------------------
+	            cell = new PdfPCell(new Phrase("企业网站",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            //------------------企业网站的值---------------------
+	            cell = new PdfPCell(new Phrase(zc.getNetStation(),setFont(numTX,false)));
+	            cell.setColspan(2);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            //------------------已使用条码数量---------------------
+	            cell = new PdfPCell(new Phrase("已使用条码的商品项目数量",setFont(numTX,false)));
+	            cell.setColspan(2);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            //------------------已使用条码数量的值---------------------
+	            System.out.println(zc.getUsedNum());
+	            cell = new PdfPCell(new Phrase(zc.getUsedNum().toString(),setFont(numTX,false)));
+	            cell.setColspan(3);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            //------------------预计条码使用数量---------------------
+	            cell = new PdfPCell(new Phrase("产品信息",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            //------------------预计条码使用数量的值---------------------
+	            cell = new PdfPCell(new Phrase(jcFirm.getUsedDesc(),setFont(numTX,false)));
+	            cell.setColspan(7);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            table.addCell(cell);
+	            
+	            
+	            //------------------盖章---------------------
+	            Chunk chunk;
+	            Phrase phrase;
+	            Paragraph paragraph2;
+	            cell = new PdfPCell();
+	            cell.setColspan(8);
+	            phrase = new Phrase("填表人签章", setFont(numTX, false)); 
+	            paragraph2=new Paragraph();
+	            paragraph2.add(phrase);
+	            
+	            
+	            phrase = new Phrase("                                                                                ", setFont(numM, false)); 
+	            paragraph2.add(phrase);
+	         
+	            phrase = new Phrase("请对\"约定事项\"的内容几所填信息确认后盖章", setFont(8, false)); 
+	            //cell内可以 添加paragr
+	            paragraph2.add(phrase);
+	            paragraph2.setAlignment(Element.ALIGN_LEFT);
+	            //设置段前和段后
+	            paragraph2.setSpacingAfter(5);
+	            paragraph2.setSpacingAfter(20);
+	            cell.addElement(paragraph2);
+	            
+	            paragraph2=new Paragraph();
+	            phrase = new Phrase("法定代表人", setFont(numTX, false)); 
+	            paragraph2.add(phrase);
+	            
+	            
+	            phrase = new Phrase("   签章", setFont(numTX, false)); 
+	            paragraph2.add(phrase);
+	            
+	            phrase = new Phrase("                                                      企业(公章)", setFont(numTX, false)); 
+	            paragraph2.add(phrase);
+	            
+	            
+	            phrase = new Phrase("                    年                    月                     日", setFont(numTX, false)); 
+	            paragraph2.add(phrase);
+	            
+	            paragraph2.setSpacingAfter(10);
+	            cell.addElement(paragraph2);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            
+	            
+	            table.addCell(cell);
+	            document.add(table);
+	            
+	            //表格之间的空行
+	            paragraph2=new  Paragraph(new Phrase("\r\n",setFont(numTX,false)));
+	            document.add(paragraph2);
+	            
+	            
+	            paragraph2=new Paragraph();
+	            //------------------编码机构审核表---------------------
+	            phrase=new Phrase("二、编码机构审核表",setFont(numX,true));
+	            paragraph2.setAlignment(Element.ALIGN_LEFT);
+	            paragraph2.add(phrase);
+	            
+	            phrase=new Phrase("(以下下由中国物品编码中心及其分支机构填写)",setFont(numTD,false));
+	            paragraph2.setAlignment(Element.ALIGN_LEFT);
+	            paragraph2.add(phrase);
+	            document.add(paragraph2);
+	            
+	            paragraph2=new Paragraph(new Phrase("\r\n",setFont(numTX,true)));
+	            document.add(paragraph2);
+	            
+	            PdfPTable pTable=new PdfPTable(6);
+	            pTable.setTotalWidth((float)530.0);
+	            pTable.setLockedWidth(true);
+	            //------------------分支机构初审意见---------------------
+	            cell = new PdfPCell(new Phrase("分支机构初审意见",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            pTable.addCell(cell);
+	            
+	            cell = new PdfPCell(new Phrase("",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            pTable.addCell(cell);
+	            
+	            
+	            cell = new PdfPCell(new Phrase("初审日期",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            pTable.addCell(cell);
+	            
+	            cell = new PdfPCell(new Phrase("   年       月        日",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            pTable.addCell(cell);
+	            
+	            
+	            cell = new PdfPCell(new Phrase("经办人签字",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            pTable.addCell(cell);
+	            
+	            cell = new PdfPCell(new Phrase("",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            pTable.addCell(cell);
+	            
+		        paragraph2=new  Paragraph(new Phrase("备注:",setFont(numTX,false)));
+		        paragraph2.setSpacingAfter(30);
+		        
+		        cell = new PdfPCell();
+	            cell.setColspan(8);
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            cell.addElement(paragraph2);
+	            
+	            //分支机构代码章
+	            paragraph2=new  Paragraph();
+	            phrase=new Phrase("分支机构代码章 :                                                                 ",setFont(numTX,false));
+	            paragraph2.setAlignment(Element.ALIGN_LEFT);
+	            paragraph2.add(phrase);
+	            
+	            phrase=new Phrase("分支机构（公章）                                                              ",setFont(numTX,false));
+	            paragraph2.setAlignment(Element.ALIGN_LEFT);
+	            paragraph2.add(phrase);
+	            paragraph2.setSpacingAfter(10);
+	            cell.addElement(paragraph2);
+	            pTable.addCell(cell);
+	            document.add(pTable);
+	            
+	            
+	            
+	            //标题后加入空行
+	            paragraph2=new  Paragraph(new Phrase("\r\n",setFont(numTX,false)));
+	            document.add(paragraph2);
+	            
+	            
+	            
+	            
+	            PdfPTable pTable2=new PdfPTable(6);
+	            pTable2.setTotalWidth((float)530.00);
+	            pTable2.setLockedWidth(true);
+	            cell = new PdfPCell(new Phrase("编码中心审核意见",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            pTable2.addCell(cell);
+	           
+	            
+	            
+	            cell = new PdfPCell(new Phrase("",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            pTable2.addCell(cell);
+	            
+	            
+	            cell = new PdfPCell(new Phrase("审核日期",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            pTable2.addCell(cell);
+	            
+	            
+	            cell = new PdfPCell(new Phrase("",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            pTable2.addCell(cell);
+	            
+	            
+	            cell = new PdfPCell(new Phrase("经办人签字",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            pTable2.addCell(cell);
+	            
+	            
+	            cell = new PdfPCell(new Phrase("",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            pTable2.addCell(cell);
+	            
+	            
+	            cell = new PdfPCell(new Phrase("厂商识别代码",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            pTable2.addCell(cell);
+	            
+	            
+	            cell = new PdfPCell(new Phrase("",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            pTable2.addCell(cell);
+	            
+	            
+	            cell = new PdfPCell(new Phrase("注册日期",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            pTable2.addCell(cell);
+	            
+	            
+	            cell = new PdfPCell(new Phrase("",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            pTable2.addCell(cell);
+	            
+	            cell = new PdfPCell(new Phrase("经办人签字",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            pTable2.addCell(cell);
+	            
+	            cell = new PdfPCell(new Phrase("",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            pTable2.addCell(cell);
+	            
+	            cell = new PdfPCell(new Phrase("备               注                                                                       ",setFont(numTX,false)));
+	            cell.setColspan(1);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            pTable2.addCell(cell);
+	            
+	            
+	            cell = new PdfPCell(new Phrase("",setFont(numTX,false)));
+	            cell.setColspan(5);
+	            //居中使用
+	            cell.setUseAscender(true);
+	            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	            pTable2.addCell(cell);
+	            
+	            
+	            document.add(pTable2);
+		        document.close();
+		        outr.close();
+		  }catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		  return fileDesc;
+	}
+	
+	/**
+	 * 默认字体是黑色
+	 * @param fontSize 字体大小
+	 * @param flag  是否加粗
+	 * @return
+	 */
+	public Font setFont(int fontSize,boolean flag){
+	
+	    BaseFont baseFontChinese=null;
+		try {
+			baseFontChinese = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
+		} catch (DocumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	
+	     Font fontChinese =null;
+	     if(flag==true){
+	    	 fontChinese=new Font(baseFontChinese , fontSize , Font.BOLD, BaseColor.BLACK);
+	     }
+	     else{
+	    	 fontChinese=new Font(baseFontChinese , fontSize , Font.NORMAL, BaseColor.BLACK);
+	     }
+	     return fontChinese;
+	}
+
+	@Autowired
+	private TmSnService TmSnService;
+	
+	@Autowired
+	private BaOperFlagService BaOperFlagService;
+
+	@Autowired
+	private DaFileReciveService DaFileReciveService;
+
+	@Override
+	public int delete(String sn) {
+		XzResumeTempMapper.deleteByPrimaryKey(sn);
+		TmSnService.delete(sn);
+		BaOperFlagService.delete(sn);
+		return DaFileReciveService.delete(sn);
+		
+	}
+	
+	@Override
+	public XzResumeTemp getByFrimName(String firmname){
+		XzResumeTempExample xzResumeTempExample=new XzResumeTempExample();
+		XzResumeTempExample.Criteria criteria=xzResumeTempExample.createCriteria();
+		criteria.andFirmNameEqualTo(firmname);
+		List<XzResumeTemp> xzResumeTemps= XzResumeTempMapper.selectByExample(xzResumeTempExample);
+		if(xzResumeTemps==null||xzResumeTemps.size()<1){
+			return null;
+		}
+		else{
+			return xzResumeTemps.get(0);
+		}
+	}
+
+}

@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="viewport"
+	content="width=device-width,initial-scale=1.0,user-scalable=no" />
+<title>信息化管理系统</title>
+<link rel="stylesheet" href="../../view/test/js/jquery.mobile-1.4.5.css" />
+<script src="../../view/test/js/jquery-1.8.3.min.js"></script>
+<script src="../../view/test/js/jquery.mobile-1.4.5.js"></script>
+<script src="../../view/test/js/jquery.cookie.js"></script>
+<link rel="stylesheet" type="text/css" href="../../CSS/hour.css" />
+<script src="../js/search.js"></script>
+</head>
+<body>
+	<div data-role="page" id="Search">
+		<div data-role="header"><h4>使用明细</h4></div>
+		<div data-role="content">
+			<table width="100%">
+				<tr>
+					<td><h4>部&nbsp;&nbsp;&nbsp;&nbsp;门</h4></td>
+					<td>
+						<select id="department">
+							<option value="101">全部</option>
+							<option value="102">综合办公室</option>
+							<option value="103">财务部</option>
+							<option value="104">通航项目部</option>
+							<option value="105">机电产品部</option>
+							<option value="106">信息技术部</option>
+							<option value="107">无人机项目部</option>
+						</select></td>
+				</tr>
+				<tr>
+					<td><h4>车&nbsp;&nbsp;&nbsp;&nbsp;辆</h4></td>
+					<td>
+						<select id="carType">
+							<option value="201">全部</option>
+							<option value="202">切诺基 京HV3507</option>
+							<option value="203">GL8 京NH8845</option>
+							<option value="204">新捷达 京NTU976</option>
+							<option value="205">奔驰 京Q1L932</option>
+							<option value="206">奔驰 京QMQ381</option>
+						</select></td>
+				</tr>
+				<tr>
+					<td><h4>申&nbsp;请&nbsp;人</h4></td>
+					<td><input type="text" id="applyMan"/></td>
+				</tr>
+				<tr>
+					<td><h4>开始时间</h4></td>
+					<td><input type="date" data-role="datebox"
+						data-options='{"mode": "datebox", "overrideDateFormat": "%m-%d-%Y"}'
+						id="starttime" /></td>
+				</tr>
+				<tr>
+					<td><h4>结束时间</h4></td>
+					<td><input type="date" data-role="datebox"
+						data-options='{"mode": "datebox", "overrideDateFormat": "%m-%d-%Y"}'
+						id="endtime" /></td>
+				</tr>
+			</table>
+			<div align="center">
+				<input id="submit" type="button" data-inline="true" value="查  询" />
+			</div>
+		</div>
+	</div>
+	<div data-role="page" id="result">
+		<div data-role="header"><h4>查询结果</h4>
+		<a href="#" data-role="button" class="ui-btn-left" data-icon="back" id="back">返 回</a>
+		</div>
+		<div data-role="content">
+			<ul data-role="listview" id="list">
+			</ul>
+			<p id="info" style="text-align:center;"></p>
+		</div>
+	</div>
+</body>
+</html>

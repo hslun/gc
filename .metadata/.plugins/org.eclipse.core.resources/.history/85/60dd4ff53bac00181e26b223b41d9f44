@@ -1,0 +1,244 @@
+package com.ancc.pojo;
+
+/**
+ * null
+ * 
+ * @author wcyong
+ * 
+ * @date 2018-05-17
+ */
+public class InvoiceItem {
+    /**
+     * 0��Ч 1��Ч
+     */
+    private String invoiceItemId;
+
+    /**
+     * 0��Ч 1��Ч
+     */
+    private String sn;
+
+    /**
+     * 0��Ч 1��Ч
+     */
+    private String name;
+
+    /**
+     * 0��Ч 1��Ч
+     */
+    private String code;
+
+    /**
+     * 0��Ч 1��Ч
+     */
+    private String linetype;
+
+    /**
+     * 0��Ч 1��Ч
+     */
+    private String spec;
+
+    /**
+     * 0��Ч 1��Ч
+     */
+    private String unit;
+
+    /**
+     * 0��Ч 1��Ч
+     */
+    private String taxrate;
+
+    /**
+     * 0��Ч 1��Ч
+     */
+    private Short quantity;
+
+    /**
+     * 0��Ч 1��Ч
+     */
+    private Short taxprice;
+
+    /**
+     * 0��Ч 1��Ч
+     */
+    private Short totalamount;
+
+    /**
+     * 0��Ч 1��Ч
+     */
+    private String yhzcbs;
+
+    /**
+     * 0��Ч 1��Ч
+     */
+    private String yhzcnr;
+
+    /**
+     * 0��Ч 1��Ч
+     */
+    private Short lslbs;
+
+    /**
+     * 0��Ч 1��Ч
+     */
+    private String zxbm;
+
+    /**
+     * 0��Ч 1��Ч
+     */
+    private Short kce;
+
+    /**
+     * 0��Ч 1��Ч
+     */
+    private String note;
+
+    /**
+     * 0��Ч 1��Ч
+     */
+    private String status;
+
+    public String getInvoiceItemId() {
+        return invoiceItemId;
+    }
+
+    public void setInvoiceItemId(String invoiceItemId) {
+        this.invoiceItemId = invoiceItemId == null ? null : invoiceItemId.trim();
+    }
+
+    public String getSn() {
+        return sn;
+    }
+
+    public void setSn(String sn) {
+        this.sn = sn == null ? null : sn.trim();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name == null ? null : name.trim();
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code == null ? null : code.trim();
+    }
+
+    public String getLinetype() {
+        return linetype;
+    }
+
+    public void setLinetype(String linetype) {
+        this.linetype = linetype == null ? null : linetype.trim();
+    }
+
+    public String getSpec() {
+        return spec;
+    }
+
+    public void setSpec(String spec) {
+        this.spec = spec == null ? null : spec.trim();
+    }
+
+    public String getUnit() {
+        return unit;
+    }
+
+    public void setUnit(String unit) {
+        this.unit = unit == null ? null : unit.trim();
+    }
+
+    public String getTaxrate() {
+        return taxrate;
+    }
+
+    public void setTaxrate(String taxrate) {
+        this.taxrate = taxrate == null ? null : taxrate.trim();
+    }
+
+    public Short getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int qUANTITY2) {
+        this.quantity = (short) qUANTITY2;
+    }
+
+    public Short getTaxprice() {
+        return taxprice;
+    }
+
+    public void setTaxprice(double tAXPRICE2) {
+        this.taxprice = (short) tAXPRICE2;
+    }
+
+    public Short getTotalamount() {
+        return totalamount;
+    }
+
+    public void setTotalamount(double tOTALAMOUNT2) {
+        this.totalamount = (short) tOTALAMOUNT2;
+    }
+
+    public String getYhzcbs() {
+        return yhzcbs;
+    }
+
+    public void setYhzcbs(String yhzcbs) {
+        this.yhzcbs = yhzcbs == null ? null : yhzcbs.trim();
+    }
+
+    public String getYhzcnr() {
+        return yhzcnr;
+    }
+
+    public void setYhzcnr(String yhzcnr) {
+        this.yhzcnr = yhzcnr == null ? null : yhzcnr.trim();
+    }
+
+    public Short getLslbs() {
+        return lslbs;
+    }
+
+    public void setLslbs(Short lslbs) {
+        this.lslbs = lslbs;
+    }
+
+    public String getZxbm() {
+        return zxbm;
+    }
+
+    public void setZxbm(String zxbm) {
+        this.zxbm = zxbm == null ? null : zxbm.trim();
+    }
+
+    public Short getKce() {
+        return kce;
+    }
+
+    public void setKce(Short kce) {
+        this.kce = kce;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note == null ? null : note.trim();
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status == null ? null : status.trim();
+    }
+}

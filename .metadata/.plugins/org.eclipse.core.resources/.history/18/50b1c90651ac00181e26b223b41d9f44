@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ancc.mapper.ZhCashinOnlineMapper" >
+
+    <resultMap id="BaseResultMap" type="com.ancc.pojo.ZhCashinOnline" >
+        <result column="ORDERNO" property="orderno" jdbcType="CHAR" />
+        <result column="TRANAMOUNT" property="tranamount" jdbcType="VARCHAR" />
+        <result column="PAYBATNO" property="paybatno" jdbcType="VARCHAR" />
+        <result column="MERCHBATCHNO" property="merchbatchno" jdbcType="VARCHAR" />
+        <result column="TRANDATE" property="trandate" jdbcType="CHAR" />
+        <result column="TRANTIME" property="trantime" jdbcType="CHAR" />
+        <result column="SERIALNO" property="serialno" jdbcType="VARCHAR" />
+        <result column="FEESUM" property="feesum" jdbcType="VARCHAR" />
+        <result column="BANKMONO" property="bankmono" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <sql id="Example_Where_Clause" >
+        <where >
+            <foreach collection="oredCriteria" item="criteria" separator="or" >
+                <if test="criteria.valid" >
+                    <trim prefix="(" suffix=")" prefixOverrides="and" >
+                        <foreach collection="criteria.criteria" item="criterion" >
+                            <choose >
+                                <when test="criterion.noValue" >
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue" >
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue" >
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue" >
+                                    and ${criterion.condition}
+                                    <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+
+    <sql id="Update_By_Example_Where_Clause" >
+        <where >
+            <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+                <if test="criteria.valid" >
+                    <trim prefix="(" suffix=")" prefixOverrides="and" >
+                        <foreach collection="criteria.criteria" item="criterion" >
+                            <choose >
+                                <when test="criterion.noValue" >
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue" >
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue" >
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue" >
+                                    and ${criterion.condition}
+                                    <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+
+    <sql id="Base_Column_List" >
+        ORDERNO, TRANAMOUNT, PAYBATNO, MERCHBATCHNO, TRANDATE, TRANTIME, SERIALNO, FEESUM, 
+        BANKMONO
+    </sql>
+
+    <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.ancc.pojo.ZhCashinOnlineExample" >
+        select
+        <if test="distinct" >
+            distinct
+        </if>
+        <include refid="Base_Column_List" />
+        from ZH_CASHIN_ONLINE
+        <if test="_parameter != null" >
+            <include refid="Example_Where_Clause" />
+        </if>
+        <if test="orderByClause != null" >
+            order by ${orderByClause}
+        </if>
+    </select>
+
+    <delete id="deleteByExample" parameterType="com.ancc.pojo.ZhCashinOnlineExample" >
+        delete from ZH_CASHIN_ONLINE
+        <if test="_parameter != null" >
+            <include refid="Example_Where_Clause" />
+        </if>
+    </delete>
+
+    <insert id="insert" parameterType="com.ancc.pojo.ZhCashinOnline" >
+        insert into ZH_CASHIN_ONLINE (ORDERNO, TRANAMOUNT, PAYBATNO, 
+            MERCHBATCHNO, TRANDATE, TRANTIME, 
+            SERIALNO, FEESUM, BANKMONO
+            )
+        values (#{orderno,jdbcType=CHAR}, #{tranamount,jdbcType=VARCHAR}, #{paybatno,jdbcType=VARCHAR}, 
+            #{merchbatchno,jdbcType=VARCHAR}, #{trandate,jdbcType=CHAR}, #{trantime,jdbcType=CHAR}, 
+            #{serialno,jdbcType=VARCHAR}, #{feesum,jdbcType=VARCHAR}, #{bankmono,jdbcType=VARCHAR}
+            )
+    </insert>
+
+    <insert id="insertSelective" parameterType="com.ancc.pojo.ZhCashinOnline" >
+        insert into ZH_CASHIN_ONLINE
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="orderno != null" >
+                ORDERNO,
+            </if>
+            <if test="tranamount != null" >
+                TRANAMOUNT,
+            </if>
+            <if test="paybatno != null" >
+                PAYBATNO,
+            </if>
+            <if test="merchbatchno != null" >
+                MERCHBATCHNO,
+            </if>
+            <if test="trandate != null" >
+                TRANDATE,
+            </if>
+            <if test="trantime != null" >
+                TRANTIME,
+            </if>
+            <if test="serialno != null" >
+                SERIALNO,
+            </if>
+            <if test="feesum != null" >
+                FEESUM,
+            </if>
+            <if test="bankmono != null" >
+                BANKMONO,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="orderno != null" >
+                #{orderno,jdbcType=CHAR},
+            </if>
+            <if test="tranamount != null" >
+                #{tranamount,jdbcType=VARCHAR},
+            </if>
+            <if test="paybatno != null" >
+                #{paybatno,jdbcType=VARCHAR},
+            </if>
+            <if test="merchbatchno != null" >
+                #{merchbatchno,jdbcType=VARCHAR},
+            </if>
+            <if test="trandate != null" >
+                #{trandate,jdbcType=CHAR},
+            </if>
+            <if test="trantime != null" >
+                #{trantime,jdbcType=CHAR},
+            </if>
+            <if test="serialno != null" >
+                #{serialno,jdbcType=VARCHAR},
+            </if>
+            <if test="feesum != null" >
+                #{feesum,jdbcType=VARCHAR},
+            </if>
+            <if test="bankmono != null" >
+                #{bankmono,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+    <select id="countByExample" parameterType="com.ancc.pojo.ZhCashinOnlineExample" resultType="java.lang.Integer" >
+        select count(*) from ZH_CASHIN_ONLINE
+        <if test="_parameter != null" >
+            <include refid="Example_Where_Clause" />
+        </if>
+    </select>
+
+    <update id="updateByExampleSelective" parameterType="map" >
+        update ZH_CASHIN_ONLINE
+        <set >
+            <if test="record.orderno != null" >
+                ORDERNO = #{record.orderno,jdbcType=CHAR},
+            </if>
+            <if test="record.tranamount != null" >
+                TRANAMOUNT = #{record.tranamount,jdbcType=VARCHAR},
+            </if>
+            <if test="record.paybatno != null" >
+                PAYBATNO = #{record.paybatno,jdbcType=VARCHAR},
+            </if>
+            <if test="record.merchbatchno != null" >
+                MERCHBATCHNO = #{record.merchbatchno,jdbcType=VARCHAR},
+            </if>
+            <if test="record.trandate != null" >
+                TRANDATE = #{record.trandate,jdbcType=CHAR},
+            </if>
+            <if test="record.trantime != null" >
+                TRANTIME = #{record.trantime,jdbcType=CHAR},
+            </if>
+            <if test="record.serialno != null" >
+                SERIALNO = #{record.serialno,jdbcType=VARCHAR},
+            </if>
+            <if test="record.feesum != null" >
+                FEESUM = #{record.feesum,jdbcType=VARCHAR},
+            </if>
+            <if test="record.bankmono != null" >
+                BANKMONO = #{record.bankmono,jdbcType=VARCHAR},
+            </if>
+        </set>
+        <if test="_parameter != null" >
+            <include refid="Update_By_Example_Where_Clause" />
+        </if>
+    </update>
+
+    <update id="updateByExample" parameterType="map" >
+        update ZH_CASHIN_ONLINE
+        set ORDERNO = #{record.orderno,jdbcType=CHAR},
+            TRANAMOUNT = #{record.tranamount,jdbcType=VARCHAR},
+            PAYBATNO = #{record.paybatno,jdbcType=VARCHAR},
+            MERCHBATCHNO = #{record.merchbatchno,jdbcType=VARCHAR},
+            TRANDATE = #{record.trandate,jdbcType=CHAR},
+            TRANTIME = #{record.trantime,jdbcType=CHAR},
+            SERIALNO = #{record.serialno,jdbcType=VARCHAR},
+            FEESUM = #{record.feesum,jdbcType=VARCHAR},
+            BANKMONO = #{record.bankmono,jdbcType=VARCHAR}
+        <if test="_parameter != null" >
+            <include refid="Update_By_Example_Where_Clause" />
+        </if>
+    </update>
+</mapper>

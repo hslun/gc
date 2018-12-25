@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
+		<item value="false" key="isRegEx"/>
+		<item value="Upload" key="selection"/>
+		<item value="false" key="casesensitive"/>
+		<item value="false" key="incremental"/>
+		<item value="true" key="wrap"/>
+		<item value="false" key="wholeword"/>
+		<list key="findhistory">
+			<item value="upload"/>
+			<item value="删除"/>
+			<item value="微信公告信息"/>
+			<item value="kindeditorUploadImg"/>
+			<item value="contentTitle"/>
+			<item value="userName"/>
+			<item value="#allDepart"/>
+			<item value="主标题"/>
+		</list>
+		<list key="replacehistory">
+			<item value="D:\\zhangbiao\\zhangbiao\\\u5F00\u53D1\u5E93\\\u5F00\u53D1\u5E93\\anccohnew"/>
+			<item value="com.ancc.pojo.invoice"/>
+			<item value="com.ancc.pojo"/>
+			<item value="F:\\\u9879\u76EE\u6587\u4EF6\\\u7269\u54C1\u7F16\u7801\u4E2D\u5FC3\u7F51\u4E0A\u4E1A\u52A1\u5927\u5385\\\u5F00\u53D1\u5E93\\anccohnew\\anccoh\\WebRoot\\jsp"/>
+		</list>
+	</section>
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
+		<item value="273" key="DIALOG_WIDTH"/>
+		<item value="1|微软雅黑|9.0|0|WINDOWS|1|-12|0|0|0|400|0|0|0|1|0|0|0|0|微软雅黑" key="DIALOG_FONT_NAME"/>
+		<item value="410" key="DIALOG_HEIGHT"/>
+		<item value="934" key="DIALOG_X_ORIGIN"/>
+		<item value="582" key="DIALOG_Y_ORIGIN"/>
+	</section>
+</section>

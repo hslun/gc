@@ -1,0 +1,109 @@
+#\u5B9A\u4E49LOG\u8F93\u51FA\u7EA7\u522B
+log4j.rootLogger=INFO,Console,File
+
+#\u5B9A\u4E49\u65E5\u5FD7\u8F93\u51FA\u76EE\u7684\u5730\u4E3A\u63A7\u5236\u53F0
+log4j.appender.Console=org.apache.log4j.ConsoleAppender
+log4j.appender.Console.Target=System.out
+
+#\u53EF\u4EE5\u7075\u6D3B\u7684\u6307\u5B9A\u65E5\u5FD7\u8F93\u51FA\u683C\u5F0F\uFF0C\u4E0B\u9762\u4E00\u884C\u662F\u6307\u5B9A\u5177\u4F53\u7684\u683C\u5F0F
+log4j.appender.Console.layout=org.apache.log4j.PatternLayout
+log4j.appender.Console.layout.ConversionPattern=[%c]-%m%n
+
+#mybatis\u663E\u793ASQL\u8BED\u53E5\u65E5\u5FD7\u914D\u7F6E 
+#log4j.logger.org.mybatis=DEBUG
+log4j.logger.net.com.ancc.mapper=DEBUG
+
+
+#\u6587\u4EF6\u5927\u5C0F\u5230\u8FBE\u6307\u5B9A\u5C3A\u5BF8\u7684\u65F6\u5019\u4EA7\u751F\u4E00\u4E2A\u65B0\u7684\u6587\u4EF6
+log4j.appender.File=org.apache.log4j.RollingFileAppender
+
+#\u6307\u5B9A\u8F93\u51FA\u76EE\u5F55
+log4j.appender.File.File=logs/ssm.log
+
+#\u5B9A\u4E49\u6587\u4EF6\u6700\u5927\u5927\u5C0F
+log4j.appender.File.MaxFileSize=10MB
+
+#\u8F93\u51FA\u6240\u6709\u65E5\u5FD7\uFF0C\u5982\u679C\u6362\u6210DEBUG\u8868\u793A\u8F93\u51FADEBUG\u4EE5\u4E0A\u7EA7\u522B\u65E5\u5FD7
+log4j.appender.File.Threshold=ALL
+log4j.appender.File.layout=org.apache.log4j.PatternLayout
+log4j.appender.File.layout.ConversionPattern=[%p][%d{yyyy-MM-dd HH\:mm|\:ss}][%c]%m%n
+
+#mybatis\u663E\u793ASQL\u8BED\u53E5\u65E5\u5FD7\u914D\u7F6E 
+#log4j.logger.org.mybatis=DEBUG
+#log4j.logger.org.mybatis=DEBUG
+log4j.logger.com.ancc.mapper=DEBUG
+## LOGGER ##
+## configure root Logger
+#Log4j\u53EA\u5EFA\u8BAE\u4F7F\u75284\u4E2A\u7EA7\u522B\uFF0C\u4F18\u5148\u7EA7\u4ECE\u9AD8\u5230\u4F4E\u5206\u522B\u662Ferror,warn,info\u548Cdebug
+#\u914D\u7F6E\u6839 Logger \uFF0C\u5176\u8BED\u6CD5\u4E3A\uFF1A
+#log4j.rootLogger = [ level ] , appenderName1, appenderName2, \u2026
+log4j.rootLogger=info,stdout,infofile,debugfile,errorfile
+
+## APPENDERS ##
+log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+log4j.appender.stdout.Target = System.out
+log4j.appender.stdout.layout = org.apache.log4j.PatternLayout
+log4j.appender.stdout.layout.ConversionPattern = [%-5p] %d{yyyy-MM-dd HH:mm:ss,SSS} method:%l%n%m%n
+
+log4j.appender.debugfile=org.apache.log4j.RollingFileAppender
+log4j.appender.debugfile.File= /WEB-INF/logs/debug/debug.txt
+log4j.appender.debugfile.MaxFileSize=10MB
+log4j.appender.debugfile.MaxBackupIndex=10
+log4j.appender.debugfile.Threshold=DEBUG
+log4j.appender.debugfile.Append=true
+log4j.appender.debugfile.Encoding=UTF-8
+log4j.appender.debugfile.layout=org.apache.log4j.PatternLayout
+log4j.appender.debugfile.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} %-5p:  %m%n
+
+log4j.appender.infofile=org.apache.log4j.RollingFileAppender
+log4j.appender.infofile.File= /WEB-INF/logs/info/info.txt
+log4j.appender.infofile.MaxFileSize=10MB
+log4j.appender.infofile.MaxBackupIndex=10
+log4j.appender.infofile.Threshold=INFO
+log4j.appender.infofile.Append=true
+log4j.appender.infofile.Encoding=UTF-8
+log4j.appender.infofile.layout=org.apache.log4j.PatternLayout
+log4j.appender.infofile.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} %-5p:  %m%n
+
+log4j.appender.errorfile=org.apache.log4j.RollingFileAppender
+log4j.appender.errorfile.File= /WEB-INF/logs/error/err.txt
+log4j.appender.errorfile.MaxFileSize=10MB
+log4j.appender.errorfile.MaxBackupIndex=10
+log4j.appender.errorfile.Threshold=ERROR
+log4j.appender.errorfile.Append=true
+log4j.appender.errorfile.Encoding=UTF-8
+log4j.appender.errorfile.layout=org.apache.log4j.PatternLayout
+log4j.appender.errorfile.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} %-5p:  %m%n
+
+log4j.appender.spyFile = org.apache.log4j.RollingFileAppender
+log4j.appender.spyFile.File = /WEB-INF/logs/spy/spy.log
+log4j.appender.spyFile.MaxFileSize = 10MB
+log4j.appender.spyFile.layout = org.apache.log4j.PatternLayout
+log4j.appender.spyFile.layout.ConversionPattern = %m%n
+
+##Spring
+log4j.logger.org.springframework=error
+
+##ehcache
+log4j.logger.net.sf.ehcache.config=error
+
+##mybatis
+#log4j.logger.com.ibatis=DEBUG
+#log4j.logger.com.ibatis.common.jdbc.ScriptRunner=DEBUG
+#log4j.logger.com.ibatis.sqlmap.engine.impl.SqlMapClientDelegate=DEBUG
+#log4j.logger.java.sql.Connection=DEBUG
+#log4j.logger.java.sql.Statement=DEBUG
+#log4j.logger.java.sql.PreparedStatement=DEBUG
+
+##p6spy \u6253\u5370\u6700\u7EC8\u6267\u884C\u7684sql
+log4j.logger.p6spy=info,stdout,spyFile
+log4j.additivity.p6spy=false
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.2.xsd
+		http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context-3.2.xsd"
+	default-lazy-init="true">
+	<description>Shiro Configuration</description>
+<!-- load conf properties -->
+	<context:property-placeholder
+		ignore-unresolvable="true" location="classpath*:conf/application.properties" />
+	<!-- define the main bussiness object of Shiro -->
+	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+		<property name="realms">
+			<list>
+				<ref bean="myRealm" />
+			</list>
+		</property>
+		<property name="cacheManager" ref="shiroEhcacheManager" />
+		<!-- <property name="sessionManager" ref="dSessionManager"/> -->
+	</bean>
+
+	<bean id="dSessionManager"
+		class="org.apache.shiro.web.session.mgt.DefaultWebSessionManager">
+		<property name="globalSessionTimeout" value="-1000" />
+	</bean>
+
+	<bean id="myRealm" class="cn.com.hfga.util.shiro.ShiroRealm">
+		<property name="name" value="myRealm" />
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<bean id="shiroEhcacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
+		<property name="cacheManagerConfigFile" value="classpath:conf/security/ehcache-shiro.xml" />
+	</bean>
+
+	<!-- verify filter -->
+	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+		<property name="securityManager" ref="securityManager" />
+		<property name="loginUrl" value="/doLogin" />
+		<property name="successUrl" value="/goMain" />
+		<property name="unauthorizedUrl" value="/doLogin" />
+		<property name="filters">
+			<map>
+				<entry key="authc" value-ref="jsonAuth" />
+				<entry key="cxfAuthc" value-ref="cxfAuthc" />
+			</map>
+		</property>
+		<property name="filterChainDefinitions">
+			<value>
+				/view/common/login.html = anon
+				/cxf/** = cxfAuthc
+				/static/** = anon
+				/** = authc
+				<!-- /view/common/login.html = anon /css/** = anon /image/** = anon /javascript/** 
+					= anon ${adminPath}/query/** = authc, roles[admin] /role/edit/* = perms[role:edit] 
+					/role/save = perms[role:edit] /role/list = perms[role:view] /** = authc -->
+			</value>
+		</property>
+	</bean>
+
+	<bean id="jsonAuth" class="cn.com.hfga.util.shiro.JsonAuthenticationFilter" />
+
+	<bean id="cxfAuthc" class="cn.com.hfga.util.shiro.CXFAuthcFilter" />
+
+	<!-- shiro bean config -->
+	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor" />
+
+	<!-- use AOP to verify method -->
+	<bean
+		class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"
+		depends-on="lifecycleBeanPostProcessor">
+		<property name="proxyTargetClass" value="true" />
+	</bean>
+
+	<bean
+		class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+		<property name="securityManager" ref="securityManager" />
+	</bean>
+
+</beans>

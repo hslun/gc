@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Insert title here</title>
+<script src="jquery-1.8.3.min.js"></script>
+<script src="jquery-1.8.3.js"></script>
+<script type="text/javascript">
+		function init()
+		{
+			if(sessionStorage.getItem("choose")==null)
+			{
+				init2();
+			}
+			else if(ssessionStorage.getItem("choose")=="1")
+			{
+				init2();
+			}
+			else if(ssessionStorage.getItem("choose")=="2")
+			{
+				$("#d1").hide();
+				$("#d3").hide();
+			}
+			else
+			{
+				$("#d1").hide();
+				$("#d2").hide();
+			}
+			
+		}
+		function init2()
+		{
+			$("#d2").hide();
+			$("#d3").hide();
+		}
+		$(document)
+				.ready(
+						function() {
+							$("#v1").click(function(){
+								sessionStorage.setItem("choose","1");
+							});
+							$("#v1").click(function(){
+								sessionStorage.setItem("choose","2");
+							});
+							$("#v1").click(function(){
+								sessionStorage.setItem("choose","3");
+							});
+							$("#d1").click(function(){
+								location.href="Son.html";
+							});
+							});
+</script>
+</head>
+<body>
+
+<div id="d1">
+	<label >a1</label>
+	<label >a2</label>
+	<label >a3</label>
+	<label >a4</label>
+</div>
+<div id="d2">
+	<label >b1</label>
+	<label >b2</label>
+	<label >b3</label>
+	<label >b4</label>
+</div>
+
+<div id="d3">
+	<label >b1</label>
+	<label >b2</label>
+	<label >b3</label>
+	<label >b4</label>
+</div>
+<div id="button" style="text-align:center;">
+	<input type="button" id="v1" value="菜单1">
+	<input type="button" id="v2" value="菜单2">
+	<input type="button" id="v3" value="菜单3">
+	
+</div>
+</body>
+</html>

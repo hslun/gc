@@ -1,0 +1,13 @@
+[{ 
+"id":1,
+"text":"用户管理",
+"url":"sysUserManage.jsp"},
+{ 
+"id":2,
+"text":"部门管理",
+"url":"deptManage.jsp"},
+{ 
+"id":4,
+"text":"数据字典",
+"url":"dictManage.jsp"}
+]

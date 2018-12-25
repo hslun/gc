@@ -1,0 +1,275 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>日志填报</title>
+<meta name="viewport"
+	content="width=device-width,initial-scale=1.0,user-scalable=no" />
+<link rel="stylesheet" href="../../view/test/js/jquery.mobile-1.4.5.css" />
+<script src="../../view/test/js/jquery-1.8.3.min.js"></script>
+<script src="../../view/test/js/jquery.mobile-1.4.5.js"></script>
+<script src="../../view/test/js/jquery.cookie.js"></script>
+<link rel="stylesheet" type="text/css" href="../../CSS/hour.css" />
+<style type="text/css">
+textarea {
+	min-height: 70px;
+}
+</style>
+</head>
+<body>
+	<script>
+		//提交ajax请求
+		function showHint() {
+			var inputInfo = document.getElementById("inputInfo");
+			if (inputInfo.value == "请输入出差地点" || inputInfo.value == "请输入客户名称"
+					|| inputInfo.value == "请输入会议名称"
+					|| inputInfo.value == "请输入试验名称"
+					|| inputInfo.value == "请输入类型描述"
+					|| inputInfo.value == "请输入产品名称"
+					|| inputInfo.value == "请输入项目名称") {
+						
+				$("#inputInfo").val("");
+				$("#inputInfo").css("color", "black");
+			}
+		}
+		function hideHint() {
+			var inputInfo = document.getElementById("inputInfo");
+			if ($("#inputInfo").val() == '') {
+				$("#inputInfo").css("color", "#999999");
+				judgeHintInfo();
+			}
+		}
+		function judgeHintInfo() {
+			if($("#kind").val() == "研发"){
+				$("#inputInfo").val("请输入项目名称");
+			}else if ($("#kind").val() == "生产") {
+				$("#inputInfo").val("请输入产品名称");
+			}else if ($("#kind").val() == "出差") {
+				$("#inputInfo").val("请输入出差地点");
+			} else if ($("#kind").val() == "销售") {
+				$("#inputInfo").val("请输入客户名称");
+			} else if ($("#kind").val() == "会议") {
+				$("#inputInfo").val("请输入会议名称");
+			} else if ($("#kind").val() == "试验") {
+				$("#inputInfo").val("请输入试验名称");
+			} else if ($("#kind").val() == "其他") {
+				$("#inputInfo").val("请输入类型描述");
+			} else {
+
+			}
+		}
+		function resetPageInfo(){
+			$("#kind-button span").html("研发");
+			$("#inputInfo").val("请输入项目名称");
+			$("#inputInfo").css("color", "#999999");
+
+		}
+		function resetMSinfo(){
+			$("#description").val("");
+		}
+		$(document)
+				.ready(
+						function() {
+							Date.prototype.format = function(format) {
+								var o = {
+									"M+" : this.getMonth() + 1, //month 
+									"d+" : this.getDate(), //day 
+									"h+" : this.getHours(), //hour 
+									"m+" : this.getMinutes(), //minute 
+									"s+" : this.getSeconds(), //second 
+									"q+" : Math
+											.floor((this.getMonth() + 3) / 3), //quarter 
+									"S" : this.getMilliseconds()
+								//millisecond 
+								}
+
+								if (/(y+)/.test(format)) {
+									format = format.replace(RegExp.$1, (this
+											.getFullYear() + "")
+											.substr(4 - RegExp.$1.length));
+								}
+
+								for ( var k in o) {
+									if (new RegExp("(" + k + ")").test(format)) {
+										format = format
+												.replace(
+														RegExp.$1,
+														RegExp.$1.length == 1 ? o[k]
+																: ("00" + o[k])
+																		.substr(("" + o[k]).length));
+									}
+								}
+								return format;
+							}
+
+							var now = new Date();
+							var defaulttime = now.format("yyyy-MM-dd");
+							$("#date").val("" + defaulttime);
+
+							var mytime = now.format("yyyy-MM-dd hh:mm:ss");
+							$("#submit")
+									.click(
+											function() {
+												//输入检查
+												var inputInfo = document
+														.getElementById("inputInfo");
+												if ($("#date").val() == "") {
+													alert("请输入日期");
+													return;
+												}
+												if ($("#inputInfo").val() == ""
+														|| inputInfo.value
+																.indexOf("请输入") >= 0) {
+													alert("请输入类型信息");
+													return;
+												} else {
+													if ($("#inputInfo").val().length < 2
+															|| $("#inputInfo")
+																	.val().length > 20) {
+														alert("类型信息请在2到20个字符之间");
+														return;
+													} else {
+
+													}
+												}
+												if ($("#description").val() == "") {
+													alert("请输入描述信息");
+													return;
+												} else {
+													if ($("#description").val().length < 8
+															|| $("#description")
+																	.val().length > 200) {
+														alert("描述信息请在8到200个字符之间");
+														return;
+													} else {
+
+													}
+												}
+												$("#submit").attr("disabled",
+														"disabled");
+												var dto = {
+													Kind : $("#kind  :selected")
+															.val(),
+													Day : $("#date").val(),
+													Kdescrib : $("#inputInfo")
+															.val(),
+													FillTime : mytime,
+													Describe : $("#description")
+															.val()
+												}
+
+												$
+														.ajax({
+															type : "post",
+															url : "/HFOA/web/Fill",
+															dataType : 'json',
+															data : dto,
+															success : function(
+																	data) {
+																alert(""+defaulttime);
+																if (data == 1) {
+																	alert("提交成功!");
+																	//更新页面
+																	$("#description").val("");
+							
+																	$("#submit").removeAttr("disabled");
+																} else if (data == 0) {
+																	alert("提交失败,请重新提交!");
+//																	resetPageInfo();
+																	$("#date").val("" + defaulttime);
+																	$("#submit").removeAttr("disabled");
+																} else if (data == 3) {
+																	alert("网页已经过期,请重新登录!");
+																	resetPageInfo();
+																	$("#submit").removeAttr("disabled");
+																	location.href="Login.html?Action=1";
+																}
+															},
+															error : function(
+																	data) {
+																alert("网络错误,请检查网络!");
+															}
+														})
+											});
+
+							$("#reset").click(function() {
+								resetPageInfo();
+								$("#date").val("" + defaulttime);
+							});
+
+							$("#kind").change(function() {
+								if($("#kind").val() == "研发"){
+									$("#inputInfo").val("请输入项目名称");
+								}else if ($("#kind").val() == "生产") {
+									$("#inputInfo").val("请输入产品名称");
+								}else if ($("#kind").val() == "出差") {
+									$("#inputInfo").val("请输入出差地点");
+								} else if ($("#kind").val() == "销售") {
+									$("#inputInfo").val("请输入客户名称");
+								} else if ($("#kind").val() == "会议") {
+									$("#inputInfo").val("请输入会议名称");
+								} else if ($("#kind").val() == "试验") {
+									$("#inputInfo").val("请输入试验名称");
+								} else if ($("#kind").val() == "其他") {
+									$("#inputInfo").val("请输入类型描述");
+								} else {
+
+								}
+								$("#inputInfo").css("color", "#999999");
+							});
+						});
+	</script>
+
+
+	<div data-role="page" data-position="fixed" data-fullscreen="true"
+		style="background-color: white;" id="p1">
+		<!--  <div data-role="header" data-theme="a" data-tap-toggle="false"
+			class="pageTitle">
+			<h1>日 志 填 报</h1>
+		</div>
+		-->
+		<div data-role="content" data-position="fixed" data-fullscreen="true"
+			data-theme="a">
+			<form id="form1">
+			<table width="100%">
+				<tr>
+					<td><h4>日 期</h4></td>
+					<td colspan="2"><input id="date" type="date"
+						data-role="datebox"
+						data-options='{"mode": "datebox", "overrideDateFormat": "%m-%d-%Y"}'
+						name="birthday" /></td>
+				</tr>
+				<tr>
+					<td width="20%"><label id="kind11"><h4>类 型</h4></label></td>
+					<td width="30%"><select name="type" id="kind">
+							<option>研发</option>
+							<option>生产</option>
+							<option>出差</option>
+							<option>销售</option>
+							<option>会议</option>
+							<option>试验</option>
+							<option>其他</option>
+					</select></td>
+					<td width="50%"><input type="text" id="inputInfo" value="请输入项目名称" onFocus="showHint();" onBlur="hideHint();"
+						style="color: #999999;"></td>
+				</tr>
+
+				<tr>
+					<td><label id="d"><h4>描 述</h4></label></td>
+					<td colspan="2"><textarea id="description" rows="5"></textarea></td>
+				</tr>
+				<tr>
+					<td colspan="3"><label id="d" style="color: red;">注：确保所填写内容无任何涉密信息(型号、技术参数等)。</label></td>
+				</tr>
+			</table>
+			<div align="center">
+				<!-- 使用圆角按钮 -->
+				<input id="submit" type="submit" data-inline="true" value="提  交" />
+				<input id="reset" type="submit" data-inline="true" value="重  置" />
+			</div>
+			</form>
+		</div>
+	</div>
+
+
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=GBK" />
+<meta name="viewport"content="width=device-width,initial-scale=1.0,user-scalable=no" />
+<link rel="stylesheet" href="../../view/test/js/jquery.mobile-1.4.5.css" />
+<script src="../../view/test/js/jquery-1.8.3.min.js"></script>
+<script src="../../view/test/js/jquery.mobile-1.4.5.js"></script>
+<script src="../../view/test/js/jquery.cookie.js"></script>
+<title>事故信息</title>
+<script type="text/javascript">
+	
+	function findImg(CarNum){
+		if(CarNum=="京HV3507")
+			return "../../img/BorrowCarImage/jeep.jpg";
+		else if(CarNum=="京NH8845"){
+			return "../../img/BorrowCarImage/bieke.jpg";
+		}
+		else if(CarNum=="京NTU976"){
+			return "../../img/BorrowCarImage/jieda.jpg";
+		}
+		else{
+			return  "../../img/BorrowCarImage/benchi_s.jpg";
+		}
+	}
+	function getCarNum(info){
+		var str=info.split(' ');
+		return str[1];
+	}
+	$(document).on("pageinit","#pageone",function(){
+		var urlinfo = window.location.href;
+		var carnum =decodeURI(urlinfo.split("?")[1].split("=")[1]);
+		if(sessionStorage.getItem("carnum")==null){
+			$("#carnum1").html(carnum);
+			$("#img").attr('src', findImg(carnum));
+		}
+		else{
+			$("#carnum1").html(sessionStorage.getItem("carnum"));
+			$("#img").attr('src', findImg(getCarNum(sessionStorage.getItem("carnum"))));
+		}
+		
+		$.ajax({
+				type : "post",
+				url : "/HFOA/web/GetAccidentInfo?carnum="+carnum,
+				dataType : 'json',
+				success : function(data) {
+			    //获取公车基本信息
+			    	if (data != null) {
+						var tbody="";
+						$(data).each(function() {
+						 var dds="<li><table width=='100%'><tr><td>驾驶人:"+this.driver+"</td><td>时间："+this.troubleTime+"</td></tr>"
+						+"<tr><td colspan='2'>事故描述："+this.troubleDescribe+"</td></tr></table></li>";
+						 tbody+=dds;
+					});
+					
+					$("#list").append($(tbody));
+					$("#list").listview('refresh');
+					
+				}
+				//
+				else {
+					alert("数据传输出现问题")
+				}
+			},
+			error : function(data) {
+				alert(data)
+						alert("网络错误");
+					}
+		});
+});
+
+$(document).ready(function(){
+	$("#back").click(function() {
+		history.go(-1);
+	});
+});
+$(document).on('click', '#back', function() {
+	// 重置按钮的点击事件
+	location.href="BaseInfo.html#pagetwo";
+});
+	
+</script>
+</head>
+<body>
+	<div data-role="page" id="pageone">
+		<div data-role="header">
+			<h4>事故信息</h4>
+			<a href="#" data-role="button" class="ui-btn-left" data-icon="back" id="back">返 回</a>
+		</div>
+		<div data-role="content" data-position="fixed" data-fullscreen="true" data-theme="a">
+			<div>
+			<table width=="100%">
+				<tr>
+					<td>
+						<img id="img">
+					</td>
+					<td >
+						<h2 id="carnum1"></h2>
+					</td>	
+				</tr>
+			</table>
+			</div>
+			<br />
+			<div>
+			<ul data-role="listview" id="list">
+					
+			</ul>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

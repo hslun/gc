@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>日志填报</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
+        <link rel="stylesheet" href="../../view/test/js/jquery.mobile-1.4.5.css" />
+        <script src="../../view/test/js/jquery-1.8.3.min.js">
+        </script>
+        <script src="../../view/test/js/jquery.mobile-1.4.5.js">
+        </script>
+        <script src="../../view/test/js/jquery.cookie.js">
+        </script>
+        <link rel="stylesheet" type="text/css" href="../../CSS/hour.css" />
+        <style type="text/css">
+            textarea {
+                min-height: 70px;
+            }
+        </style>
+		<script src="../js/fill.js"></script>
+    </head>
+    <body>
+        <div data-role="page" data-position="fixed" data-fullscreen="true" style="background-color: white;" id="fill">
+            <!--  <div data-role="header" data-theme="a" data-tap-toggle="false"
+            class="pageTitle">
+            <h1>日 志 填 报</h1>
+            </div>
+            -->
+            <div data-role="content" data-position="fixed" data-fullscreen="true" data-theme="a">
+                <form id="form1">
+                    <table width="100%">
+                        <tr>
+                            <td>
+                                <h4>日 期</h4>
+                            </td>
+                            <td colspan="2">
+                                <input id="date" type="date" data-role="datebox" data-options='{"mode": "datebox", "overrideDateFormat": "%m-%d-%Y"}' name="birthday" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="20%">
+                                <label id="kind11">
+                                    <h4>类 型</h4>
+                                </label>
+                            </td>
+                            <td width="30%">
+                                <select name="type" id="kind">
+                                    <option>出差</option>
+                                    <option>销售</option>
+                                    <option>会议</option>
+                                    <option>试验</option>
+                                    <option>其他</option>
+                                </select>
+                            </td>
+                            <td width="50%">
+                                <input type="text" id="inputInfo" value="请输入出差地点" onFocus="showHint();" onBlur="hideHint();" style="color: #999999;">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label id="d">
+                                    <h4>描 述</h4>
+                                </label>
+                            </td>
+                            <td colspan="2">
+                                <textarea id="description" rows="5">
+                                </textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="3">
+                                <label id="d" style="color: red;">
+                                    注：确保所填写内容无任何涉密信息(型号、技术参数等)。
+                                </label>
+                            </td>
+                        </tr>
+                    </table>
+                    <div align="center">
+                        <!-- 使用圆角按钮 --><input id="submit" type="submit" data-inline="true" value="提  交" /><input id="reset" type="submit" data-inline="true" value="重  置" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>

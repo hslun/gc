@@ -1,0 +1,424 @@
+package com.ancc.pojo;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class ZsPrintNoteExample {
+    protected String orderByClause;
+
+    protected boolean distinct;
+
+    protected List<Criteria> oredCriteria;
+
+    public ZsPrintNoteExample() {
+        oredCriteria = new ArrayList<Criteria>();
+    }
+
+    public void setOrderByClause(String orderByClause) {
+        this.orderByClause = orderByClause;
+    }
+
+    public String getOrderByClause() {
+        return orderByClause;
+    }
+
+    public void setDistinct(boolean distinct) {
+        this.distinct = distinct;
+    }
+
+    public boolean isDistinct() {
+        return distinct;
+    }
+
+    public List<Criteria> getOredCriteria() {
+        return oredCriteria;
+    }
+
+    public void or(Criteria criteria) {
+        oredCriteria.add(criteria);
+    }
+
+    public Criteria or() {
+        Criteria criteria = createCriteriaInternal();
+        oredCriteria.add(criteria);
+        return criteria;
+    }
+
+    public Criteria createCriteria() {
+        Criteria criteria = createCriteriaInternal();
+        if (oredCriteria.size() == 0) {
+            oredCriteria.add(criteria);
+        }
+        return criteria;
+    }
+
+    protected Criteria createCriteriaInternal() {
+        Criteria criteria = new Criteria();
+        return criteria;
+    }
+
+    public void clear() {
+        oredCriteria.clear();
+        orderByClause = null;
+        distinct = false;
+    }
+
+    /**
+     * null
+     * 
+     * @author wcyong
+     * 
+     * @date 2018-08-27
+     */
+    protected abstract static class GeneratedCriteria {
+        protected List<Criterion> criteria;
+
+        protected GeneratedCriteria() {
+            super();
+            criteria = new ArrayList<Criterion>();
+        }
+
+        public boolean isValid() {
+            return criteria.size() > 0;
+        }
+
+        public List<Criterion> getAllCriteria() {
+            return criteria;
+        }
+
+        public List<Criterion> getCriteria() {
+            return criteria;
+        }
+
+        protected void addCriterion(String condition) {
+            if (condition == null) {
+                throw new RuntimeException("Value for condition cannot be null");
+            }
+            criteria.add(new Criterion(condition));
+        }
+
+        protected void addCriterion(String condition, Object value, String property) {
+            if (value == null) {
+                throw new RuntimeException("Value for " + property + " cannot be null");
+            }
+            criteria.add(new Criterion(condition, value));
+        }
+
+        protected void addCriterion(String condition, Object value1, Object value2, String property) {
+            if (value1 == null || value2 == null) {
+                throw new RuntimeException("Between values for " + property + " cannot be null");
+            }
+            criteria.add(new Criterion(condition, value1, value2));
+        }
+
+        public Criteria andSnIsNull() {
+            addCriterion("SN is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSnIsNotNull() {
+            addCriterion("SN is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSnEqualTo(String value) {
+            addCriterion("SN =", value, "sn");
+            return (Criteria) this;
+        }
+
+        public Criteria andSnNotEqualTo(String value) {
+            addCriterion("SN <>", value, "sn");
+            return (Criteria) this;
+        }
+
+        public Criteria andSnGreaterThan(String value) {
+            addCriterion("SN >", value, "sn");
+            return (Criteria) this;
+        }
+
+        public Criteria andSnGreaterThanOrEqualTo(String value) {
+            addCriterion("SN >=", value, "sn");
+            return (Criteria) this;
+        }
+
+        public Criteria andSnLessThan(String value) {
+            addCriterion("SN <", value, "sn");
+            return (Criteria) this;
+        }
+
+        public Criteria andSnLessThanOrEqualTo(String value) {
+            addCriterion("SN <=", value, "sn");
+            return (Criteria) this;
+        }
+
+        public Criteria andSnLike(String value) {
+            addCriterion("SN like", value, "sn");
+            return (Criteria) this;
+        }
+
+        public Criteria andSnNotLike(String value) {
+            addCriterion("SN not like", value, "sn");
+            return (Criteria) this;
+        }
+
+        public Criteria andSnIn(List<String> values) {
+            addCriterion("SN in", values, "sn");
+            return (Criteria) this;
+        }
+
+        public Criteria andSnNotIn(List<String> values) {
+            addCriterion("SN not in", values, "sn");
+            return (Criteria) this;
+        }
+
+        public Criteria andSnBetween(String value1, String value2) {
+            addCriterion("SN between", value1, value2, "sn");
+            return (Criteria) this;
+        }
+
+        public Criteria andSnNotBetween(String value1, String value2) {
+            addCriterion("SN not between", value1, value2, "sn");
+            return (Criteria) this;
+        }
+
+        public Criteria andPersonidIsNull() {
+            addCriterion("PERSONID is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPersonidIsNotNull() {
+            addCriterion("PERSONID is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPersonidEqualTo(String value) {
+            addCriterion("PERSONID =", value, "personid");
+            return (Criteria) this;
+        }
+
+        public Criteria andPersonidNotEqualTo(String value) {
+            addCriterion("PERSONID <>", value, "personid");
+            return (Criteria) this;
+        }
+
+        public Criteria andPersonidGreaterThan(String value) {
+            addCriterion("PERSONID >", value, "personid");
+            return (Criteria) this;
+        }
+
+        public Criteria andPersonidGreaterThanOrEqualTo(String value) {
+            addCriterion("PERSONID >=", value, "personid");
+            return (Criteria) this;
+        }
+
+        public Criteria andPersonidLessThan(String value) {
+            addCriterion("PERSONID <", value, "personid");
+            return (Criteria) this;
+        }
+
+        public Criteria andPersonidLessThanOrEqualTo(String value) {
+            addCriterion("PERSONID <=", value, "personid");
+            return (Criteria) this;
+        }
+
+        public Criteria andPersonidLike(String value) {
+            addCriterion("PERSONID like", value, "personid");
+            return (Criteria) this;
+        }
+
+        public Criteria andPersonidNotLike(String value) {
+            addCriterion("PERSONID not like", value, "personid");
+            return (Criteria) this;
+        }
+
+        public Criteria andPersonidIn(List<String> values) {
+            addCriterion("PERSONID in", values, "personid");
+            return (Criteria) this;
+        }
+
+        public Criteria andPersonidNotIn(List<String> values) {
+            addCriterion("PERSONID not in", values, "personid");
+            return (Criteria) this;
+        }
+
+        public Criteria andPersonidBetween(String value1, String value2) {
+            addCriterion("PERSONID between", value1, value2, "personid");
+            return (Criteria) this;
+        }
+
+        public Criteria andPersonidNotBetween(String value1, String value2) {
+            addCriterion("PERSONID not between", value1, value2, "personid");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrintDatetimeIsNull() {
+            addCriterion("PRINT_DATETIME is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrintDatetimeIsNotNull() {
+            addCriterion("PRINT_DATETIME is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrintDatetimeEqualTo(String value) {
+            addCriterion("PRINT_DATETIME =", value, "printDatetime");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrintDatetimeNotEqualTo(String value) {
+            addCriterion("PRINT_DATETIME <>", value, "printDatetime");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrintDatetimeGreaterThan(String value) {
+            addCriterion("PRINT_DATETIME >", value, "printDatetime");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrintDatetimeGreaterThanOrEqualTo(String value) {
+            addCriterion("PRINT_DATETIME >=", value, "printDatetime");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrintDatetimeLessThan(String value) {
+            addCriterion("PRINT_DATETIME <", value, "printDatetime");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrintDatetimeLessThanOrEqualTo(String value) {
+            addCriterion("PRINT_DATETIME <=", value, "printDatetime");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrintDatetimeLike(String value) {
+            addCriterion("PRINT_DATETIME like", value, "printDatetime");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrintDatetimeNotLike(String value) {
+            addCriterion("PRINT_DATETIME not like", value, "printDatetime");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrintDatetimeIn(List<String> values) {
+            addCriterion("PRINT_DATETIME in", values, "printDatetime");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrintDatetimeNotIn(List<String> values) {
+            addCriterion("PRINT_DATETIME not in", values, "printDatetime");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrintDatetimeBetween(String value1, String value2) {
+            addCriterion("PRINT_DATETIME between", value1, value2, "printDatetime");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrintDatetimeNotBetween(String value1, String value2) {
+            addCriterion("PRINT_DATETIME not between", value1, value2, "printDatetime");
+            return (Criteria) this;
+        }
+    }
+
+    public static class Criteria extends GeneratedCriteria {
+
+        protected Criteria() {
+            super();
+        }
+    }
+
+    /**
+     * null
+     * 
+     * @author wcyong
+     * 
+     * @date 2018-08-27
+     */
+    public static class Criterion {
+        private String condition;
+
+        private Object value;
+
+        private Object secondValue;
+
+        private boolean noValue;
+
+        private boolean singleValue;
+
+        private boolean betweenValue;
+
+        private boolean listValue;
+
+        private String typeHandler;
+
+        public String getCondition() {
+            return condition;
+        }
+
+        public Object getValue() {
+            return value;
+        }
+
+        public Object getSecondValue() {
+            return secondValue;
+        }
+
+        public boolean isNoValue() {
+            return noValue;
+        }
+
+        public boolean isSingleValue() {
+            return singleValue;
+        }
+
+        public boolean isBetweenValue() {
+            return betweenValue;
+        }
+
+        public boolean isListValue() {
+            return listValue;
+        }
+
+        public String getTypeHandler() {
+            return typeHandler;
+        }
+
+        protected Criterion(String condition) {
+            super();
+            this.condition = condition;
+            this.typeHandler = null;
+            this.noValue = true;
+        }
+
+        protected Criterion(String condition, Object value, String typeHandler) {
+            super();
+            this.condition = condition;
+            this.value = value;
+            this.typeHandler = typeHandler;
+            if (value instanceof List<?>) {
+                this.listValue = true;
+            } else {
+                this.singleValue = true;
+            }
+        }
+
+        protected Criterion(String condition, Object value) {
+            this(condition, value, null);
+        }
+
+        protected Criterion(String condition, Object value, Object secondValue, String typeHandler) {
+            super();
+            this.condition = condition;
+            this.value = value;
+            this.secondValue = secondValue;
+            this.typeHandler = typeHandler;
+            this.betweenValue = true;
+        }
+
+        protected Criterion(String condition, Object value, Object secondValue) {
+            this(condition, value, secondValue, null);
+        }
+    }
+}

@@ -1,0 +1,12 @@
+driver=com.mysql.jdbc.Driver
+#url=jdbc:mysql://192.168.4.95\:3306/yszgrdgl?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true
+#jdbc:mysql://192.168.4.122\:3306/hfoa
+url=jdbc:mysql://192.168.4.124:3306/hfoa?useUnicode=true&characterEncoding=utf8
+
+#url=jdbc:mysql://47.92.68.127\:3306/yszgrdgl2?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true
+username=root
+password=root
+maxActive=20
+maxIdle=20
+minIdle=1
+maxWait=60000

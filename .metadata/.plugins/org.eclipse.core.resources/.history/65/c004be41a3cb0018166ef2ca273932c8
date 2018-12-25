@@ -1,0 +1,149 @@
+package com.ancc.service.enterprise.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.ancc.mapper.enterprise.ZcEanUpcUserMapper;
+import com.ancc.mapper.resume.XzCodeTempMapper;
+import com.ancc.pojo.enterprise.ZcEanUpcUser;
+import com.ancc.pojo.enterprise.ZcEanUpcUserExample;
+import com.ancc.pojo.resume.XzCodeTemp;
+import com.ancc.pojo.resume.XzCodeTempExample;
+import com.ancc.service.enterprise.ZcEanUpcUserService;
+
+/**
+ * 用户管理接口实现类
+ */
+@Service
+public class ZcEanUpcUserServiceImpl  implements ZcEanUpcUserService{
+
+    @Autowired
+    private ZcEanUpcUserMapper zcEanUpcUserMapper;
+
+    //手机号登录
+    @Override
+    public ZcEanUpcUser phoneLogin(ZcEanUpcUser zcEanUpcUser) {
+        ZcEanUpcUserExample zcEanUpcUserExample=new ZcEanUpcUserExample();
+        ZcEanUpcUserExample.Criteria  criteria=zcEanUpcUserExample.createCriteria();
+        criteria.andPhonenumEqualTo(zcEanUpcUser.getPhonenum()).andPasswordEqualTo(zcEanUpcUser.getPassword());
+        List<ZcEanUpcUser> list=zcEanUpcUserMapper.selectByExample(zcEanUpcUserExample);
+        if (list==null||list.isEmpty()){
+            return null;
+        }
+        else{
+            return list.get(0);
+        }
+    }
+    
+    //系统成员卡登录
+    @Override
+    public ZcEanUpcUser syscardLogin(ZcEanUpcUser zcEanUpcUser) {
+        return null;
+    }
+
+    
+    //判断手机号是否冲突
+	@Override
+	public boolean isReflect(String phonenum) {
+		// TODO Auto-generated method stub
+		ZcEanUpcUser zcEanUpcUser=zcEanUpcUserMapper.selectByPrimaryKey(phonenum);
+		if(zcEanUpcUser==null){
+			return false;
+		}
+		else{
+			return true;
+		}
+	}
+
+	@Override
+	public List<ZcEanUpcUser> listAll() {
+		// TODO Auto-generated method stub
+		return zcEanUpcUserMapper.selectByExample(new ZcEanUpcUserExample());
+	}
+	
+	@Override
+	public List<ZcEanUpcUser> getCodesByF_id(String f_id) {
+		ZcEanUpcUserExample zcEanUpcUserExample=new ZcEanUpcUserExample();
+        ZcEanUpcUserExample.Criteria  criteria=zcEanUpcUserExample.createCriteria();
+        criteria.andFIdEqualTo(f_id);
+		return zcEanUpcUserMapper.selectByExample(zcEanUpcUserExample);
+	}
+	
+	//通过gdsCode获取信息
+	@Override
+	public ZcEanUpcUser getByGds(String gdsCode) {
+		return zcEanUpcUserMapper.getByGds(gdsCode);
+	}
+	
+	@Autowired
+    private XzCodeTempMapper XzCodeTempMapper;
+
+	@Override
+	public List<XzCodeTemp> getXZCodesBySn(String sn) {
+		XzCodeTempExample XzCodeTempExample=new XzCodeTempExample();
+		XzCodeTempExample.Criteria  criteria=XzCodeTempExample.createCriteria();
+        criteria.andSnEqualTo(sn);
+		return XzCodeTempMapper.selectByExample(XzCodeTempExample);
+	}
+	@Override
+    public int testPhone(String phonenum){
+		return zcEanUpcUserMapper.phoneTest(phonenum);
+    }
+	public int insert(ZcEanUpcUser zcEanUpcUser){
+		return zcEanUpcUserMapper.insert(zcEanUpcUser);
+	}
+
+	@Override
+	public ZcEanUpcUser selectByFid(String fId) {
+		
+		return zcEanUpcUserMapper.selectByFid(fId);
+	}
+	public int updateByPrimaryKeySelective(ZcEanUpcUser record){
+		return zcEanUpcUserMapper.updateByPrimaryKeySelective(record);
+	}
+	
+	@Override
+	public int updatePassword(ZcEanUpcUser zcEanUpcUser) {
+		ZcEanUpcUserExample zcEanUpcUserExample=new ZcEanUpcUserExample();
+        ZcEanUpcUserExample.Criteria  criteria=zcEanUpcUserExample.createCriteria();
+        criteria.andPhonenumEqualTo(zcEanUpcUser.getPhonenum());
+		return zcEanUpcUserMapper.updateByExampleSelective(zcEanUpcUser, zcEanUpcUserExample);
+	}
+	
+	@Override
+    public int fIdLogin(String fid, String password){
+		ZcEanUpcUserExample zcEanUpcUserExample=new ZcEanUpcUserExample();
+        ZcEanUpcUserExample.Criteria  criteria=zcEanUpcUserExample.createCriteria();
+        criteria.andFIdEqualTo(fid);
+        criteria.andPasswordEqualTo(password);
+		List<ZcEanUpcUser> result = zcEanUpcUserMapper.selectByExample(zcEanUpcUserExample);
+		if (result != null){
+			return 1;
+		}else{
+			return 0;
+		}
+    }
+
+	//取密码
+	@Override
+	public String getPwd(String phone) {
+		ZcEanUpcUser info = zcEanUpcUserMapper.selectByPrimaryKey(phone);
+		if(!info.equals(null)){
+			return info.getPassword();
+		}
+				
+		return "";
+	}
+
+	@Override
+	public int updatePhone(String oldPhone, String newPhone) {
+		ZcEanUpcUser record=new ZcEanUpcUser();
+		ZcEanUpcUserExample zcEanUpcUserExample=new ZcEanUpcUserExample();
+        ZcEanUpcUserExample.Criteria  criteria=zcEanUpcUserExample.createCriteria();
+        criteria.andPhonenumEqualTo(oldPhone);
+        record.setPhonenum(newPhone);
+		return zcEanUpcUserMapper.updateByExample(record, zcEanUpcUserExample);
+	}
+}

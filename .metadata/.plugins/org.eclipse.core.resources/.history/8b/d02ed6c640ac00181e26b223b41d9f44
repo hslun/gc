@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ancc.mapper.ZhAppovedetailTempMapper" >
+
+    <resultMap id="BaseResultMap" type="com.ancc.pojo.ZhAppovedetailTemp" >
+        <id column="SN" property="sn" jdbcType="CHAR" />
+        <id column="SUBSN" property="subsn" jdbcType="CHAR" />
+        <result column="PERSONID" property="personid" jdbcType="CHAR" />
+        <result column="DEPTID" property="deptid" jdbcType="CHAR" />
+        <result column="APPOVEDATE" property="appovedate" jdbcType="CHAR" />
+        <result column="APPOVETIME" property="appovetime" jdbcType="CHAR" />
+        <result column="APPOVE_OPINION" property="appoveOpinion" jdbcType="VARCHAR" />
+        <result column="STATUS" property="status" jdbcType="CHAR" />
+        <result column="REASON" property="reason" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <sql id="Example_Where_Clause" >
+        <where >
+            <foreach collection="oredCriteria" item="criteria" separator="or" >
+                <if test="criteria.valid" >
+                    <trim prefix="(" suffix=")" prefixOverrides="and" >
+                        <foreach collection="criteria.criteria" item="criterion" >
+                            <choose >
+                                <when test="criterion.noValue" >
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue" >
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue" >
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue" >
+                                    and ${criterion.condition}
+                                    <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+
+    <sql id="Update_By_Example_Where_Clause" >
+        <where >
+            <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+                <if test="criteria.valid" >
+                    <trim prefix="(" suffix=")" prefixOverrides="and" >
+                        <foreach collection="criteria.criteria" item="criterion" >
+                            <choose >
+                                <when test="criterion.noValue" >
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue" >
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue" >
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue" >
+                                    and ${criterion.condition}
+                                    <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+
+    <sql id="Base_Column_List" >
+        SN, SUBSN, PERSONID, DEPTID, APPOVEDATE, APPOVETIME, APPOVE_OPINION, STATUS, REASON
+    </sql>
+
+    <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.ancc.pojo.ZhAppovedetailTempExample" >
+        select
+        <if test="distinct" >
+            distinct
+        </if>
+        <include refid="Base_Column_List" />
+        from ZH_APPOVEDETAIL_TEMP
+        <if test="_parameter != null" >
+            <include refid="Example_Where_Clause" />
+        </if>
+        <if test="orderByClause != null" >
+            order by ${orderByClause}
+        </if>
+    </select>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.ancc.pojo.ZhAppovedetailTempKey" >
+        select 
+        <include refid="Base_Column_List" />
+        from ZH_APPOVEDETAIL_TEMP
+        where SN = #{sn,jdbcType=CHAR}
+          and SUBSN = #{subsn,jdbcType=CHAR}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.ancc.pojo.ZhAppovedetailTempKey" >
+        delete from ZH_APPOVEDETAIL_TEMP
+        where SN = #{sn,jdbcType=CHAR}
+          and SUBSN = #{subsn,jdbcType=CHAR}
+    </delete>
+
+    <delete id="deleteByExample" parameterType="com.ancc.pojo.ZhAppovedetailTempExample" >
+        delete from ZH_APPOVEDETAIL_TEMP
+        <if test="_parameter != null" >
+            <include refid="Example_Where_Clause" />
+        </if>
+    </delete>
+
+    <insert id="insert" parameterType="com.ancc.pojo.ZhAppovedetailTemp" >
+        insert into ZH_APPOVEDETAIL_TEMP (SN, SUBSN, PERSONID, DEPTID, 
+            APPOVEDATE, APPOVETIME, APPOVE_OPINION, 
+            STATUS, REASON)
+        values (#{sn,jdbcType=CHAR}, #{subsn,jdbcType=CHAR}, #{personid,jdbcType=CHAR}, #{deptid,jdbcType=CHAR}, 
+            #{appovedate,jdbcType=CHAR}, #{appovetime,jdbcType=CHAR}, #{appoveOpinion,jdbcType=VARCHAR}, 
+            #{status,jdbcType=CHAR}, #{reason,jdbcType=VARCHAR})
+    </insert>
+
+    <insert id="insertSelective" parameterType="com.ancc.pojo.ZhAppovedetailTemp" >
+        insert into ZH_APPOVEDETAIL_TEMP
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="sn != null" >
+                SN,
+            </if>
+            <if test="subsn != null" >
+                SUBSN,
+            </if>
+            <if test="personid != null" >
+                PERSONID,
+            </if>
+            <if test="deptid != null" >
+                DEPTID,
+            </if>
+            <if test="appovedate != null" >
+                APPOVEDATE,
+            </if>
+            <if test="appovetime != null" >
+                APPOVETIME,
+            </if>
+            <if test="appoveOpinion != null" >
+                APPOVE_OPINION,
+            </if>
+            <if test="status != null" >
+                STATUS,
+            </if>
+            <if test="reason != null" >
+                REASON,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="sn != null" >
+                #{sn,jdbcType=CHAR},
+            </if>
+            <if test="subsn != null" >
+                #{subsn,jdbcType=CHAR},
+            </if>
+            <if test="personid != null" >
+                #{personid,jdbcType=CHAR},
+            </if>
+            <if test="deptid != null" >
+                #{deptid,jdbcType=CHAR},
+            </if>
+            <if test="appovedate != null" >
+                #{appovedate,jdbcType=CHAR},
+            </if>
+            <if test="appovetime != null" >
+                #{appovetime,jdbcType=CHAR},
+            </if>
+            <if test="appoveOpinion != null" >
+                #{appoveOpinion,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null" >
+                #{status,jdbcType=CHAR},
+            </if>
+            <if test="reason != null" >
+                #{reason,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+    <select id="countByExample" parameterType="com.ancc.pojo.ZhAppovedetailTempExample" resultType="java.lang.Integer" >
+        select count(*) from ZH_APPOVEDETAIL_TEMP
+        <if test="_parameter != null" >
+            <include refid="Example_Where_Clause" />
+        </if>
+    </select>
+
+    <update id="updateByExampleSelective" parameterType="map" >
+        update ZH_APPOVEDETAIL_TEMP
+        <set >
+            <if test="record.sn != null" >
+                SN = #{record.sn,jdbcType=CHAR},
+            </if>
+            <if test="record.subsn != null" >
+                SUBSN = #{record.subsn,jdbcType=CHAR},
+            </if>
+            <if test="record.personid != null" >
+                PERSONID = #{record.personid,jdbcType=CHAR},
+            </if>
+            <if test="record.deptid != null" >
+                DEPTID = #{record.deptid,jdbcType=CHAR},
+            </if>
+            <if test="record.appovedate != null" >
+                APPOVEDATE = #{record.appovedate,jdbcType=CHAR},
+            </if>
+            <if test="record.appovetime != null" >
+                APPOVETIME = #{record.appovetime,jdbcType=CHAR},
+            </if>
+            <if test="record.appoveOpinion != null" >
+                APPOVE_OPINION = #{record.appoveOpinion,jdbcType=VARCHAR},
+            </if>
+            <if test="record.status != null" >
+                STATUS = #{record.status,jdbcType=CHAR},
+            </if>
+            <if test="record.reason != null" >
+                REASON = #{record.reason,jdbcType=VARCHAR},
+            </if>
+        </set>
+        <if test="_parameter != null" >
+            <include refid="Update_By_Example_Where_Clause" />
+        </if>
+    </update>
+
+    <update id="updateByExample" parameterType="map" >
+        update ZH_APPOVEDETAIL_TEMP
+        set SN = #{record.sn,jdbcType=CHAR},
+            SUBSN = #{record.subsn,jdbcType=CHAR},
+            PERSONID = #{record.personid,jdbcType=CHAR},
+            DEPTID = #{record.deptid,jdbcType=CHAR},
+            APPOVEDATE = #{record.appovedate,jdbcType=CHAR},
+            APPOVETIME = #{record.appovetime,jdbcType=CHAR},
+            APPOVE_OPINION = #{record.appoveOpinion,jdbcType=VARCHAR},
+            STATUS = #{record.status,jdbcType=CHAR},
+            REASON = #{record.reason,jdbcType=VARCHAR}
+        <if test="_parameter != null" >
+            <include refid="Update_By_Example_Where_Clause" />
+        </if>
+    </update>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.ancc.pojo.ZhAppovedetailTemp" >
+        update ZH_APPOVEDETAIL_TEMP
+        <set >
+            <if test="personid != null" >
+                PERSONID = #{personid,jdbcType=CHAR},
+            </if>
+            <if test="deptid != null" >
+                DEPTID = #{deptid,jdbcType=CHAR},
+            </if>
+            <if test="appovedate != null" >
+                APPOVEDATE = #{appovedate,jdbcType=CHAR},
+            </if>
+            <if test="appovetime != null" >
+                APPOVETIME = #{appovetime,jdbcType=CHAR},
+            </if>
+            <if test="appoveOpinion != null" >
+                APPOVE_OPINION = #{appoveOpinion,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null" >
+                STATUS = #{status,jdbcType=CHAR},
+            </if>
+            <if test="reason != null" >
+                REASON = #{reason,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where SN = #{sn,jdbcType=CHAR}
+          and SUBSN = #{subsn,jdbcType=CHAR}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.ancc.pojo.ZhAppovedetailTemp" >
+        update ZH_APPOVEDETAIL_TEMP
+        set PERSONID = #{personid,jdbcType=CHAR},
+            DEPTID = #{deptid,jdbcType=CHAR},
+            APPOVEDATE = #{appovedate,jdbcType=CHAR},
+            APPOVETIME = #{appovetime,jdbcType=CHAR},
+            APPOVE_OPINION = #{appoveOpinion,jdbcType=VARCHAR},
+            STATUS = #{status,jdbcType=CHAR},
+            REASON = #{reason,jdbcType=VARCHAR}
+        where SN = #{sn,jdbcType=CHAR}
+          and SUBSN = #{subsn,jdbcType=CHAR}
+    </update>
+</mapper>

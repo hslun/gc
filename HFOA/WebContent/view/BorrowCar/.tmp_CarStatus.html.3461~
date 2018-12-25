@@ -1,0 +1,385 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=GBK" />
+<meta name="viewport"
+	content="width=device-width,initial-scale=1.0,user-scalable=no" />
+<link rel="stylesheet" href="../../view/test/js/jquery.mobile-1.4.5.css" />
+<script src="../../view/test/js/jquery-1.8.3.min.js"></script>
+<script src="../../view/test/js/jquery.mobile-1.4.5.js"></script>
+<script src="../../view/test/js/jquery.cookie.js"></script>
+<title>公车借用状态</title>
+<script type="text/javascript">
+		//得到其他页面传过来的参数
+	function getUrlParam(name) {
+		var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+		var r = window.location.search.substr(1).match(reg); //匹配目标参数
+		if (r != null)
+			return unescape(r[2]);
+		return null; //返回参数值
+	}
+	var carnum="";
+	//借用状态初始化事件
+	$(document).on("pageinit","#pageone",function(){
+	});
+	//借用详情初始化事件
+	$(document).on("pageinit","#pagetwo",function(){
+		//详细的借车申请信息
+		$.ajax({
+			type : "post",
+			url : "/HFOA//CarStatusDetail",
+			dataType : 'json',
+			data:carnum,
+			success : function(data) {
+			    //获取借用状态
+				var flag="1";
+			    if (data != null) {
+					$(data).each(function() {
+						flag="2";
+						var list = $("<li><a href='BorrowCar?ApplyId="+this.applyId+
+						"'><table width='100%' cellpadding=='10'><tr><td><lable>"+this.applyMan+
+						"</label></td><td><table width='100%' cellpadding=='10'><tr><td><label>"+this.beginTimePlan+
+						"</label></td></tr><tr><td><label>"+this.endTimePlan+"</label></td></tr></table></td></tr>/table></a></li>");
+						$("#list").append(list);
+						$('ul').listview('refresh');
+					});
+				if(flag=="1"){
+					$("#result").html("该车没有相关申请或者预约信息！");
+					}
+				}
+				//
+				else {
+					alert("数据传输出现问题")
+				}
+			},
+			error : function(data) {
+						alert("网络错误");
+					}
+		});
+	});
+
+	//根据carnum查找返回图片
+	function findImg(CarNum){
+		if(CarNum=="京HV3507")
+			return "../../img/BorrowCarImage/jeep.jpg";
+		else if(CarNum=="京NH8845"){
+			return "../../img/BorrowCarImage/bieke.jpg";
+		}
+		else if(CarNum=="京NTU976"){
+			return "../../img/BorrowCarImage/jieda.jpg";
+		}
+		else{
+			return  "../../img/BorrowCarImage/benchi_s.jpg";
+		}
+	}
+
+
+	$(document)
+			.ready(
+					function() {
+						//响应事件
+						$("#car1").click(function(){
+							carnum=$("#carnum1").html();
+							$("#img").attr('src',findImg(carnum));
+							$("#info").html(carnum);
+							$.mobile.changePage("../../view/BorrowCar/CarStatus.html#pagetwo?=carnum="+$("#carnum1").html(),	{
+																					transition : "slideup"
+																				});
+																		
+						});
+						$("#car2").click(function(){
+							carnum=$("#carnum2").html();
+							$("#img").attr('src',findImg(carnum));
+							$("#info").html(carnum);
+							$.mobile.changePage("../../view/BorrowCar/CarStatus.html#pagetwo",	{
+																					transition : "slideup"
+																				});
+						});
+						$("#car3").click(function(){
+							carnum=$("#carnum3").html();
+							$("#img").attr('src',findImg(carnum));
+							$("#info").html(carnum);
+							$.mobile.changePage("../../view/BorrowCar/CarStatus.html#pagetwo",	{
+																					transition : "slideup"
+																				});
+						});
+						$("#car4").click(function(){
+							carnum=$("#carnum4").html();
+							$("#img").attr('src',findImg(carnum));
+							$("#info").html(carnum);
+							$.mobile.changePage("../../view/BorrowCar/CarStatus.html#pagetwo",	{
+																					transition : "slideup"
+																				});
+						});
+						$("#car5").click(function(){
+							carnum=$("#carnum5").html();
+							$("#img").attr('src',findImg(carnum));
+							$("#info").html(carnum);
+							$.mobile.changePage("../../view/BorrowCar/CarStatus.html#pagetwo",	{
+																					transition : "slideup"
+																				});
+						});
+						//页面加载请求服务器
+							$.ajax({
+										type : "post",
+										url : "/HFOA/CarStatus",
+										dataType : 'json',
+										success : function(data) {
+											//获取借用状态
+											if (data != null) {
+												var i=1;
+												$(data).each(
+														function() {
+															var carnum="#carnum"+i.toString();
+															var suspend="#suspend"+i.toString();
+															var carstate="#carstate"+i.toString();
+															var carinfo="#carinfo"+i.toString();
+															$(carnum).html(this.carNum);
+															$(suspend).html("限行："+this.suspendDay);
+														    $(carstate).html(this.carState);
+															$(carinfo).html(this.others);
+															i++;
+														});
+
+											}
+											//登录失败
+											else {
+												alert("服务器正在维护中....")
+											}
+										},
+										error : function(data) {
+											alert("网络错误");
+										}
+									});
+									$("#back").click(function (){
+											$.mobile.changePage(
+									"../../view/BorrowCar/CarStatus.html#pageone", {
+										transition : "slideup"
+									});
+									})
+									
+
+						
+	});
+
+	
+	</script>
+</head>
+<body>
+	<div data-role="page" id="pageone">
+		<div data-role="content" data-position="fixed" data-fullscreen="true" data-theme="a">	
+			<ul data-role="listview" id="po">
+					<li>
+						<a>		
+			<table width=="100%">
+				<tr id="car1">
+					<td>
+						<img id="img1" src="../../img/BorrowCarImage/jeep.jpg">
+					</td>
+					<td>
+						<table width="100%" >
+							<tr>
+								<td>
+									<label id="carnum1"></label>
+								</td>
+								<td>
+									<label id="suspend1"></label>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<label id="carstate1"></label>
+								</td>
+								<td>
+									<label id="carinfo1"></label>
+								</td>
+							</tr>
+						</table>
+						
+					</td>
+				</tr>
+				</table>
+				</a>
+				</li>
+				
+				
+				
+				
+					<li>
+						<a>	
+			<table width=="100%">
+				<tr id="car2">
+					<td>
+						<img id="img1" src="../../img/BorrowCarImage/bieke.jpg">
+					</td>
+					<td>
+						<table width="100%" >
+							<tr>
+								<td>
+									<label id="carnum2"></label>
+								</td>
+								<td>
+									<label id="suspend2"></label>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<label id="carstate2"></label>
+								</td>
+								<td>
+									<label id="carinfo2"></label>
+								</td>
+							</tr>
+						</table>
+						
+					</td>
+				</tr>
+				</table>
+				</a>
+				</li>
+				
+				
+				
+				
+				
+				
+				
+					<li>	
+					<a>
+			<table width=="100%">
+				<tr id="car3">
+					<td>
+						<img id="img1" src="../../img/BorrowCarImage/jieda.jpg">
+					</td>
+					<td>
+						<table width="100%" >
+							<tr>
+								<td>
+									<label id="carnum3"></label>
+								</td>
+								<td>
+									<label id="suspend3"></label>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<label id="carstate3"></label>
+								</td>
+								<td>
+									<label id="carinfo3"></label>
+								</td>
+							</tr>
+						</table>
+						
+					</td>
+				</tr>
+				</table>
+				</a>
+				</li>
+				
+				
+				
+				
+				
+			<li>
+				<a>
+			<table width=="100%">
+				<tr id="car4">
+					<td>
+						<img id="img1" src="../../img/BorrowCarImage/benchi_s.jpg">
+					</td>
+					<td>
+						<table width="100%" >
+							<tr>
+								<td>
+									<label id="carnum4"></label>
+								</td>
+								<td>
+									<label id="suspend4"></label>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<label id="carstate4"></label>
+								</td>
+								<td>
+									<label id="carinfo4"></label>
+								</td>
+							</tr>
+						</table>
+						
+					</td>
+				</tr>
+				</table>
+				</a>	
+				</li>
+				
+				
+				
+			<li>	
+			<a>
+			<table width=="100%">
+				<tr id="car5">
+					<td>
+						<img id="img1" src="../../img/BorrowCarImage/benchi_s.jpg">
+					</td>
+					<td>
+						<table width="100%" >
+							<tr>
+								<td>
+									<label id="carnum5"></label>
+								</td>
+								<td>
+									<label id="suspend5"></label>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<label id="carstate5"></label>
+								</td>
+								<td>
+									<label id="carinfo5"></label>
+								</td>
+							</tr>
+						</table>
+						
+					</td>
+				</tr>
+				</table>
+				</a>
+				</li>
+
+			</ul>
+		</div>
+	</div>
+	
+	<div data-role="page" id="pagetwo" data-dom-cache="true">
+		<div data-role="content" id="detail">
+			<table width="100%" cellpadding="10">
+				<tr>
+					<td>
+						<img id="img">
+					</td>
+					<td>
+						 <h2 id="info"></h2>
+					</td>
+					
+				</tr>
+			</table>
+			
+		<ul data-role="listview" id="list" data-inset="true">
+			
+		</ul>
+		<div align=="center">
+			<h2 align="center" id="result"></h2>
+		</div>
+		<div align="center">
+			<input type="button" id="back" data-inline="true"  value="返  回"/>
+		</div>
+		</div>
+	
+	</div>
+
+
+</body>
+</html>

@@ -1,0 +1,281 @@
+package com.ancc.util;
+
+
+import java.io.File;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.net.ftp.FTPFile;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.itextpdf.text.pdf.codec.Base64.OutputStream;
+
+
+/**
+ * ftp文件上传类
+ * @author xyc
+ *
+ */
+@Component
+public class Uploader 
+{ 
+  
+	
+  @Value("${ftp_user}")
+  private  String userName;
+	
+  @Value("${ftp_pwd}")
+  private  String passWord;
+	
+  @Value("${ftp_url}")
+  private  String ftpAddress;
+  
+
+		
+  public boolean upFile(MultipartFile []files,String jpgname,String sn,String path)throws Exception
+  {
+	  int i =1;
+
+	  DiskFileItemFactory fac = new DiskFileItemFactory();
+
+	    ServletFileUpload upload = new ServletFileUpload(fac);
+
+	    upload.setHeaderEncoding("UTF-8");
+	    
+	    String extName = ".jpg";
+	    int maxnum = i+19;
+	    if(files.length>maxnum){
+	    	throw new Exception("上传数量大于10");
+	    }
+	    
+	    for(int j=0;j<files.length;j++)
+	    { 
+	      MultipartFile item = files[j];
+	      String name = item.getOriginalFilename();
+	     
+          int num  = name.indexOf(".");
+	      String name1 = name.substring(num,name.length());
+	      if(name1.equals(".jpeg"))
+	    	 extName=".jpeg";
+	          
+	        //登陆
+	        cnFTP ftp1 = new cnFTP();
+	        System.out.println("ftpinfo:"+userName+passWord+ftpAddress);
+	        ftp1.setFTP(userName, passWord, ftpAddress, 21);
+	        //ftp
+	        
+	        if(!ftp1.connectServer(path+"/"+sn)){
+	        	throw new Exception("FTP服务连接失败");
+	        }
+	        //验证文件头
+	       byte[] b = new byte[4];  
+	        try {
+	        	item.getInputStream().read(b, 0, b.length);
+	        } catch (IOException e) {
+	        	e.printStackTrace();
+	        }
+	        String type = bytesToHexString(b).toUpperCase();
+	        if(type.contains("FFD8FF")||type.contains("89504E47")||type.contains("47494638")||type.contains("424D")){
+	        	/*if(type.contains("89504E47")){
+	        		extName=".png";
+	        	}else if(type.contains("47494638")){
+	        		extName=".gif";
+	        	}*/
+	       
+	       //if(type.contains("4A5047")||type.contains("89504E47")||type.contains("47494638")||type.contains("424D")){
+	        }else{
+	        	throw new Exception("文件格式不符合要求,请上传jpg,png,gif,bmp格式的扫描文件(非修改后缀)");
+	        }
+	        //上传
+	        if(!ftp1.uploadFileByStream(item.getInputStream(), jpgname+i+extName)){
+	        	throw new Exception("文件写入失败");
+	        }
+	        ftp1.closeConnect();
+	        i++;
+	      }
+	    return true;
+	  }
+  
+  	/**
+	  * byte数组转换成16进制字符串
+	  * @param src
+	  * @return
+	  */
+	 public  String bytesToHexString(byte[] src){     
+	        StringBuilder stringBuilder = new StringBuilder();     
+	        if (src == null || src.length <= 0) {     
+	            return null;     
+	        }     
+	        for (int i = 0; i < src.length; i++) {     
+	            int v = src[i] & 0xFF;     
+	            String hv = Integer.toHexString(v);     
+	            if (hv.length() < 2) {     
+	                stringBuilder.append(0);     
+	            }     
+	            stringBuilder.append(hv);     
+	        }     
+	        return stringBuilder.toString();     
+	    }
+   
+	 public  String duqu() throws ParseException{
+		 cnFTP ftp1 = new cnFTP();
+	        ftp1.setFTP(userName, passWord, ftpAddress, 21);
+	        if(!ftp1.connectServer("")){
+	      	//throw new Exception("FTP服务连接失败");
+	       }
+	       return ftp1.readFile();
+	 }
+	 
+	 //ftp客户端上传
+	 public  boolean upzdFile(MultipartFile []files,String jpgname,String sn)throws Exception
+	 {
+		 	int i =1;
+		    int maxnum = i+19;
+		    String extName = ".jpg";
+		    if(files.length>maxnum){
+		    	throw new Exception("上传数量大于10");
+		    }
+		    for (int j=0;j<files.length;j++){
+		      MultipartFile item = files[j];
+		      String name = item.getOriginalFilename();
+	          int num  = name.indexOf(".");
+		      String name1 = name.substring(num,name.length());
+		      if(name1.equals(".jpeg"))
+		      extName=".jpeg";
+		          
+		        //登陆
+		        cnFTP ftp1 = new cnFTP();
+		        ftp1.setFTP(userName, passWord, ftpAddress, 21);
+		        //ftp
+		        if(!ftp1.connectServer("web/"+sn)){
+		        	throw new Exception("FTP服务连接失败");
+		        }
+		        //验证文件头
+		        byte[] b = new byte[4];  
+		        try {
+		        	item.getInputStream().read(b, 0, b.length);
+		        } catch (IOException e) {
+		        	e.printStackTrace();
+		        }
+		        String type = bytesToHexString(b).toUpperCase();
+		        if(type.contains("FFD8FF")||type.contains("89504E47")||type.contains("47494638")||type.contains("424D")){
+		        }else{
+		        	throw new Exception("文件格式不符合要求,请上传jpg,png,gif,bmp格式的扫描文件(非修改后缀)");
+		        }
+		        //上传
+		        if(!ftp1.uploadFileByStream(item.getInputStream(), jpgname+i+extName)){
+		        	throw new Exception("文件写入失败");
+		        }
+		        ftp1.closeConnect();
+		        i++;
+		      }
+		    return true;
+	 }
+	 
+	 /*
+	  * 删除FTP上的文件
+	  */
+	 public  void deleteFile(String opertype,String sn) throws Exception{
+	 	cnFTP ftp1 = new cnFTP();
+        ftp1.setFTP(userName, passWord, ftpAddress, 21);
+        //ftp
+        if(!ftp1.connectServer(opertype+"/"+sn)){
+        	throw new Exception("FTP服务连接失败");
+        }
+        FTPFile[] files = ftp1.getFtpClient().listFiles();
+        for(int i=0;i<files.length;i++){
+        	ftp1.deleteFile(files[i].getName());
+        }
+        ftp1.closeConnect();
+	 }
+	 
+	 /*
+	  * 读取FTP上的文件
+	  */
+	 public  void getFile(String opertype,String sn) throws Exception{
+	 	cnFTP ftp1 = new cnFTP();
+        ftp1.setFTP(userName, passWord, ftpAddress, 21);
+        //ftp
+        if(!ftp1.connectServer(opertype+"/"+sn)){
+        	throw new Exception("FTP服务连接失败");
+        }
+        FTPFile[] files = ftp1.getFtpClient().listFiles();
+        for(int i=0;i<files.length;i++){  
+        	files[i].getName();
+        } 
+        File localFile=new File("G://");
+        OutputStream out =FileOutputStream(localFile);
+        ftp1.closeConnect();
+	 }
+	 
+	 //单个上传 
+	 public boolean upFileNew(MultipartFile []files,String sn,String path)throws Exception
+	  {
+	  int i =1;
+
+	  DiskFileItemFactory fac = new DiskFileItemFactory();
+
+	    ServletFileUpload upload = new ServletFileUpload(fac);
+
+	    upload.setHeaderEncoding("UTF-8");
+	    
+	    int maxnum = i+19;
+	    if(files.length>maxnum){
+	    	throw new Exception("上传数量大于10");
+	    }
+	    
+	    for(int j=0;j<files.length;j++)
+	    { 
+	      MultipartFile item = files[j];
+	      String name = item.getOriginalFilename();
+	    
+	        //登陆
+	        cnFTP ftp1 = new cnFTP();
+	        System.out.println("ftpinfo:"+userName+passWord+ftpAddress);
+	        ftp1.setFTP(userName, passWord, ftpAddress, 21);
+	        //ftp
+	        
+	        if(!ftp1.connectServer(path+"/"+sn)){
+	        	throw new Exception("FTP服务连接失败");
+	        }
+	        //验证文件头
+	       byte[] b = new byte[4];  
+	        try {
+	        	item.getInputStream().read(b, 0, b.length);
+	        } catch (IOException e) {
+	        	e.printStackTrace();
+	        }
+	        String type = bytesToHexString(b).toUpperCase();
+	        if(type.contains("FFD8FF")||type.contains("89504E47")||type.contains("47494638")||type.contains("424D")){
+	        	/*if(type.contains("89504E47")){
+	        		extName=".png";
+	        	}else if(type.contains("47494638")){
+	        		extName=".gif";
+	        	}*/
+	       
+	       //if(type.contains("4A5047")||type.contains("89504E47")||type.contains("47494638")||type.contains("424D")){
+	        }else{
+	        	throw new Exception("文件格式不符合要求,请上传jpg,png,gif,bmp格式的扫描文件(非修改后缀)");
+	        }
+	        //上传
+	        if(!ftp1.uploadFileByStream(item.getInputStream(), name)){
+	        	throw new Exception("文件写入失败");
+	        }
+	        ftp1.closeConnect();
+	        i++;
+	      }
+	    return true;
+	  }
+
+}

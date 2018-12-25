@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hfoa.dao.user.UserMapper">
+  
+  <select id="selectDays" parameterType="string" resultType="com.hfoa.entity.user.UserEntity">
+  	select * from u_user where Id = #{id,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="loginUser" resultType="com.hfoa.entity.user.UserEntity">
+  	select * from u_user where UserName = #{0} and UserPassword = #{1}
+  
+  </select>
+  
+  <update id="updateUserDays" parameterType="com.hfoa.entity.user.UserEntity">
+  	update u_user set CreateBy = #{createBy,jdbcType=VARCHAR}
+    where ModifyUserId = #{id,jdbcType=VARCHAR}
+  </update>
+  
+  
+  
+  <select id="findUserByNameAndDept" parameterType="com.hfoa.entity.user.UserEntity" resultType="com.hfoa.entity.user.UserEntity">
+  	select * from u_user 
+  	where 1=1
+  	<if test='departmentName!=null and departmentName!=""'>
+  		AND DepartmentName = #{departmentName,jdbcType=VARCHAR}
+  	</if>
+  	<if test='userName!=null and userName!=""'>
+  		AND UserName = #{userName,jdbcType = VARCHAR}
+  	</if>
+  </select>
+  
+  <select id="findLeader1"  resultType="com.hfoa.entity.user.UserEntity">
+  	select * from u_user where DepartmentName = #{0} 
+  	and RoleId = {1} and UserName = {2}
+  </select>
+  
+  <select id="findLeader"  resultType="com.hfoa.entity.user.UserEntity">
+  	select * from u_user where DepartmentName = #{0} and RoleId = #{1}
+  </select>
+  
+  <select id="findleader2" parameterType="java.lang.String" resultType="com.hfoa.entity.user.UserEntity">
+  	select * from u_user where Id = #{workgroupid,jdbcType = VARCHAR}
+  </select>
+  
+  <select id="findUserByNameAndId" resultType="com.hfoa.entity.user.UserEntity">
+  	select * from u_user where Id = #{0} and UserName = #{1}
+  </select> 
+	
+
+  <select id="getopenId" parameterType="java.lang.String" resultType="com.hfoa.entity.user.UserEntity">
+  	select * from u_user where ModifyUserId = #{modifyUserId,jdbcType = VARCHAR}
+  
+  </select>
+	
+
+
+</mapper>

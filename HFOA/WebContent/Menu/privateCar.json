@@ -1,0 +1,14 @@
+[
+{ 
+"id":2,
+"text":"待审核明细",
+"url":"unprivateCarInvoice.jsp"},
+{ 
+"id":3,
+"text":"待登记明细",
+"url":"privateCarInvoice.jsp"},
+{ 
+"id":1,
+"text":"已登记明细",
+"url":"privateCar.jsp"}
+]
